@@ -1,11 +1,8 @@
-# frozen_string_literal: true
+require 'rspec'
+require 'cyclonedx/cocoapods'
 
-RSpec.describe Cyclonedx::Cocoapods do
+RSpec.describe CycloneDX::CocoaPods do
   it "has a version number" do
-    expect(Cyclonedx::Cocoapods::VERSION).not_to be nil
-  end
-
-  it "does something useful" do
-    expect(false).to eq(true)
+    expect(CycloneDX::CocoaPods::VERSION).not_to be nil
   end
 end
