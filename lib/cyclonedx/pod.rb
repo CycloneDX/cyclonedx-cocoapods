@@ -14,6 +14,10 @@ module CycloneDX
       def purl
         "pkg:pod/#{name}@#{version}"
       end
+
+      def to_s
+        "Pod<#{name}, #{version.to_s}>"
+      end
     end
   end
 end
