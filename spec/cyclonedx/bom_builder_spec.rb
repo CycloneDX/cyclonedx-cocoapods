@@ -58,6 +58,14 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
         expect(Nokogiri::XML(@bom_builder.bom).root['version']).to eq('1')
       end
+
+      context 'twice' do
+        it 'should generate different serial numbers' do
+          @pods.each { |pod| expect(pod).to receive(:add_component_to_bom).twice }
+          original_serial_number = Nokogiri::XML(@bom_builder.bom).root['serialNumber']
+          expect(Nokogiri::XML(@bom_builder.bom).root['serialNumber']).not_to eq(original_serial_number)
+        end
+      end
     end
 
     context 'with a valid version' do
@@ -95,6 +103,14 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       it 'should generate a component for each pod' do
         @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
         Nokogiri::XML(@bom_builder.bom)
+      end
+
+      context 'twice' do
+        it 'should generate different serial numbers' do
+          @pods.each { |pod| expect(pod).to receive(:add_component_to_bom).twice }
+          original_serial_number = Nokogiri::XML(@bom_builder.bom(version: 53)).root['serialNumber']
+          expect(Nokogiri::XML(@bom_builder.bom(version: 53)).root['serialNumber']).not_to eq(original_serial_number)
+        end
       end
     end
   end
