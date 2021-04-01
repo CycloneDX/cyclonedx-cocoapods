@@ -2,15 +2,6 @@ require 'rspec'
 require 'cyclonedx/pod'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
-
-  before do
-    # Do nothing
-  end
-
-  after do
-    # Do nothing
-  end
-
   context 'when creating new pods' do
     context 'with a nil name' do
       it 'should raise an error' do
