@@ -14,7 +14,7 @@ module CycloneDX
     end
 
     class BOMBuilder
-      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.1'.freeze
+      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.2'.freeze
       VERSION   = '1'.freeze
 
       attr_reader :pods, :uuid
