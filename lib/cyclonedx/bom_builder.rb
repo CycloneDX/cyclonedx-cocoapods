@@ -8,6 +8,7 @@ module CycloneDX
         xml.component(type: 'library') do
           xml.name name
           xml.version version.to_s
+          xml.purl purl
         end
       end
     end

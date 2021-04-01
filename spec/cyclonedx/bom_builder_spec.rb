@@ -19,11 +19,18 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     it 'should generate a correct component name' do
+      expect(@xml.at('/component/name')).not_to be_nil
       expect(@xml.at('/component/name').text).to eql(@pod.name)
     end
 
     it 'should generate a correct component version' do
+      expect(@xml.at('/component/version')).not_to be_nil
       expect(@xml.at('/component/version').text).to eql(@pod.version.to_s)
+    end
+
+    it 'should generate a correct component purl' do
+      expect(@xml.at('/component/purl')).not_to be_nil
+      expect(@xml.at('/component/purl').text).to eql(@pod.purl)
     end
   end
 end
