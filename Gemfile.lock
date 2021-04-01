@@ -3,6 +3,7 @@ PATH
   specs:
     cyclonedx-cocoapods (0.1.0)
       cocoapods-core (~> 1.10.1)
+      nokogiri (~> 1.11.2)
 
 GEM
   remote: https://rubygems.org/
@@ -40,7 +41,10 @@ GEM
     minitest (5.14.4)
     nap (1.1.0)
     netrc (0.11.0)
+    nokogiri (1.11.2-x86_64-darwin)
+      racc (~> 1.4)
     public_suffix (4.0.6)
+    racc (1.5.2)
     rake (13.0.3)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
