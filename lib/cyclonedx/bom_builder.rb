@@ -23,7 +23,7 @@ module CycloneDX
       end
 
       def bom(version: 1)
-        raise ArgumentError, "#{version} should be an integer greater than 0" unless version.to_i > 0
+        raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0" unless version.to_i > 0
 
         Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
