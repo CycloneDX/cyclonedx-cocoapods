@@ -16,8 +16,9 @@ module CycloneDX
     class CLIRunner
       def run
         begin
+          setup_logger # Needed in case we have errors while processing CLI parameters
           options = parseOptions
-          setup_logger(options)
+          setup_logger(verbose: options[:verbose])
           @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
           # We get pods categorized by spec repo because we'll need this information when we search for the pod
@@ -25,7 +26,7 @@ module CycloneDX
 
           pods = pods_by_spec_repo.values.flatten    # We just flatten now, we will have to complete pod information later
 
-          bom = BOMBuilder.new(pods: pods).bom(version: 1) # TODO: Add version as an option of the script
+          bom = BOMBuilder.new(pods: pods).bom(version: options[:version] || 1)
           write_bom_to_file(bom: bom, options: options)
         rescue StandardError => e
           @logger.error e.message
@@ -41,7 +42,7 @@ module CycloneDX
         OptionParser.new do |options|
           options.banner = 'Usage: cyclonedx-cocoapods [options]'
 
-          options.on('-v', '--[no-]verbose', 'Run verbosely') do |v|
+          options.on('--[no-]verbose', 'Run verbosely') do |v|
             parsedOptions[:verbose] = v
           end
           options.on('-p', '--path path', '(Optional) Path to CocoaPods project directory, current directory if missing') do |path|
@@ -49,6 +50,9 @@ module CycloneDX
           end
           options.on('-o', '--output bom_file_path', '(Optional) Path to output the bom.xml file to') do |bom_file_path|
             parsedOptions[:bom_file_path] = bom_file_path
+          end
+          options.on('-vversion', '--version version', Integer, '(Optional) Version of the generated BOM, 1 if not provided') do |version|
+            parsedOptions[:version] = version
           end
           options.on_tail('-h', '--help', 'Show help message') do
             puts options
@@ -59,9 +63,9 @@ module CycloneDX
       end
 
 
-      def setup_logger(options)
-        @logger = Logger.new($stdout)
-        @logger.level = options[:verbose] ? Logger::DEBUG : Logger::INFO
+      def setup_logger(verbose: true)
+        @logger ||= Logger.new($stdout)
+        @logger.level = verbose ? Logger::DEBUG : Logger::INFO
       end
 
 
