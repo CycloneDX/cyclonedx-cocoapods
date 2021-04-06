@@ -30,7 +30,7 @@ module CycloneDX
           write_bom_to_file(bom: bom, options: options)
         rescue StandardError => e
           @logger.error e.message
-          abort
+          exit 1
         end
       end
 
