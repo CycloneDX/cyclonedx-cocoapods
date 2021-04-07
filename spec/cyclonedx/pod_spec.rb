@@ -53,4 +53,99 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
     end
   end
+
+  context 'when populating a pod with attributes' do
+    AUTHOR = 'Darth Vader'
+    AUTHOR_LIST = ['Darth Vader', 'Wookiee']
+    AUTHOR_HASH = {
+      'Darth Vader' => 'darthvader@darkside.com',
+      'Wookiee'     => 'wookiee@aggrrttaaggrrt.com'
+    }
+
+    SUMMARY = 'Elegant HTTP Networking in Swift'
+    DESCRIPTION = 'Alamofire provides an elegant and composable interface to HTTP network requests.'
+
+    before(:each) do
+      @pod = described_class.new(name: 'Alamofire', version: '5.4.2')
+    end
+
+    it 'should leave pod name and version untouched' do
+      original_name = @pod.name
+      original_version = @pod.version
+
+      @pod.populate(author: AUTHOR, summary: SUMMARY)
+
+      expect(@pod.name).to eq(original_name)
+      expect(@pod.version).to eq(original_version)
+    end
+
+    it 'should modify previous values of attributes' do
+      @pod.populate(author: AUTHOR, summary: SUMMARY)
+      expect(@pod.author).to eq(AUTHOR)
+      expect(@pod.description).to eq(SUMMARY)
+
+      @pod.populate(description: DESCRIPTION)
+      expect(@pod.author).to be_nil
+      expect(@pod.description).to eq(DESCRIPTION)
+    end
+
+    it 'should accept both symbols and strings as attribute names' do
+      @pod.populate(author: 'Author as named parameter')
+      expect(@pod.author).to eq('Author as named parameter')
+
+      @pod.populate({ 'author' => 'Author as hash value with String key' })
+      expect(@pod.author).to eq('Author as hash value with String key')
+
+      @pod.populate({ author: 'Author as hash value with Symbol key' })
+      expect(@pod.author).to eq('Author as hash value with Symbol key')
+    end
+
+    context 'when the attributes hash contains an author' do
+      context 'and a list of authors' do
+        it 'should populate the pod''s author with the author from the attributes' do
+          @pod.populate(author: AUTHOR, authors: AUTHOR_LIST)
+          expect(@pod.author).to eq(AUTHOR)
+        end
+      end
+
+      context 'and a hash of authors' do
+        it 'should populate the pod''s author with the author from the attributes' do
+          @pod.populate(author: AUTHOR, authors: AUTHOR_HASH)
+          expect(@pod.author).to eq(AUTHOR)
+        end
+      end
+    end
+
+    context 'when the attributes hash doesn''t contain an author' do
+      context 'and contains a list of authors' do
+        it 'should populate the pod''s author with the author list from the attributes' do
+          @pod.populate(authors: AUTHOR_LIST)
+          expect(@pod.author).to eq(AUTHOR_LIST.join(', '))
+        end
+      end
+
+      context 'and a hash of authors' do
+        it 'should populate the pod''s author with the author from the attributes' do
+          @pod.populate(authors: AUTHOR_HASH)
+          expect(@pod.author).to eq(AUTHOR_HASH.map { |name, email| "#{name} <#{email}>"}.join(', '))
+        end
+      end
+    end
+
+    context 'when the attributes hash contains a summary' do
+      context 'and a description' do
+        it 'should populate the pod''s description with the description from the attributes' do
+          @pod.populate(summary: SUMMARY, description: DESCRIPTION)
+          expect(@pod.description).to eq(DESCRIPTION)
+        end
+      end
+
+      context 'and no description' do
+        it 'should populate the pod''s description with the summary from the attributes' do
+          @pod.populate(summary: SUMMARY)
+          expect(@pod.description).to eq(SUMMARY)
+        end
+      end
+    end
+  end
 end
