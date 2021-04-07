@@ -2,17 +2,22 @@ require 'rspec'
 require 'cyclonedx/bom_builder'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
-  before(:all) do
-    @pod = described_class.new(name: 'Sentry', version: '2.5.7')
-  end
+  let(:pod_name) { 'Alamofire' }
+  let(:pod_version) { '5.4.2' }
+  let(:author) { 'Darth Vader' }
+  let(:summary) { 'Elegant HTTP Networking in Swift' }
 
   before(:each) do
-    @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-      @pod.add_component_to_bom(xml)
-    end.to_xml)
+    @pod = described_class.new(name: pod_name, version: pod_version)
   end
 
   context 'when generating a pod component in a BOM' do
+    before(:each) do
+      @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+        @pod.add_component_to_bom(xml)
+      end.to_xml)
+    end
+
     it 'should generate a root component of type library' do
       expect(@xml.at('/component')).not_to be_nil
       expect(@xml.at('/component')['type']).to eql('library')
