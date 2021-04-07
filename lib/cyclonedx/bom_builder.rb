@@ -6,8 +6,10 @@ module CycloneDX
     class Pod
       def add_component_to_bom(xml)
         xml.component(type: 'library') do
+          xml.author author unless author.nil?
           xml.name name
           xml.version version.to_s
+          xml.description description unless description.nil?
           xml.purl purl
         end
       end

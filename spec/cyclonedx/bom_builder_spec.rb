@@ -37,6 +37,46 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       expect(@xml.at('/component/purl')).not_to be_nil
       expect(@xml.at('/component/purl').text).to eql(@pod.purl)
     end
+
+    context 'when not having an author' do
+      it 'shouldn''t generate a component author' do
+        expect(@xml.at('/component/author')).to be_nil
+      end
+    end
+
+    context 'when having an author' do
+      before(:each) do
+        @pod.populate(author: author)
+        @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_component_to_bom(xml)
+        end.to_xml)
+      end
+
+      it 'should generate a correct component author' do
+        expect(@xml.at('/component/author')).not_to be_nil
+        expect(@xml.at('/component/author').text).to eql(@pod.author)
+      end
+    end
+
+    context 'when not having a description' do
+      it 'shouldn''t generate a component description' do
+        expect(@xml.at('/component/description')).to be_nil
+      end
+    end
+
+    context 'when having a description' do
+      before(:each) do
+        @pod.populate(summary: summary)
+        @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_component_to_bom(xml)
+        end.to_xml)
+      end
+
+      it 'should generate a correct component description' do
+        expect(@xml.at('/component/description')).not_to be_nil
+        expect(@xml.at('/component/description').text).to eql(@pod.description)
+      end
+    end
   end
 end
 
