@@ -3,11 +3,12 @@ require 'rubygems/version'
 module CycloneDX
   module CocoaPods
     class Pod
-
       attr_reader :name        # xs:normalizedString
       attr_reader :version     # xs:normalizedString
       attr_reader :author      # xs:normalizedString
       attr_reader :description # xs:normalizedString
+      attr_reader :license     # https://cyclonedx.org/docs/1.2/#type_licenseType
+                               # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
       def initialize(name:, version:)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.strip.empty?
         @name, @version = name.to_s.strip, Gem::Version.new(version)
@@ -17,6 +18,7 @@ module CycloneDX
         attributes.transform_keys!(&:to_sym)
         populate_author(attributes)
         populate_description(attributes)
+        populate_license(attributes)
       end
 
       def purl
@@ -45,6 +47,23 @@ module CycloneDX
 
       def populate_description(attributes)
         @description = attributes[:description] || attributes[:summary]
+      end
+
+      def populate_license(attributes)
+        case attributes[:license]
+        when String
+          @license = License.new(identifier: attributes[:license])
+        when Hash
+          identifier = attributes[:license][:type]
+          unless identifier.nil? || identifier.to_s.strip.empty?
+            @license = License.new(identifier: identifier)
+            @license.text = attributes[:license][:text]
+          else
+            @license = nil
+          end
+        else
+          @license = nil
+        end
       end
     end
   end
