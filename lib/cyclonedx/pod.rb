@@ -3,11 +3,11 @@ require 'rubygems/version'
 module CycloneDX
   module CocoaPods
     class Pod
-      attr_accessor :name        # xs:normalizedString
-      attr_accessor :version     # xs:normalizedString
-      attr_accessor :author      # xs:normalizedString
-      attr_accessor :description # xs:normalizedString
 
+      attr_reader :name        # xs:normalizedString
+      attr_reader :version     # xs:normalizedString
+      attr_reader :author      # xs:normalizedString
+      attr_reader :description # xs:normalizedString
       def initialize(name:, version:)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.strip.empty?
         @name, @version = name.to_s.strip, Gem::Version.new(version)
