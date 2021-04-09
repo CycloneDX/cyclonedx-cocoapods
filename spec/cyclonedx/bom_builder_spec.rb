@@ -14,7 +14,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
   context 'when generating a pod component in a BOM' do
     before(:each) do
       @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-        @pod.add_component_to_bom(xml)
+        @pod.add_to_bom(xml)
       end.to_xml)
     end
 
@@ -48,7 +48,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       before(:each) do
         @pod.populate(author: author)
         @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @pod.add_component_to_bom(xml)
+          @pod.add_to_bom(xml)
         end.to_xml)
       end
 
@@ -68,7 +68,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       before(:each) do
         @pod.populate(summary: summary)
         @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @pod.add_component_to_bom(xml)
+          @pod.add_to_bom(xml)
         end.to_xml)
       end
 
@@ -90,19 +90,19 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
 
       it 'should generate a child licenses node' do
-        expect(@pod.license).to receive(:add_component_to_bom)
+        expect(@pod.license).to receive(:add_to_bom)
 
         xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @pod.add_component_to_bom(xml)
+          @pod.add_to_bom(xml)
         end.to_xml)
 
         expect(xml.at('/component/licenses')).not_to be_nil
       end
 
       it 'should generate a license node' do
-        expect(@pod.license).to receive(:add_component_to_bom)
+        expect(@pod.license).to receive(:add_to_bom)
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @pod.add_component_to_bom(xml)
+          @pod.add_to_bom(xml)
         end.to_xml)
       end
 
@@ -117,7 +117,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
       before(:each) do
         @license = described_class.new(identifier: described_class::SPDX_LICENSES.keys.sample)
         @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @license.add_component_to_bom(xml)
+          @license.add_to_bom(xml)
         end.to_xml)
       end
 
@@ -140,7 +140,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
         before(:each) do
           @license.text = "Copyright 2012\nPermission is granted to..."
           @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-            @license.add_component_to_bom(xml)
+            @license.add_to_bom(xml)
           end.to_xml)
         end
 
@@ -154,7 +154,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
         before(:each) do
           @license.url = "https://opensource.org/licenses/MIT"
           @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-            @license.add_component_to_bom(xml)
+            @license.add_to_bom(xml)
           end.to_xml)
         end
 
@@ -187,13 +187,13 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
 
     context 'with a missing version' do
       it 'should use 1 as default version value' do
-        @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
+        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
         expect(Nokogiri::XML(@bom_builder.bom).root['version']).to eq('1')
       end
 
       context 'twice' do
         it 'should generate different serial numbers' do
-          @pods.each { |pod| expect(pod).to receive(:add_component_to_bom).twice }
+          @pods.each { |pod| expect(pod).to receive(:add_to_bom).twice }
           original_serial_number = Nokogiri::XML(@bom_builder.bom).root['serialNumber']
           expect(Nokogiri::XML(@bom_builder.bom).root['serialNumber']).not_to eq(original_serial_number)
         end
@@ -202,19 +202,19 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
 
     context 'with a valid version' do
       it 'should use the provided version' do
-        @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
+        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
         version = 53
         expect(Nokogiri::XML(@bom_builder.bom(version: version)).root['version']).to eq(version.to_s)
       end
 
       it 'should be able to use integer-ish versions' do
-        @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
+        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
         version = '53'
         expect(Nokogiri::XML(@bom_builder.bom(version: version)).root['version']).to eq(version)
       end
 
       it 'should generate a proper root node' do
-        @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
+        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
 
         root = Nokogiri::XML(@bom_builder.bom).root
 
@@ -225,7 +225,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       end
 
       it 'should generate a child components node' do
-        @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
+        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
 
         xml = Nokogiri::XML(@bom_builder.bom)
 
@@ -233,13 +233,13 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       end
 
       it 'should generate a component for each pod' do
-        @pods.each { |pod| expect(pod).to receive(:add_component_to_bom) }
+        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
         Nokogiri::XML(@bom_builder.bom)
       end
 
       context 'twice' do
         it 'should generate different serial numbers' do
-          @pods.each { |pod| expect(pod).to receive(:add_component_to_bom).twice }
+          @pods.each { |pod| expect(pod).to receive(:add_to_bom).twice }
           original_serial_number = Nokogiri::XML(@bom_builder.bom(version: 53)).root['serialNumber']
           expect(Nokogiri::XML(@bom_builder.bom(version: 53)).root['serialNumber']).not_to eq(original_serial_number)
         end

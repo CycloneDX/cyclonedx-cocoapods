@@ -4,7 +4,7 @@ require 'securerandom'
 module CycloneDX
   module CocoaPods
     class Pod
-      def add_component_to_bom(xml)
+      def add_to_bom(xml)
         xml.component(type: 'library') do
           xml.author author unless author.nil?
           xml.name name
@@ -12,7 +12,7 @@ module CycloneDX
           xml.description description unless description.nil?
           unless license.nil?
             xml.licenses do
-              license.add_component_to_bom(xml)
+              license.add_to_bom(xml)
             end
           end
           xml.purl purl
@@ -20,7 +20,7 @@ module CycloneDX
       end
 
       class License
-        def add_component_to_bom(xml)
+        def add_to_bom(xml)
           xml.license do
             xml.id identifier if identifier_type == :id
             xml.name identifier if identifier_type == :name
@@ -47,7 +47,7 @@ module CycloneDX
           xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
             xml.components do
               pods.each do |pod|
-                pod.add_component_to_bom(xml)
+                pod.add_to_bom(xml)
               end
             end
           end
