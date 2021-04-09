@@ -1,5 +1,5 @@
 [![Build Status](https://github.com/CycloneDX/cyclonedx-cocoapods/workflows/Xcode%20CI/badge.svg)](https://github.com/CycloneDX/cyclonedx-cocoapods/actions?workflow=Xcode+CI)
-[![CocoaPods](https://img.shields.io/cocoapods/v/CycloneDX)](https://cocoapods.org/pods/CycloneDX)
+[![Gem Version](https://badge.fury.io/rb/cyclonedx-cocoapods.svg)](https://badge.fury.io/rb/cyclonedx-cocoapods)
 [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg)][License]
 [![Website](https://img.shields.io/badge/https://-cyclonedx.org-blue.svg)](https://cyclonedx.org/)
 [![Slack Invite](https://img.shields.io/badge/Slack-Join-blue?logo=slack&labelColor=393939)](https://cyclonedx.org/slack/invite)
