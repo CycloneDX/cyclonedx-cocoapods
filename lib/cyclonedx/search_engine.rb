@@ -10,13 +10,13 @@ module CycloneDX
         @source_manager = source_manager
       end
 
-      def attributes_for_pod_with(name:, version:)
-        specification_sets = @source_manager.search_by_name("^#{name}$")
-        raise SearchError, "No pod found named #{name}" if specification_sets.length == 0
-        raise SearchError, "More than one pod found named #{name}" if specification_sets.length > 1
+      def attributes_for(pod:)
+        specification_sets = @source_manager.search_by_name("^#{pod.name}$")
+        raise SearchError, "No pod found named #{pod.name}" if specification_sets.length == 0
+        raise SearchError, "More than one pod found named #{pod.name}" if specification_sets.length > 1
 
-        paths = specification_sets[0].specification_paths_for_version(::Pod::Version.new(version))
-        raise SearchError, "Version #{version} not found for pod #{name}" if paths.length == 0
+        paths = specification_sets[0].specification_paths_for_version(pod.version)
+        raise SearchError, "Version #{pod.version} not found for pod #{pod.name}" if paths.length == 0
 
         ::Pod::Specification.from_file(paths[0]).attributes_hash
       end

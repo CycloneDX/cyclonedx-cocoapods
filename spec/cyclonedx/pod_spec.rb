@@ -43,11 +43,11 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
         it 'should properly build the pod' do
           expect(@valid_pods.map(&:name)).to eq(@valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
-          expect(@valid_pods.map(&:version)).to eq(@valid_pod_names_and_versions.map { |pair| pair[1] }.map { |version| Gem::Version.new(version) })
+          expect(@valid_pods.map(&:version)).to eq(@valid_pod_names_and_versions.map { |pair| pair[1] })
         end
 
         it 'should return a proper purl' do
-          expected_purls = @valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{name.strip}@#{Gem::Version.new(version).to_s}" }
+          expected_purls = @valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{name.strip}@#{version}" }
           expect(@valid_pods.map(&:purl)).to eq(expected_purls)
         end
       end

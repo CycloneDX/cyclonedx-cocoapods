@@ -1,4 +1,5 @@
 require 'rubygems/version'
+require_relative 'license'
 
 module CycloneDX
   module CocoaPods
@@ -11,7 +12,8 @@ module CycloneDX
                                # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
       def initialize(name:, version:)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.strip.empty?
-        @name, @version = name.to_s.strip, Gem::Version.new(version)
+        Gem::Version.new(version) # To check that the version string is well formed
+        @name, @version = name.to_s.strip, version
       end
 
       def populate(attributes)
