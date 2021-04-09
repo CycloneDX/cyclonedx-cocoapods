@@ -1,4 +1,6 @@
 require 'rspec'
+require 'rspec/matchers'
+require 'equivalent-xml'
 require 'cyclonedx/bom_builder'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
@@ -87,23 +89,23 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'when having a license' do
       before(:each) do
         @pod.populate(license: 'MIT')
+        @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_to_bom(xml)
+        end.to_xml)
       end
 
       it 'should generate a child licenses node' do
-        expect(@pod.license).to receive(:add_to_bom)
-
-        xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @pod.add_to_bom(xml)
-        end.to_xml)
-
-        expect(xml.at('/component/licenses')).not_to be_nil
+        expect(@xml.at('/component/licenses')).not_to be_nil
       end
 
-      it 'should generate a license node' do
-        expect(@pod.license).to receive(:add_to_bom)
-        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          @pod.add_to_bom(xml)
-        end.to_xml)
+      it 'should properly delegate license node generation' do
+        license_generated_from_pod = @xml.xpath('/component/licenses/license')[0]
+
+        license = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.license.add_to_bom(xml)
+        end.to_xml).at('/license')
+
+        expect(license_generated_from_pod).to be_equivalent_to(license)
       end
 
     end
