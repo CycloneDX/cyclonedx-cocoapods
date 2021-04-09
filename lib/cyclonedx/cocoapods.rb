@@ -2,11 +2,12 @@
 
 require 'optparse'
 require 'logger'
-require 'cocoapods-core'
+require 'cocoapods'
 
 require_relative 'cocoapods/version'
 require_relative 'pod'
 require_relative 'bom_builder'
+require_relative 'search_engine'
 
 module CycloneDX
   module CocoaPods
@@ -21,10 +22,11 @@ module CycloneDX
           setup_logger(verbose: options[:verbose])
           @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-          # We get pods categorized by spec repo because we'll need this information when we search for the pod
-          pods_by_spec_repo = parse_pod_file(options)
+          ensure_podfile_and_lock_are_present(options)
+          pods = parse_pod_file(options)
+          search_engine = SearchEngine.new(source_manager: create_source_manager(options))
 
-          pods = pods_by_spec_repo.values.flatten    # We just flatten now, we will have to complete pod information later
+          populate_pods_with_additional_info(pods, search_engine)
 
           bom = BOMBuilder.new(pods: pods).bom(version: options[:version] || 1)
           write_bom_to_file(bom: bom, options: options)
@@ -69,18 +71,43 @@ module CycloneDX
       end
 
 
-      def parse_pod_file(options)
+      def ensure_podfile_and_lock_are_present(options)
         project_dir = Pathname.new(options[:path] || Dir.pwd)
         raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
-        podfile_path = project_dir + 'Podfile'
-        raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(podfile_path)
-        podfile_lock_path = project_dir + 'Podfile.lock'
-        raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(podfile_lock_path)
+        options[:podfile_path] = project_dir + 'Podfile'
+        raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(options[:podfile_path])
+        options[:podfile_lock_path] = project_dir + 'Podfile.lock'
+        raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(options[:podfile_lock_path])
+      end
 
-        @logger.debug "Parsing pods from #{podfile_lock_path}"
-        lockfile = ::Pod::Lockfile.from_file(podfile_lock_path)
-        @logger.debug "Pods successfully parsed."
-        return lockfile.pods_by_spec_repo.transform_values { |pod_names| pod_names.map { |name| Pod.new(name: name, version: lockfile.version(name)) } }
+
+      def parse_pod_file(options)
+        @logger.debug "Parsing pods from #{options[:podfile_lock_path]}"
+        lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
+        @logger.debug "Pods successfully parsed"
+        return lockfile.pods_by_spec_repo.values.flatten.map { |name| Pod.new(name: name, version: lockfile.version(name)) }
+      end
+
+
+      def create_source_manager(options)
+        sourceManager = ::Pod::Source::Manager.new('~/.cocoapods/repos') # TODO: Can we use CocoaPods configuration somehow?
+        @logger.debug "Parsing sources from #{options[:podfile_path]}"
+        podfile = ::Pod::Podfile.from_file(options[:podfile_path])
+        podfile.sources.each do |source|
+          @logger.debug "Ensuring #{source} is available for searches"
+          sourceManager.find_or_create_source_with_url(source)
+        end
+        @logger.debug "Source manager successfully created with all needed sources"
+        return sourceManager
+      end
+
+
+      def populate_pods_with_additional_info(pods, search_engine)
+        pods.each do |pod|
+          @logger.debug "Completing information for #{pod.name}"
+          pod.populate(search_engine.attributes_for(pod: pod))
+        end
+        return pods
       end
 
 
