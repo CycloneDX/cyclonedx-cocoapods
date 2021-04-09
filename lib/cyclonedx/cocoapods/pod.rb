@@ -6,14 +6,16 @@ module CycloneDX
     class Pod
       attr_reader :name        # xs:normalizedString
       attr_reader :version     # xs:normalizedString
+      attr_reader :checksum    # https://cyclonedx.org/docs/1.2/#type_hashValue (We only use SHA-1 hashes - length == 40)
       attr_reader :author      # xs:normalizedString
       attr_reader :description # xs:normalizedString
       attr_reader :license     # https://cyclonedx.org/docs/1.2/#type_licenseType
                                # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
-      def initialize(name:, version:)
+      def initialize(name:, version:, checksum: nil)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.strip.empty?
         Gem::Version.new(version) # To check that the version string is well formed
-        @name, @version = name.to_s.strip, version
+        raise ArgumentError, "#{checksum} is not valid SHA-1 hash" unless checksum.nil? || checksum =~ /[a-fA-F0-9]{40}/
+        @name, @version, @checksum = name.to_s.strip, version, checksum
       end
 
       def populate(attributes)

@@ -37,18 +37,48 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           @valid_pod_names_and_versions = @valid_pod_names.product(@valid_versions)
         end
 
-        before(:each) do
-          @valid_pods = @valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) }
+        context 'without checksum' do
+          before(:each) do
+            @valid_pods = @valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) }
+          end
+
+          it 'should properly build the pod' do
+            expect(@valid_pods.map(&:name)).to eq(@valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
+            expect(@valid_pods.map(&:version)).to eq(@valid_pod_names_and_versions.map { |pair| pair[1] })
+            expect(@valid_pods.map(&:checksum)).to eq(@valid_pod_names_and_versions.map { nil })
+          end
+
+          it 'should return a proper purl' do
+            expected_purls = @valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{name.strip}@#{version}" }
+            expect(@valid_pods.map(&:purl)).to eq(expected_purls)
+          end
         end
 
-        it 'should properly build the pod' do
-          expect(@valid_pods.map(&:name)).to eq(@valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
-          expect(@valid_pods.map(&:version)).to eq(@valid_pod_names_and_versions.map { |pair| pair[1] })
+        context 'with a valid checksum' do
+          let(:valid_checksum) { '9a8ccc3a24b87624f4b40883adab3d98a9fdc00d' }
+
+          before(:each) do
+            @valid_pods = @valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, checksum: valid_checksum) }
+          end
+
+          it 'should properly build the pod' do
+            expect(@valid_pods.map(&:name)).to eq(@valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
+            expect(@valid_pods.map(&:version)).to eq(@valid_pod_names_and_versions.map { |pair| pair[1] })
+            expect(@valid_pods.map(&:checksum)).to eq(@valid_pod_names_and_versions.map { valid_checksum })
+          end
+
+          it 'should return a proper purl' do
+            expected_purls = @valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{name.strip}@#{version}" }
+            expect(@valid_pods.map(&:purl)).to eq(expected_purls)
+          end
         end
 
-        it 'should return a proper purl' do
-          expected_purls = @valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{name.strip}@#{version}" }
-          expect(@valid_pods.map(&:purl)).to eq(expected_purls)
+        context 'with an invalid checksum' do
+          it 'should raise an error' do
+            expect {
+              described_class.new(name: @valid_pod_names.sample, version: @valid_versions.sample, checksum: 'not-a-valid-checksum')
+            }.to raise_error(ArgumentError)
+          end
         end
       end
     end
