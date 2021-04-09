@@ -84,7 +84,7 @@ module CycloneDX
         @logger.debug "Parsing pods from #{options[:podfile_lock_path]}"
         lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
         @logger.debug "Pods successfully parsed"
-        return lockfile.pods_by_spec_repo.values.flatten.map { |name| Pod.new(name: name, version: lockfile.version(name)) }
+        return lockfile.pods_by_spec_repo.values.flatten.map { |name| Pod.new(name: name, version: lockfile.version(name), checksum: lockfile.checksum(name)) }
       end
 
 
