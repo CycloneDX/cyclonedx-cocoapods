@@ -1,6 +1,6 @@
 require 'rspec'
-require 'cyclonedx/search_engine'
-require 'cyclonedx/pod'
+require 'cyclonedx/cocoapods/search_engine'
+require 'cyclonedx/cocoapods/pod'
 
 # This is far from a black box type of unit testing, but it serves the purpose of documenting
 # our use of the CocoaPods classes and the expected return values, which may change between versions

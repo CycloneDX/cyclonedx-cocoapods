@@ -1,6 +1,6 @@
 require 'rspec'
-require 'cyclonedx/license'
-require 'cyclonedx/spdx_licenses'
+require 'cyclonedx/cocoapods/license'
+require 'cyclonedx/cocoapods/spdx_licenses'
 
 RSpec.describe CycloneDX::CocoaPods::Pod::License do
   context 'when creating a new license' do

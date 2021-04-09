@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 
-require "cyclonedx/cocoapods"
+require "cyclonedx/cocoapods/cli_runner"
 
 CycloneDX::CocoaPods::CLIRunner.new().run

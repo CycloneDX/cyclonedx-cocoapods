@@ -1,7 +1,7 @@
 require 'rspec'
 require 'rspec/matchers'
 require 'equivalent-xml'
-require 'cyclonedx/bom_builder'
+require 'cyclonedx/cocoapods/bom_builder'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:pod_name) { 'Alamofire' }

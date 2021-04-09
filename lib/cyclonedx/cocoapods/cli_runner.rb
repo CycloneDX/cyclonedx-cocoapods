@@ -4,7 +4,6 @@ require 'optparse'
 require 'logger'
 require 'cocoapods'
 
-require_relative 'cocoapods/version'
 require_relative 'pod'
 require_relative 'bom_builder'
 require_relative 'search_engine'

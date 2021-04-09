@@ -1,5 +1,5 @@
 require 'rspec'
-require 'cyclonedx/pod'
+require 'cyclonedx/cocoapods/pod'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
   context 'when creating new pods' do

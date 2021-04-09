@@ -1,5 +1,5 @@
 require 'rspec'
-require 'cyclonedx/cocoapods'
+require 'cyclonedx/cocoapods/cli_runner'
 
 RSpec.describe CycloneDX::CocoaPods do
   it "has a version number" do
