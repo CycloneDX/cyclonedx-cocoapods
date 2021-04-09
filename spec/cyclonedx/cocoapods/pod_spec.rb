@@ -172,36 +172,50 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
         end
 
-        context 'as hash with file' do
-          let(:license) { { :type => 'MIT', :file => 'MIT-LICENSE.txt' } }
-
-          it 'should set a license with id' do
-            @pod.populate(license: license)
+        context 'as hash' do
+          it 'should accept both symbols and strings as attribute names' do
+            @pod.populate(license: { :type => 'MIT' })
             expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq(license[:type])
+            expect(@pod.license.identifier).to eq('MIT')
             expect(@pod.license.identifier_type).to eq(:id)
-            expect(@pod.license.text).to be_nil
-            expect(@pod.license.url).to be_nil
-          end
-        end
 
-        context 'as hash with text' do
-          let(:license) {
-            { :type => 'MIT',
-              :text => <<-LICENSE
+            @pod.populate(license: { 'type' => 'MIT' })
+            expect(@pod.license).not_to be_nil
+            expect(@pod.license.identifier).to eq('MIT')
+            expect(@pod.license.identifier_type).to eq(:id)
+          end
+
+          context 'with file' do
+            let(:license) { { :type => 'MIT', :file => 'MIT-LICENSE.txt' } }
+
+            it 'should set a license with id' do
+              @pod.populate(license: license)
+              expect(@pod.license).not_to be_nil
+              expect(@pod.license.identifier).to eq(license[:type])
+              expect(@pod.license.identifier_type).to eq(:id)
+              expect(@pod.license.text).to be_nil
+              expect(@pod.license.url).to be_nil
+            end
+          end
+
+          context 'with text' do
+            let(:license) {
+              { :type => 'MIT',
+                :text => <<-LICENSE
                 Copyright 2012
                 Permission is granted to...
-              LICENSE
+                LICENSE
+              }
             }
-          }
 
-          it 'should set a license with id' do
-            @pod.populate(license: license)
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq(license[:type])
-            expect(@pod.license.identifier_type).to eq(:id)
-            expect(@pod.license.text).to eq(license[:text])
-            expect(@pod.license.url).to be_nil
+            it 'should set a license with id' do
+              @pod.populate(license: license)
+              expect(@pod.license).not_to be_nil
+              expect(@pod.license.identifier).to eq(license[:type])
+              expect(@pod.license.identifier_type).to eq(:id)
+              expect(@pod.license.text).to eq(license[:text])
+              expect(@pod.license.url).to be_nil
+            end
           end
         end
       end
@@ -220,36 +234,50 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
         end
 
-        context 'as hash with file' do
-          let(:license) { { :type => 'Custom license', :file => 'LICENSE.txt' } }
-
-          it 'should set a license with name' do
-            @pod.populate(license: license)
+        context 'as hash' do
+          it 'should accept both symbols and strings as attribute names' do
+            @pod.populate(license: { :type => 'Custom license' })
             expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq(license[:type])
+            expect(@pod.license.identifier).to eq('Custom license')
             expect(@pod.license.identifier_type).to eq(:name)
-            expect(@pod.license.text).to be_nil
-            expect(@pod.license.url).to be_nil
-          end
-        end
 
-        context 'as hash with text' do
-          let(:license) {
-            { :type => 'Custom license',
-              :text => <<-LICENSE
+            @pod.populate(license: { 'type' => 'Custom license' })
+            expect(@pod.license).not_to be_nil
+            expect(@pod.license.identifier).to eq('Custom license')
+            expect(@pod.license.identifier_type).to eq(:name)
+          end
+
+          context 'with file' do
+            let(:license) { { :type => 'Custom license', :file => 'LICENSE.txt' } }
+
+            it 'should set a license with name' do
+              @pod.populate(license: license)
+              expect(@pod.license).not_to be_nil
+              expect(@pod.license.identifier).to eq(license[:type])
+              expect(@pod.license.identifier_type).to eq(:name)
+              expect(@pod.license.text).to be_nil
+              expect(@pod.license.url).to be_nil
+            end
+          end
+
+          context 'with text' do
+            let(:license) {
+              { :type => 'Custom license',
+                :text => <<-LICENSE
                 Copyright 2012
                 Permission is granted to...
-              LICENSE
+                LICENSE
+              }
             }
-          }
 
-          it 'should set a license with name' do
-            @pod.populate(license: license)
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq(license[:type])
-            expect(@pod.license.identifier_type).to eq(:name)
-            expect(@pod.license.text).to eq(license[:text])
-            expect(@pod.license.url).to be_nil
+            it 'should set a license with name' do
+              @pod.populate(license: license)
+              expect(@pod.license).not_to be_nil
+              expect(@pod.license.identifier).to eq(license[:type])
+              expect(@pod.license.identifier_type).to eq(:name)
+              expect(@pod.license.text).to eq(license[:text])
+              expect(@pod.license.url).to be_nil
+            end
           end
         end
       end

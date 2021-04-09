@@ -56,6 +56,7 @@ module CycloneDX
         when String
           @license = License.new(identifier: attributes[:license])
         when Hash
+          attributes[:license].transform_keys!(&:to_sym)
           identifier = attributes[:license][:type]
           unless identifier.nil? || identifier.to_s.strip.empty?
             @license = License.new(identifier: identifier)
