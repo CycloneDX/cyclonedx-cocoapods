@@ -10,7 +10,23 @@ module CycloneDX
           xml.name name
           xml.version version.to_s
           xml.description description unless description.nil?
+          unless license.nil?
+            xml.licenses do
+              license.add_component_to_bom(xml)
+            end
+          end
           xml.purl purl
+        end
+      end
+
+      class License
+        def add_component_to_bom(xml)
+          xml.license do
+            xml.id identifier if identifier_type == :id
+            xml.name identifier if identifier_type == :name
+            xml.text_ text unless text.nil?
+            xml.url url unless url.nil?
+          end
         end
       end
     end

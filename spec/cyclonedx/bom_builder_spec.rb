@@ -77,6 +77,93 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
         expect(@xml.at('/component/description').text).to eql(@pod.description)
       end
     end
+
+    context 'when not having a license' do
+      it 'shouldn''t generate a license list' do
+        expect(@xml.at('/component/licenses')).to be_nil
+      end
+    end
+
+    context 'when having a license' do
+      before(:each) do
+        @pod.populate(license: 'MIT')
+      end
+
+      it 'should generate a child licenses node' do
+        expect(@pod.license).to receive(:add_component_to_bom)
+
+        xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_component_to_bom(xml)
+        end.to_xml)
+
+        expect(xml.at('/component/licenses')).not_to be_nil
+      end
+
+      it 'should generate a license node' do
+        expect(@pod.license).to receive(:add_component_to_bom)
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_component_to_bom(xml)
+        end.to_xml)
+      end
+
+    end
+  end
+end
+
+
+RSpec.describe CycloneDX::CocoaPods::Pod::License do
+  context 'when generating a license in a BOM' do
+    context 'for known licenses' do
+      before(:each) do
+        @license = described_class.new(identifier: described_class::SPDX_LICENSES.keys.sample)
+        @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @license.add_component_to_bom(xml)
+        end.to_xml)
+      end
+
+      it 'should generate a root license element' do
+        expect(@xml.at('/license')).not_to be_nil
+      end
+
+      it 'should generate a correct license identifier' do
+        expect(@xml.at('/license/id')).not_to be_nil
+        expect(@xml.at('/license/id').text).to eq(@license.identifier)
+        expect(@xml.at('/license/name')).to be_nil
+      end
+
+      it 'should not create text or url elements' do
+        expect(@xml.at('/license/text')).to be_nil
+        expect(@xml.at('/license/url')).to be_nil
+      end
+
+      context 'which includes text' do
+        before(:each) do
+          @license.text = "Copyright 2012\nPermission is granted to..."
+          @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+            @license.add_component_to_bom(xml)
+          end.to_xml)
+        end
+
+        it 'should create text element' do
+          expect(@xml.at('/license/text')).not_to be_nil
+          expect(@xml.at('/license/text').text).to eq(@license.text)
+        end
+      end
+
+      context 'which includes url' do
+        before(:each) do
+          @license.url = "https://opensource.org/licenses/MIT"
+          @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+            @license.add_component_to_bom(xml)
+          end.to_xml)
+        end
+
+        it 'should create text element' do
+          expect(@xml.at('/license/url')).not_to be_nil
+          expect(@xml.at('/license/url').text).to eq(@license.url)
+        end
+      end
+    end
   end
 end
 
