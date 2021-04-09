@@ -6,11 +6,12 @@ require 'cyclonedx/cocoapods/bom_builder'
 RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:pod_name) { 'Alamofire' }
   let(:pod_version) { '5.4.2' }
+  let(:checksum) { '9a8ccc3a24b87624f4b40883adab3d98a9fdc00d' }
   let(:author) { 'Darth Vader' }
   let(:summary) { 'Elegant HTTP Networking in Swift' }
 
   before(:each) do
-    @pod = described_class.new(name: pod_name, version: pod_version)
+    @pod = described_class.new(name: pod_name, version: pod_version, checksum: checksum)
   end
 
   context 'when generating a pod component in a BOM' do
@@ -80,6 +81,27 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
     end
 
+    context 'when not having a checksum' do
+      before(:each) do
+        @pod = described_class.new(name: pod_name, version: pod_version)
+        @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_to_bom(xml)
+        end.to_xml)
+      end
+
+      it 'shouldn''t generate a component hash' do
+        expect(@xml.at('/component/hashes')).to be_nil
+      end
+    end
+
+    context 'when having a checksum' do
+      it 'should generate a correct component hash' do
+        expect(@xml.at('/component/hashes/hash')).not_to be_nil
+        expect(@xml.at('/component/hashes/hash')['alg']).to eq(described_class::CHECKSUM_ALGORITHM)  # CocoaPods always uses SHA-1
+        expect(@xml.at('/component/hashes/hash').text).to eql(@pod.checksum)
+      end
+    end
+
     context 'when not having a license' do
       it 'shouldn''t generate a license list' do
         expect(@xml.at('/component/licenses')).to be_nil
@@ -107,7 +129,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
         expect(license_generated_from_pod).to be_equivalent_to(license)
       end
-
     end
   end
 end

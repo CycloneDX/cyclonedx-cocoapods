@@ -4,12 +4,19 @@ require 'securerandom'
 module CycloneDX
   module CocoaPods
     class Pod
+      CHECKSUM_ALGORITHM = 'SHA-1'.freeze
+
       def add_to_bom(xml)
         xml.component(type: 'library') do
           xml.author author unless author.nil?
           xml.name name
           xml.version version.to_s
           xml.description description unless description.nil?
+          unless checksum.nil?
+            xml.hashes do
+              xml.hash_(checksum, alg: CHECKSUM_ALGORITHM)
+            end
+          end
           unless license.nil?
             xml.licenses do
               license.add_to_bom(xml)
