@@ -11,7 +11,7 @@ module CycloneDX
       end
 
       def attributes_for(pod:)
-        specification_sets = @source_manager.search_by_name("^#{pod.name}$")
+        specification_sets = @source_manager.search_by_name("^#{Regexp.escape(pod.name)}$")
         raise SearchError, "No pod found named #{pod.name}" if specification_sets.length == 0
         raise SearchError, "More than one pod found named #{pod.name}" if specification_sets.length > 1
 
