@@ -5,6 +5,7 @@ module CycloneDX
   module CocoaPods
     class Pod
       CHECKSUM_ALGORITHM = 'SHA-1'.freeze
+      HOMEPAGE_REFERENCE_TYPE = 'website'.freeze
 
       def add_to_bom(xml)
         xml.component(type: 'library') do
@@ -23,6 +24,11 @@ module CycloneDX
             end
           end
           xml.purl purl
+          unless homepage.nil?
+            xml.externalReferences do
+              xml.reference(homepage, type: HOMEPAGE_REFERENCE_TYPE)
+            end
+          end
         end
       end
 

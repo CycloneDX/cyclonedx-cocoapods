@@ -9,6 +9,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:checksum) { '9a8ccc3a24b87624f4b40883adab3d98a9fdc00d' }
   let(:author) { 'Darth Vader' }
   let(:summary) { 'Elegant HTTP Networking in Swift' }
+  let(:homepage) { 'https://github.com/Alamofire/Alamofire' }
 
   before(:each) do
     @pod = described_class.new(name: pod_name, version: pod_version, checksum: checksum)
@@ -128,6 +129,27 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
         end.to_xml).at('/license')
 
         expect(license_generated_from_pod).to be_equivalent_to(license)
+      end
+    end
+
+    context 'when not having a homepage' do
+      it 'shouldn''t generate an external references list' do
+        expect(@xml.at('/component/externalReferences')).to be_nil
+      end
+    end
+
+    context 'when having a homepage' do
+      before(:each) do
+        @pod.populate(homepage: homepage)
+        @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          @pod.add_to_bom(xml)
+        end.to_xml)
+      end
+
+      it 'should properly generate a component external references list' do
+        expect(@xml.at('/component/externalReferences')).not_to be_nil
+        expect(@xml.at('/component/externalReferences/reference')['type']).to eq(described_class::HOMEPAGE_REFERENCE_TYPE)
+        expect(@xml.at('/component/externalReferences/reference').text).to eq(homepage)
       end
     end
   end
