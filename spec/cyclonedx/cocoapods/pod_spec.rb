@@ -90,6 +90,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
     let(:summary) { 'Elegant HTTP Networking in Swift' }
     let(:description) { 'Alamofire provides an elegant and composable interface to HTTP network requests.' }
+    let(:homepage) { 'https://github.com/Alamofire/Alamofire' }
 
     before(:each) do
       @pod = described_class.new(name: 'Alamofire', version: '5.4.2')
@@ -106,13 +107,15 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     it 'should modify previous values of attributes' do
-      @pod.populate(author: author, summary: summary)
+      @pod.populate(author: author, summary: summary, homepage: homepage)
       expect(@pod.author).to eq(author)
       expect(@pod.description).to eq(summary)
+      expect(@pod.homepage).to eq(homepage)
 
       @pod.populate(description: description)
       expect(@pod.author).to be_nil
       expect(@pod.description).to eq(description)
+      expect(@pod.homepage).to be_nil
     end
 
     it 'should accept both symbols and strings as attribute names' do
@@ -306,6 +309,13 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
             end
           end
         end
+      end
+    end
+
+    context 'when the attributes hash contains a homepage' do
+      it 'should populate the pod''s homepage with the homepage from the attributes' do
+        @pod.populate(homepage: homepage)
+        expect(@pod.homepage).to eq(homepage)
       end
     end
   end

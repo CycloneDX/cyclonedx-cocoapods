@@ -6,6 +6,7 @@ module CycloneDX
     class Pod
       attr_reader :name        # xs:normalizedString
       attr_reader :version     # xs:normalizedString
+      attr_reader :homepage    # xs:anyURI - https://cyclonedx.org/docs/1.2/#type_externalReference
       attr_reader :checksum    # https://cyclonedx.org/docs/1.2/#type_hashValue (We only use SHA-1 hashes - length == 40)
       attr_reader :author      # xs:normalizedString
       attr_reader :description # xs:normalizedString
@@ -23,6 +24,7 @@ module CycloneDX
         populate_author(attributes)
         populate_description(attributes)
         populate_license(attributes)
+        populate_homepage(attributes)
       end
 
       def purl
@@ -69,6 +71,10 @@ module CycloneDX
         else
           @license = nil
         end
+      end
+
+      def populate_homepage(attributes)
+        @homepage = attributes[:homepage]
       end
     end
   end
