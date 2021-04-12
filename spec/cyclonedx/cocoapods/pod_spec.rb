@@ -45,7 +45,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
 
           it 'should return a proper purl' do
-            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{CGI.escape(name.strip)}@#{version}" }
+            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name.strip)}@#{version}" }
             expect(@valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
@@ -64,7 +64,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
 
           it 'should return a proper purl' do
-            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:pod/#{CGI.escape(name.strip)}@#{version}" }
+            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name.strip)}@#{version}" }
             expect(@valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end

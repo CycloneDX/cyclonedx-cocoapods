@@ -26,7 +26,7 @@ module CycloneDX
       end
 
       def purl
-        "pkg:pod/#{CGI.escape(name)}@#{version}"
+        "pkg:cocoapods/#{CGI.escape(name)}@#{version}"
       end
 
       def to_s
