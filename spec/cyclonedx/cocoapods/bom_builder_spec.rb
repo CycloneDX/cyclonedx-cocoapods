@@ -45,6 +45,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'when not having an author' do
       it 'shouldn''t generate a component author' do
         expect(@xml.at('/component/author')).to be_nil
+        expect(@xml.at('/component/publisher')).to be_nil
       end
     end
 
@@ -59,6 +60,8 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       it 'should generate a correct component author' do
         expect(@xml.at('/component/author')).not_to be_nil
         expect(@xml.at('/component/author').text).to eql(@pod.author)
+        expect(@xml.at('/component/publisher')).not_to be_nil
+        expect(@xml.at('/component/publisher').text).to eql(@pod.author)
       end
     end
 

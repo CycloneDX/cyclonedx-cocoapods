@@ -10,6 +10,7 @@ module CycloneDX
       def add_to_bom(xml)
         xml.component(type: 'library') do
           xml.author author unless author.nil?
+          xml.publisher author unless author.nil?
           xml.name name
           xml.version version.to_s
           xml.description description unless description.nil?
