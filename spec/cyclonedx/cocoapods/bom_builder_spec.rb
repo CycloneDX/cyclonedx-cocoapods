@@ -151,8 +151,10 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
       it 'should properly generate a component external references list' do
         expect(@xml.at('/component/externalReferences')).not_to be_nil
+        expect(@xml.at('/component/externalReferences/reference')).not_to be_nil
         expect(@xml.at('/component/externalReferences/reference')['type']).to eq(described_class::HOMEPAGE_REFERENCE_TYPE)
-        expect(@xml.at('/component/externalReferences/reference').text).to eq(homepage)
+        expect(@xml.at('/component/externalReferences/reference/url')).not_to be_nil
+        expect(@xml.at('/component/externalReferences/reference/url').text).to eq(homepage)
       end
     end
   end

@@ -27,7 +27,9 @@ module CycloneDX
           xml.purl purl
           unless homepage.nil?
             xml.externalReferences do
-              xml.reference(homepage, type: HOMEPAGE_REFERENCE_TYPE)
+              xml.reference(type: HOMEPAGE_REFERENCE_TYPE) do
+                xml.url homepage
+              end
             end
           end
         end
