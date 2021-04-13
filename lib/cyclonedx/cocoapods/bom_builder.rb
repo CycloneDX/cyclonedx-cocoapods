@@ -1,6 +1,8 @@
 require 'nokogiri'
 require 'securerandom'
 
+require_relative 'version'
+
 module CycloneDX
   module CocoaPods
     class Pod
@@ -61,6 +63,7 @@ module CycloneDX
 
         Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
+            bom_metadata(xml)
             xml.components do
               pods.each do |pod|
                 pod.add_to_bom(xml)
@@ -68,6 +71,27 @@ module CycloneDX
             end
           end
         end.to_xml
+      end
+
+      private
+
+      def bom_metadata(xml)
+        xml.metadata do
+          xml.timestamp Time.now.getutc.strftime('%Y-%m-%dT%H:%M:%SZ')
+          xml.tools do
+            xml.tool do
+              xml.vendor 'CycloneDX'
+              xml.name 'cyclonedx-cocoapods'
+              xml.version VERSION
+            end
+            DEPENDENCIES.each do |dependency, version|
+              xml.tool do
+                xml.name dependency
+                xml.version version
+              end
+            end
+          end
+        end
       end
     end
   end

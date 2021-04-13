@@ -1,6 +1,7 @@
 require 'rspec'
 require 'rspec/matchers'
 require 'equivalent-xml'
+require 'cyclonedx/cocoapods/version'
 require 'cyclonedx/cocoapods/bom_builder'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
@@ -251,10 +252,15 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
 
     context 'with a valid version' do
-      it 'should use the provided version' do
+      let(:version) { 53 }
+
+      before(:each) do
         @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
-        version = 53
-        expect(Nokogiri::XML(@bom_builder.bom(version: version)).root['version']).to eq(version.to_s)
+        @xml = Nokogiri::XML(@bom_builder.bom(version: version))
+      end
+
+      it 'should use the provided version' do
+        expect(@xml.root['version']).to eq(version.to_s)
       end
 
       it 'should be able to use integer-ish versions' do
@@ -264,27 +270,40 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       end
 
       it 'should generate a proper root node' do
-        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
-
-        root = Nokogiri::XML(@bom_builder.bom).root
+        root = @xml.root
 
         expect(root.name).to eq('bom')
         expect(root.namespace.href).to eq(described_class::NAMESPACE)
-        expect(root['version']).to eq('1')
+        expect(root['version']).to eq(version.to_s)
         expect(root['serialNumber']).to match(/urn:uuid:.*/)
       end
 
+      it 'should include a timestamp in the metadata' do
+        expect(@xml.at('metadata/timestamp')).not_to be_nil
+      end
+
+      it 'should generate tools metadata' do
+        expect(@xml.at('metadata/tools')).not_to be_nil
+
+        # First tool should be cyclonedx-cocoapods
+        expect(@xml.css('metadata/tools/tool[1]/name').text).to eq('cyclonedx-cocoapods')
+        expect(@xml.css('metadata/tools/tool[1]/version').text).to eq(CycloneDX::CocoaPods::VERSION)
+
+        # Check rest of tools
+        expect(@xml.css('metadata/tools/tool/name').drop(1).map(&:text).map(&:to_sym).to_set).to eq(CycloneDX::CocoaPods::DEPENDENCIES.keys.to_set)
+        @xml.css('metadata/tools/tool').drop(1).each do |tool|
+          tool_name = tool.at('name').text
+          tool_version = tool.at('version').text
+          expect(CycloneDX::CocoaPods::DEPENDENCIES[tool_name.to_sym]).to eq(tool_version)
+        end
+      end
+
       it 'should generate a child components node' do
-        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
-
-        xml = Nokogiri::XML(@bom_builder.bom)
-
-        expect(xml.at('bom/components')).not_to be_nil # It doesn't work with /bom/components... why?
+        expect(@xml.at('bom/components')).not_to be_nil
       end
 
       it 'should generate a component for each pod' do
-        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
-        Nokogiri::XML(@bom_builder.bom)
+        # Tested in expect included in before(:each)
       end
 
       context 'twice' do
