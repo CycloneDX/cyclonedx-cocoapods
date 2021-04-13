@@ -25,6 +25,7 @@ module CycloneDX
         populate_description(attributes)
         populate_license(attributes)
         populate_homepage(attributes)
+        self
       end
 
       def purl

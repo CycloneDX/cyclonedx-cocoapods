@@ -34,38 +34,33 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
         let(:valid_pod_names_and_versions) { valid_pod_names.product(valid_versions) }
 
         context 'without checksum' do
-          before(:each) do
-            @valid_pods = valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) }
-          end
+          let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) } }
 
           it 'should properly build the pod' do
-            expect(@valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
-            expect(@valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
-            expect(@valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { nil })
+            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
+            expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
+            expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { nil })
           end
 
           it 'should return a proper purl' do
             expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name.strip)}@#{version}" }
-            expect(@valid_pods.map(&:purl)).to eq(expected_purls)
+            expect(valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
 
         context 'with a valid checksum' do
           let(:valid_checksum) { '9a8ccc3a24b87624f4b40883adab3d98a9fdc00d' }
-
-          before(:each) do
-            @valid_pods = valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, checksum: valid_checksum) }
-          end
+          let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, checksum: valid_checksum) } }
 
           it 'should properly build the pod' do
-            expect(@valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
-            expect(@valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
-            expect(@valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { valid_checksum })
+            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
+            expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
+            expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { valid_checksum })
           end
 
           it 'should return a proper purl' do
             expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name.strip)}@#{version}" }
-            expect(@valid_pods.map(&:purl)).to eq(expected_purls)
+            expect(valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
 
@@ -92,55 +87,57 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     let(:description) { 'Alamofire provides an elegant and composable interface to HTTP network requests.' }
     let(:homepage) { 'https://github.com/Alamofire/Alamofire' }
 
-    before(:each) do
-      @pod = described_class.new(name: 'Alamofire', version: '5.4.2')
+    let(:pod) { described_class.new(name: 'Alamofire', version: '5.4.2') }
+
+    it 'should return the pod itself' do
+      expect(pod.populate(any_attribute: 'any value')).to be(pod)
     end
 
     it 'should leave pod name and version untouched' do
-      original_name = @pod.name
-      original_version = @pod.version
+      original_name = pod.name
+      original_version = pod.version
 
-      @pod.populate(author: author, summary: summary)
+      pod.populate(author: author, summary: summary)
 
-      expect(@pod.name).to eq(original_name)
-      expect(@pod.version).to eq(original_version)
+      expect(pod.name).to eq(original_name)
+      expect(pod.version).to eq(original_version)
     end
 
     it 'should modify previous values of attributes' do
-      @pod.populate(author: author, summary: summary, homepage: homepage)
-      expect(@pod.author).to eq(author)
-      expect(@pod.description).to eq(summary)
-      expect(@pod.homepage).to eq(homepage)
+      pod.populate(author: author, summary: summary, homepage: homepage)
+      expect(pod.author).to eq(author)
+      expect(pod.description).to eq(summary)
+      expect(pod.homepage).to eq(homepage)
 
-      @pod.populate(description: description)
-      expect(@pod.author).to be_nil
-      expect(@pod.description).to eq(description)
-      expect(@pod.homepage).to be_nil
+      pod.populate(description: description)
+      expect(pod.author).to be_nil
+      expect(pod.description).to eq(description)
+      expect(pod.homepage).to be_nil
     end
 
     it 'should accept both symbols and strings as attribute names' do
-      @pod.populate(author: 'Author as named parameter')
-      expect(@pod.author).to eq('Author as named parameter')
+      pod.populate(author: 'Author as named parameter')
+      expect(pod.author).to eq('Author as named parameter')
 
-      @pod.populate({ 'author' => 'Author as hash value with String key' })
-      expect(@pod.author).to eq('Author as hash value with String key')
+      pod.populate({ 'author' => 'Author as hash value with String key' })
+      expect(pod.author).to eq('Author as hash value with String key')
 
-      @pod.populate({ author: 'Author as hash value with Symbol key' })
-      expect(@pod.author).to eq('Author as hash value with Symbol key')
+      pod.populate({ author: 'Author as hash value with Symbol key' })
+      expect(pod.author).to eq('Author as hash value with Symbol key')
     end
 
     context 'when the attributes hash contains an author' do
       context 'and a list of authors' do
         it 'should populate the pod''s author with the author from the attributes' do
-          @pod.populate(author: author, authors: author_list)
-          expect(@pod.author).to eq(author)
+          pod.populate(author: author, authors: author_list)
+          expect(pod.author).to eq(author)
         end
       end
 
       context 'and a hash of authors' do
         it 'should populate the pod''s author with the author from the attributes' do
-          @pod.populate(author: author, authors: author_hash)
-          expect(@pod.author).to eq(author)
+          pod.populate(author: author, authors: author_hash)
+          expect(pod.author).to eq(author)
         end
       end
     end
@@ -148,15 +145,15 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'when the attributes hash doesn''t contain an author' do
       context 'and contains a list of authors' do
         it 'should populate the pod''s author with the author list from the attributes' do
-          @pod.populate(authors: author_list)
-          expect(@pod.author).to eq(author_list.join(', '))
+          pod.populate(authors: author_list)
+          expect(pod.author).to eq(author_list.join(', '))
         end
       end
 
       context 'and a hash of authors' do
         it 'should populate the pod''s author with the author from the attributes' do
-          @pod.populate(authors: author_hash)
-          expect(@pod.author).to eq(author_hash.map { |name, email| "#{name} <#{email}>"}.join(', '))
+          pod.populate(authors: author_hash)
+          expect(pod.author).to eq(author_hash.map { |name, email| "#{name} <#{email}>"}.join(', '))
         end
       end
     end
@@ -164,15 +161,15 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'when the attributes hash contains a summary' do
       context 'and a description' do
         it 'should populate the pod''s description with the description from the attributes' do
-          @pod.populate(summary: summary, description: description)
-          expect(@pod.description).to eq(description)
+          pod.populate(summary: summary, description: description)
+          expect(pod.description).to eq(description)
         end
       end
 
       context 'and no description' do
         it 'should populate the pod''s description with the summary from the attributes' do
-          @pod.populate(summary: summary)
-          expect(@pod.description).to eq(summary)
+          pod.populate(summary: summary)
+          expect(pod.description).to eq(summary)
         end
       end
     end
@@ -182,8 +179,8 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
         let(:license) { { :file => 'MIT-LICENSE.txt' } }
 
         it 'should set the license to nil' do
-          @pod.populate(license: license)
-          expect(@pod.license).to be_nil
+          pod.populate(license: license)
+          expect(pod.license).to be_nil
         end
       end
 
@@ -192,38 +189,38 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           let(:license) { 'MIT' }
 
           it 'should set a license with id' do
-            @pod.populate(license: license)
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq(license)
-            expect(@pod.license.identifier_type).to eq(:id)
-            expect(@pod.license.text).to be_nil
-            expect(@pod.license.url).to be_nil
+            pod.populate(license: license)
+            expect(pod.license).not_to be_nil
+            expect(pod.license.identifier).to eq(license)
+            expect(pod.license.identifier_type).to eq(:id)
+            expect(pod.license.text).to be_nil
+            expect(pod.license.url).to be_nil
           end
         end
 
         context 'as hash' do
           it 'should accept both symbols and strings as attribute names' do
-            @pod.populate(license: { :type => 'MIT' })
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq('MIT')
-            expect(@pod.license.identifier_type).to eq(:id)
+            pod.populate(license: { :type => 'MIT' })
+            expect(pod.license).not_to be_nil
+            expect(pod.license.identifier).to eq('MIT')
+            expect(pod.license.identifier_type).to eq(:id)
 
-            @pod.populate(license: { 'type' => 'MIT' })
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq('MIT')
-            expect(@pod.license.identifier_type).to eq(:id)
+            pod.populate(license: { 'type' => 'MIT' })
+            expect(pod.license).not_to be_nil
+            expect(pod.license.identifier).to eq('MIT')
+            expect(pod.license.identifier_type).to eq(:id)
           end
 
           context 'with file' do
             let(:license) { { :type => 'MIT', :file => 'MIT-LICENSE.txt' } }
 
             it 'should set a license with id' do
-              @pod.populate(license: license)
-              expect(@pod.license).not_to be_nil
-              expect(@pod.license.identifier).to eq(license[:type])
-              expect(@pod.license.identifier_type).to eq(:id)
-              expect(@pod.license.text).to be_nil
-              expect(@pod.license.url).to be_nil
+              pod.populate(license: license)
+              expect(pod.license).not_to be_nil
+              expect(pod.license.identifier).to eq(license[:type])
+              expect(pod.license.identifier_type).to eq(:id)
+              expect(pod.license.text).to be_nil
+              expect(pod.license.url).to be_nil
             end
           end
 
@@ -238,12 +235,12 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
             }
 
             it 'should set a license with id' do
-              @pod.populate(license: license)
-              expect(@pod.license).not_to be_nil
-              expect(@pod.license.identifier).to eq(license[:type])
-              expect(@pod.license.identifier_type).to eq(:id)
-              expect(@pod.license.text).to eq(license[:text])
-              expect(@pod.license.url).to be_nil
+              pod.populate(license: license)
+              expect(pod.license).not_to be_nil
+              expect(pod.license.identifier).to eq(license[:type])
+              expect(pod.license.identifier_type).to eq(:id)
+              expect(pod.license.text).to eq(license[:text])
+              expect(pod.license.url).to be_nil
             end
           end
         end
@@ -254,38 +251,38 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           let(:license) { 'Custom license' }
 
           it 'should set a license with name' do
-            @pod.populate(license: license)
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq(license)
-            expect(@pod.license.identifier_type).to eq(:name)
-            expect(@pod.license.text).to be_nil
-            expect(@pod.license.url).to be_nil
+            pod.populate(license: license)
+            expect(pod.license).not_to be_nil
+            expect(pod.license.identifier).to eq(license)
+            expect(pod.license.identifier_type).to eq(:name)
+            expect(pod.license.text).to be_nil
+            expect(pod.license.url).to be_nil
           end
         end
 
         context 'as hash' do
           it 'should accept both symbols and strings as attribute names' do
-            @pod.populate(license: { :type => 'Custom license' })
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq('Custom license')
-            expect(@pod.license.identifier_type).to eq(:name)
+            pod.populate(license: { :type => 'Custom license' })
+            expect(pod.license).not_to be_nil
+            expect(pod.license.identifier).to eq('Custom license')
+            expect(pod.license.identifier_type).to eq(:name)
 
-            @pod.populate(license: { 'type' => 'Custom license' })
-            expect(@pod.license).not_to be_nil
-            expect(@pod.license.identifier).to eq('Custom license')
-            expect(@pod.license.identifier_type).to eq(:name)
+            pod.populate(license: { 'type' => 'Custom license' })
+            expect(pod.license).not_to be_nil
+            expect(pod.license.identifier).to eq('Custom license')
+            expect(pod.license.identifier_type).to eq(:name)
           end
 
           context 'with file' do
             let(:license) { { :type => 'Custom license', :file => 'LICENSE.txt' } }
 
             it 'should set a license with name' do
-              @pod.populate(license: license)
-              expect(@pod.license).not_to be_nil
-              expect(@pod.license.identifier).to eq(license[:type])
-              expect(@pod.license.identifier_type).to eq(:name)
-              expect(@pod.license.text).to be_nil
-              expect(@pod.license.url).to be_nil
+              pod.populate(license: license)
+              expect(pod.license).not_to be_nil
+              expect(pod.license.identifier).to eq(license[:type])
+              expect(pod.license.identifier_type).to eq(:name)
+              expect(pod.license.text).to be_nil
+              expect(pod.license.url).to be_nil
             end
           end
 
@@ -300,12 +297,12 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
             }
 
             it 'should set a license with name' do
-              @pod.populate(license: license)
-              expect(@pod.license).not_to be_nil
-              expect(@pod.license.identifier).to eq(license[:type])
-              expect(@pod.license.identifier_type).to eq(:name)
-              expect(@pod.license.text).to eq(license[:text])
-              expect(@pod.license.url).to be_nil
+              pod.populate(license: license)
+              expect(pod.license).not_to be_nil
+              expect(pod.license.identifier).to eq(license[:type])
+              expect(pod.license.identifier_type).to eq(:name)
+              expect(pod.license.text).to eq(license[:text])
+              expect(pod.license.url).to be_nil
             end
           end
         end
@@ -314,8 +311,8 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
     context 'when the attributes hash contains a homepage' do
       it 'should populate the pod''s homepage with the homepage from the attributes' do
-        @pod.populate(homepage: homepage)
-        expect(@pod.homepage).to eq(homepage)
+        pod.populate(homepage: homepage)
+        expect(pod.homepage).to eq(homepage)
       end
     end
   end
