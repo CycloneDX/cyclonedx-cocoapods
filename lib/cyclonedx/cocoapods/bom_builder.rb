@@ -62,18 +62,18 @@ module CycloneDX
     class BOMBuilder
       NAMESPACE = 'http://cyclonedx.org/schema/bom/1.2'.freeze
 
-      attr_reader :pods
+      attr_reader :component, :pods
 
-      def initialize(pods:)
-        @pods = pods
+      def initialize(component: nil, pods:)
+        @component, @pods = component, pods
       end
 
-      def bom(component: nil, version: 1)
+      def bom(version: 1)
         raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0" unless version.to_i > 0
 
         Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
-            bom_metadata(xml, component)
+            bom_metadata(xml)
             xml.components do
               pods.each do |pod|
                 pod.add_to_bom(xml)
@@ -85,7 +85,7 @@ module CycloneDX
 
       private
 
-      def bom_metadata(xml, component)
+      def bom_metadata(xml)
         xml.metadata do
           xml.timestamp Time.now.getutc.strftime('%Y-%m-%dT%H:%M:%SZ')
           xml.tools do
