@@ -3,6 +3,8 @@ require 'rspec/matchers'
 require 'equivalent-xml'
 require 'cyclonedx/cocoapods/version'
 require 'cyclonedx/cocoapods/bom_builder'
+require 'cyclonedx/cocoapods/pod'
+require 'cyclonedx/cocoapods/component'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:pod_name) { 'Alamofire' }
@@ -219,10 +221,55 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
 end
 
 
+RSpec.describe CycloneDX::CocoaPods::Component do
+  context 'when generating a component in a BOM' do
+    shared_examples "component" do
+      it 'should generate a root component element' do
+        expect(xml.at('/component')).not_to be_nil
+        expect(xml.at('/component')['type']).to eq(component.type)
+      end
+
+      it 'should generate proper component information' do
+        expect(xml.at('/component/name')).not_to be_nil
+        expect(xml.at('/component/name').text).to eq(component.name)
+        expect(xml.at('/component/version')).not_to be_nil
+        expect(xml.at('/component/version').text).to eq(component.version)
+      end
+    end
+
+    context 'without a group' do
+      let(:component) { described_class.new(name: 'Application', version: '1.3.5', type: 'application') }
+      let(:xml) { Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml) }
+
+      it_behaves_like "component"
+
+      it 'should not generate any group element' do
+        expect(xml.at('/component/group')).to be_nil
+      end
+    end
+
+    context 'with a group' do
+      let(:component) { described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application') }
+      let(:xml) { Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml) }
+
+      it_behaves_like "component"
+
+      it 'should generate a proper group element' do
+        expect(xml.at('/component/group')).not_to be_nil
+        expect(xml.at('/component/group').text).to eq(component.group)
+      end
+    end
+  end
+end
+
+
 RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
+  let(:pods) { {
+    'Alamofire' => '5.4.2', 'FirebaseAnalytics' => '7.10.0', 'RxSwift' => '5.1.2', 'Realm' => '5.5.1'
+  }.map { |name, version| CycloneDX::CocoaPods::Pod.new(name: name, version: version) } }
+
   before(:each) do
-    @pods = Array.new(5) { double() }
-    @bom_builder = described_class.new(pods: @pods)
+    @bom_builder = described_class.new(pods: pods)
   end
 
   context 'when generating a BOM' do
@@ -238,13 +285,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
 
     context 'with a missing version' do
       it 'should use 1 as default version value' do
-        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
         expect(Nokogiri::XML(@bom_builder.bom).root['version']).to eq('1')
       end
 
       context 'twice' do
         it 'should generate different serial numbers' do
-          @pods.each { |pod| expect(pod).to receive(:add_to_bom).twice }
           original_serial_number = Nokogiri::XML(@bom_builder.bom).root['serialNumber']
           expect(Nokogiri::XML(@bom_builder.bom).root['serialNumber']).not_to eq(original_serial_number)
         end
@@ -252,66 +297,97 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
 
     context 'with a valid version' do
-      let(:version) { 53 }
+      shared_examples 'bom_generator' do
+        it 'should use the provided version' do
+          expect(xml.root['version']).to eq(version.to_s)
+        end
 
-      before(:each) do
-        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
-        @xml = Nokogiri::XML(@bom_builder.bom(version: version))
-      end
+        it 'should generate a proper root node' do
+          root = xml.root
 
-      it 'should use the provided version' do
-        expect(@xml.root['version']).to eq(version.to_s)
+          expect(root.name).to eq('bom')
+          expect(root.namespace.href).to eq(described_class::NAMESPACE)
+          expect(root['version']).to eq(version.to_s)
+          expect(root['serialNumber']).to match(/urn:uuid:.*/)
+        end
+
+        it 'should include a timestamp in the metadata' do
+          expect(xml.at('bom/metadata/timestamp')).not_to be_nil
+        end
+
+        it 'should generate tools metadata' do
+          expect(xml.at('bom/metadata/tools')).not_to be_nil
+
+          # First tool should be cyclonedx-cocoapods
+          expect(xml.css('bom/metadata/tools/tool[1]/name').text).to eq('cyclonedx-cocoapods')
+          expect(xml.css('bom/metadata/tools/tool[1]/version').text).to eq(CycloneDX::CocoaPods::VERSION)
+
+          # Check rest of tools
+          expect(xml.css('bom/metadata/tools/tool/name').drop(1).map(&:text).map(&:to_sym).to_set).to eq(CycloneDX::CocoaPods::DEPENDENCIES.keys.to_set)
+          xml.css('bom/metadata/tools/tool').drop(1).each do |tool|
+            tool_name = tool.at('name').text
+            tool_version = tool.at('version').text
+            expect(CycloneDX::CocoaPods::DEPENDENCIES[tool_name.to_sym]).to eq(tool_version)
+          end
+        end
+
+        it 'should generate a child components node' do
+          expect(xml.at('bom/components')).not_to be_nil
+        end
+
+        it 'should properly delegate component node generation to pods' do
+          components_generated_from_bom_builder = xml.at('bom/components')
+
+          components = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+            xml.components('xmlns': described_class::NAMESPACE) do
+              @bom_builder.pods.each { |pod| pod.add_to_bom(xml) }
+            end
+          end.to_xml).at('components')
+
+          expect(components_generated_from_bom_builder).to be_equivalent_to(components)
+        end
       end
 
       it 'should be able to use integer-ish versions' do
-        @pods.each { |pod| expect(pod).to receive(:add_to_bom) }
         version = '53'
         expect(Nokogiri::XML(@bom_builder.bom(version: version)).root['version']).to eq(version)
       end
 
-      it 'should generate a proper root node' do
-        root = @xml.root
-
-        expect(root.name).to eq('bom')
-        expect(root.namespace.href).to eq(described_class::NAMESPACE)
-        expect(root['version']).to eq(version.to_s)
-        expect(root['serialNumber']).to match(/urn:uuid:.*/)
-      end
-
-      it 'should include a timestamp in the metadata' do
-        expect(@xml.at('metadata/timestamp')).not_to be_nil
-      end
-
-      it 'should generate tools metadata' do
-        expect(@xml.at('metadata/tools')).not_to be_nil
-
-        # First tool should be cyclonedx-cocoapods
-        expect(@xml.css('metadata/tools/tool[1]/name').text).to eq('cyclonedx-cocoapods')
-        expect(@xml.css('metadata/tools/tool[1]/version').text).to eq(CycloneDX::CocoaPods::VERSION)
-
-        # Check rest of tools
-        expect(@xml.css('metadata/tools/tool/name').drop(1).map(&:text).map(&:to_sym).to_set).to eq(CycloneDX::CocoaPods::DEPENDENCIES.keys.to_set)
-        @xml.css('metadata/tools/tool').drop(1).each do |tool|
-          tool_name = tool.at('name').text
-          tool_version = tool.at('version').text
-          expect(CycloneDX::CocoaPods::DEPENDENCIES[tool_name.to_sym]).to eq(tool_version)
-        end
-      end
-
-      it 'should generate a child components node' do
-        expect(@xml.at('bom/components')).not_to be_nil
-      end
-
-      it 'should generate a component for each pod' do
-        # Tested in expect included in before(:each)
-      end
-
       context 'twice' do
         it 'should generate different serial numbers' do
-          @pods.each { |pod| expect(pod).to receive(:add_to_bom).twice }
           original_serial_number = Nokogiri::XML(@bom_builder.bom(version: 53)).root['serialNumber']
           expect(Nokogiri::XML(@bom_builder.bom(version: 53)).root['serialNumber']).not_to eq(original_serial_number)
         end
+      end
+
+      context 'without component' do
+        let(:version) { Random.rand(100) + 1 }
+        let(:xml) { Nokogiri::XML(@bom_builder.bom(version: version)) }
+
+        it 'should not generate component metadata' do
+          expect(xml.at('bom/metadata/component')).to be_nil
+        end
+
+        it_behaves_like 'bom_generator'
+      end
+
+      context 'with component' do
+        let(:version) { Random.rand(100) + 1 }
+        let(:component) { CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application') }
+        let(:xml) { Nokogiri::XML(@bom_builder.bom(component: component, version: version)) }
+
+        it 'should generate component metadata' do
+          component_metadata = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+            xml.metadata('xmlns': described_class::NAMESPACE) do
+              component.add_to_bom(xml)
+            end
+          end.to_xml).at('metadata/component')
+
+          expect(xml.at('bom/metadata/component')).not_to be_nil
+          expect(xml.at('bom/metadata/component')).to be_equivalent_to(component_metadata)
+        end
+
+        it_behaves_like 'bom_generator'
       end
     end
   end
