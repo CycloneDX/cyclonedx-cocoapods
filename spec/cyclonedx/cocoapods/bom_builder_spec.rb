@@ -165,7 +165,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
   context 'when generating a license in a BOM' do
     context 'for known licenses' do
       before(:each) do
-        @license = described_class.new(identifier: described_class::SPDX_LICENSES.keys.sample)
+        @license = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
         @xml = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           @license.add_to_bom(xml)
         end.to_xml)

@@ -1,6 +1,5 @@
 require 'rspec'
 require 'cyclonedx/cocoapods/license'
-require 'cyclonedx/cocoapods/spdx_licenses'
 
 RSpec.describe CycloneDX::CocoaPods::Pod::License do
   context 'when creating a new license' do
@@ -12,7 +11,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
     
     context 'with an identifier included in the SPDX license list (regardless of case)' do
       it 'should create a license of type id' do
-        existing_license_id = described_class::SPDX_LICENSES.keys.sample
+        existing_license_id = described_class::SPDX_LICENSES.sample
         mangled_case_id = existing_license_id.chars.map { |c| rand(2) == 0 ? c.upcase : c.downcase }.join
 
         license = described_class.new(identifier: mangled_case_id)

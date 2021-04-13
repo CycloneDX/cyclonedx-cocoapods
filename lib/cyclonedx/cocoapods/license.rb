@@ -1,9 +1,10 @@
-require_relative 'spdx_licenses'
+require 'json'
 
 module CycloneDX
   module CocoaPods
     class Pod
       class License
+        SPDX_LICENSES = JSON.parse(File.read("#{__dir__}/spdx-licenses.json")).freeze
         IDENTIFIER_TYPES = [:id, :name].freeze
 
         attr_reader   :identifier
@@ -14,7 +15,7 @@ module CycloneDX
         def initialize(identifier:)
           raise ArgumentError, "License identifier must be non empty" if identifier.nil? || identifier.to_s.strip.empty?
 
-          @identifier = SPDX_LICENSES.keys.find { |license_id| license_id.downcase == identifier.to_s.downcase }
+          @identifier = SPDX_LICENSES.find { |license_id| license_id.downcase == identifier.to_s.downcase }
           @identifier_type = @identifier.nil? ? :name : :id
           @identifier ||= identifier
         end
