@@ -4,6 +4,7 @@ require 'optparse'
 require 'logger'
 require 'cocoapods'
 
+require_relative 'component'
 require_relative 'pod'
 require_relative 'bom_builder'
 require_relative 'search_engine'
@@ -27,7 +28,7 @@ module CycloneDX
 
           populate_pods_with_additional_info(pods, search_engine)
 
-          bom = BOMBuilder.new(pods: pods).bom(version: options[:version] || 1)
+          bom = BOMBuilder.new(component: component_from_options(options), pods: pods).bom(version: options[:bom_version] || 1)
           write_bom_to_file(bom: bom, options: options)
         rescue StandardError => e
           @logger.error e.message
@@ -40,8 +41,12 @@ module CycloneDX
 
       def parseOptions
         parsedOptions = {}
+        component_types = Component::VALID_COMPONENT_TYPES
         OptionParser.new do |options|
-          options.banner = 'Usage: cyclonedx-cocoapods [options]'
+          options.banner = <<~BANNER
+            Usage: cyclonedx-cocoapods [options]
+            Generates a BOM with the given parameters. BOM component metadata is only generated if the component's name and version are provided using the --name and --version parameters.
+          BANNER
 
           options.on('--[no-]verbose', 'Run verbosely') do |v|
             parsedOptions[:verbose] = v
@@ -52,15 +57,35 @@ module CycloneDX
           options.on('-o', '--output bom_file_path', '(Optional) Path to output the bom.xml file to') do |bom_file_path|
             parsedOptions[:bom_file_path] = bom_file_path
           end
-          options.on('-vversion', '--version version', Integer, '(Optional) Version of the generated BOM, 1 if not provided') do |version|
+          options.on('-b', '--bom-version bom_version', Integer, '(Optional) Version of the generated BOM, 1 if not provided') do |version|
+            parsedOptions[:bom_version] = version
+          end
+          options.on('-g', '--group group', '(Optional) Group of the component for which the BOM is generated') do |group|
+            parsedOptions[:group] = group
+          end
+          options.on('-n', '--name name', '(Optional, if specified version and type are also required) Name of the component for which the BOM is generated') do |name|
+            parsedOptions[:name] = name
+          end
+          options.on('-v', '--version version', '(Optional) Name of the component for which the BOM is generated') do |version|
             parsedOptions[:version] = version
+          end
+          options.on('-t', '--type type', "(Optional) Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
+            raise OptionParser::InvalidArgument, "Invalid value for component's type (#{type}). It must be one of #{component_types.join('|')}" unless component_types.include?(type)
+            parsedOptions[:type] = type
           end
           options.on_tail('-h', '--help', 'Show help message') do
             puts options
             exit
           end
         end.parse!
+
+        raise OptionParser::InvalidArgument, 'You must also specify --version and --type if --name is provided' if !parsedOptions[:name].nil? && (parsedOptions[:version].nil? || parsedOptions[:type].nil?)
         return parsedOptions
+      end
+
+
+      def component_from_options(options)
+        Component.new(group: options[:group], name: options[:name], version: options[:version], type: options[:type]) if options[:name]
       end
 
 
