@@ -68,6 +68,11 @@ module CycloneDX
           end
           options.on('-v', '--version version', '(Optional) Name of the component for which the BOM is generated') do |version|
             parsedOptions[:version] = version
+            begin
+              Gem::Version.new(version)
+            rescue StandardError => e
+              raise OptionParser::InvalidArgument, e.message
+            end
           end
           options.on('-t', '--type type', "(Optional) Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
             raise OptionParser::InvalidArgument, "Invalid value for component's type (#{type}). It must be one of #{component_types.join('|')}" unless component_types.include?(type)
