@@ -66,7 +66,7 @@ module CycloneDX
           options.on('-n', '--name name', '(Optional, if specified version and type are also required) Name of the component for which the BOM is generated') do |name|
             parsedOptions[:name] = name
           end
-          options.on('-v', '--version version', '(Optional) Name of the component for which the BOM is generated') do |version|
+          options.on('-v', '--version version', '(Optional) Version of the component for which the BOM is generated') do |version|
             begin
               Gem::Version.new(version)
               parsedOptions[:version] = version

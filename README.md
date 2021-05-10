@@ -30,7 +30,11 @@ Usage: `cyclonedx-cocoapods` [options]
         --[no-]verbose               Run verbosely
     -p, --path path                  (Optional) Path to CocoaPods project directory, current directory if missing
     -o, --output bom_file_path       (Optional) Path to output the bom.xml file to
-    -v, --version version            (Optional) Version of the generated BOM, 1 if not provided
+    -b, --bom-version bom_version    (Optional) Version of the generated BOM, 1 if not provided
+    -g, --group group                (Optional) Group of the component for which the BOM is generated
+    -n, --name name                  (Optional, if specified version and type are also required) Name of the component for which the BOM is generated
+    -v, --version version            (Optional) Version of the component for which the BOM is generated
+    -t, --type type                  (Optional) Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
     -h, --help                       Show help message
 
 **Output:** BoM file at specified location, `./bom.xml` if not specified
