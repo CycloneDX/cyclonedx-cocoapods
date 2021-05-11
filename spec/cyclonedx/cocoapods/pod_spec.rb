@@ -15,8 +15,17 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
     end
 
+    context 'with an invalid name' do
+      let(:invalid_pod_names) { ['NoSpaces AllowedInsideName', ' NoSpacesAllowedOutsideName  ', 'No+SignAllowed', '.Can''tStartWithDot'] }
+      it 'should raise an error' do
+        invalid_pod_names.each { |pod_name|
+          expect { described_class.new(name: pod_name, version: '1.3.5') }.to raise_error(ArgumentError)
+        }
+      end
+    end
+
     context 'with a valid name' do
-      let(:valid_pod_names) { ['Alamofire', '  FirebaseAnalytics', 'R.swift   ', '   Sentry   ', 'Dèja%Vú'] }
+      let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú] }
 
       it 'should strip the name' do
         pods = valid_pod_names.map { |pod_name| described_class.new(name: pod_name, version: '1.0.0') }

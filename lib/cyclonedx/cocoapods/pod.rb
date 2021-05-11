@@ -13,10 +13,12 @@ module CycloneDX
       attr_reader :license     # https://cyclonedx.org/docs/1.2/#type_licenseType
                                # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
       def initialize(name:, version:, checksum: nil)
-        raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.strip.empty?
+        raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.empty?
+        raise ArgumentError, "Name shouldn't contain spaces or plus signs" if name.to_s.include?(' ') || name.to_s.include?('+')
+        raise ArgumentError, "Name shouldn't start with a dot" if name.to_s.start_with?('.')
         Gem::Version.new(version) # To check that the version string is well formed
         raise ArgumentError, "#{checksum} is not valid SHA-1 hash" unless checksum.nil? || checksum =~ /[a-fA-F0-9]{40}/
-        @name, @version, @checksum = name.to_s.strip, version, checksum
+        @name, @version, @checksum = name.to_s, version, checksum
       end
 
       def populate(attributes)
