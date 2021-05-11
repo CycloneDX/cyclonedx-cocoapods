@@ -61,7 +61,9 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
 
           it 'should return a proper purl' do
-            expect(valid_pods.map(&:purl)).to eq(expected_purls)
+            valid_pods.map(&:purl).zip(expected_purls).each do |pod_purl, expected_purl|
+              expect(pod_purl).to eq(expected_purl)
+            end
           end
         end
 
