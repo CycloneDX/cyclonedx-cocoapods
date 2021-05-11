@@ -38,8 +38,10 @@ module CycloneDX
       end
 
       def purl
+        purl_name = CGI.escape(name.split('/').first)
         source_qualifier = source.nil? || source.source_qualifier.empty? ? '' : "?#{source.source_qualifier.map { |key, value| "#{key}=#{CGI.escape(value)}" }.join('&')}"
-        return "pkg:cocoapods/#{name.split('/').map { |component| CGI.escape(component) }.join('/')}@#{CGI.escape(version)}#{source_qualifier}"
+        purl_subpath = name.split('/').length > 1 ? "##{name.split('/').drop(1).map { |component| CGI.escape(component) }.join('/')}" : ''
+        return "pkg:cocoapods/#{purl_name}@#{CGI.escape(version)}#{source_qualifier}#{purl_subpath}"
       end
 
       def to_s
