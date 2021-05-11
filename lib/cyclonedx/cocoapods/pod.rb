@@ -36,7 +36,7 @@ module CycloneDX
       end
 
       def purl
-        "pkg:cocoapods/#{CGI.escape(name)}@#{version}"
+        "pkg:cocoapods/#{name.split('/').map { |component| CGI.escape(component) }.join('/')}@#{version}"
       end
 
       def to_s

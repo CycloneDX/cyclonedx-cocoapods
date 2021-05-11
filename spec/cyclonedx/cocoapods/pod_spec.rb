@@ -35,9 +35,19 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
 
       context 'and a valid version' do
-        let(:valid_versions) { ['5.0', '6.8.3', '2.2.0-alpha.372'] }
+        let(:valid_versions) { %w[5.0 6.8.3 2.2.0-alpha.372] }
         let(:valid_pod_names_and_versions) { valid_pod_names.product(valid_versions) }
         let(:valid_pod_root_names_and_versions) { valid_pod_root_names.product(valid_versions) }
+
+        let(:expected_purls) { %w[
+            pkg:cocoapods/Alamofire@5.0 pkg:cocoapods/Alamofire@6.8.3 pkg:cocoapods/Alamofire@2.2.0-alpha.372
+            pkg:cocoapods/FirebaseAnalytics@5.0 pkg:cocoapods/FirebaseAnalytics@6.8.3 pkg:cocoapods/FirebaseAnalytics@2.2.0-alpha.372
+            pkg:cocoapods/R.swift@5.0 pkg:cocoapods/R.swift@6.8.3 pkg:cocoapods/R.swift@2.2.0-alpha.372
+            pkg:cocoapods/Sentry@5.0 pkg:cocoapods/Sentry@6.8.3 pkg:cocoapods/Sentry@2.2.0-alpha.372
+            pkg:cocoapods/D%C3%A8ja%25V%C3%BA@5.0 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@6.8.3 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@2.2.0-alpha.372
+            pkg:cocoapods/Sentry/Core@5.0 pkg:cocoapods/Sentry/Core@6.8.3 pkg:cocoapods/Sentry/Core@2.2.0-alpha.372
+            pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@5.0 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@6.8.3 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@2.2.0-alpha.372
+        ] }
 
         context 'without checksum' do
           let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) } }
@@ -53,7 +63,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
 
           it 'should return a proper purl' do
-            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name)}@#{version}" }
             expect(valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
@@ -69,7 +78,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
 
           it 'should return a proper purl' do
-            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name)}@#{version}" }
             expect(valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
