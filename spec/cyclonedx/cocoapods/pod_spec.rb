@@ -27,11 +27,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'with a valid name' do
       let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú] }
 
-      it 'should strip the name' do
-        pods = valid_pod_names.map { |pod_name| described_class.new(name: pod_name, version: '1.0.0') }
-        expect(pods.map(&:name)).to eq(valid_pod_names.map(&:strip))
-      end
-
       context 'and an invalid version' do
         it 'should raise an error' do
           expect { described_class.new(name: valid_pod_names[0], version: 'this.is-not_A_version') }.to raise_error(ArgumentError)
@@ -46,13 +41,13 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) } }
 
           it 'should properly build the pod' do
-            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
+            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] })
             expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
             expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { nil })
           end
 
           it 'should return a proper purl' do
-            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name.strip)}@#{version}" }
+            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name)}@#{version}" }
             expect(valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
@@ -62,13 +57,13 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, checksum: valid_checksum) } }
 
           it 'should properly build the pod' do
-            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] }.map(&:strip))
+            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] })
             expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
             expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { valid_checksum })
           end
 
           it 'should return a proper purl' do
-            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name.strip)}@#{version}" }
+            expected_purls = valid_pod_names_and_versions.map { |name, version| "pkg:cocoapods/#{CGI.escape(name)}@#{version}" }
             expect(valid_pods.map(&:purl)).to eq(expected_purls)
           end
         end
