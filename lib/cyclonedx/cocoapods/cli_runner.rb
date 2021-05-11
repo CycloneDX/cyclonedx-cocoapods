@@ -6,6 +6,7 @@ require 'cocoapods'
 
 require_relative 'component'
 require_relative 'pod'
+require_relative 'source'
 require_relative 'bom_builder'
 require_relative 'search_engine'
 
@@ -110,11 +111,33 @@ module CycloneDX
       end
 
 
+      def git_source(lockfile, pod_name)
+        checkout_options = lockfile.checkout_options_for_pod_named(pod_name)
+        url = checkout_options[:git]
+        [:tag, :branch, :commit].each do |type|
+          return Source::GitRepository.new(url: url, type: type, label: checkout_options[type]) if checkout_options[type]
+        end
+        return Source::GitRepository.new(url: url)
+      end
+
+
+      def source_for_pod(lockfile, pod_name)
+        root_name = pod_name.split('/').first
+        return Source::CocoaPodsRepository.new(url: lockfile.spec_repo(root_name)) unless lockfile.spec_repo(root_name).nil?
+        return git_source(lockfile, root_name) unless lockfile.checkout_options_for_pod_named(root_name).nil?
+        return Source::LocalPod.new(path: lockfile.to_hash['EXTERNAL SOURCES'][root_name][:path]) if lockfile.to_hash['EXTERNAL SOURCES'][root_name][:path]
+        return Source::Podspec.new(url: lockfile.to_hash['EXTERNAL SOURCES'][root_name][:podspec]) if lockfile.to_hash['EXTERNAL SOURCES'][root_name][:podspec]
+        return nil
+      end
+
+
       def parse_pod_file(options)
         @logger.debug "Parsing pods from #{options[:podfile_lock_path]}"
         lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
         @logger.debug "Pods successfully parsed"
-        return lockfile.pods_by_spec_repo.values.flatten.map { |name| Pod.new(name: name, version: lockfile.version(name), checksum: lockfile.checksum(name)) }
+        return lockfile.pod_names.map do |name|
+          Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(lockfile, name), checksum: lockfile.checksum(name))
+        end
       end
 
 

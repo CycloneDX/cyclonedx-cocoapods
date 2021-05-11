@@ -6,7 +6,7 @@ require 'cyclonedx/cocoapods/pod'
 # our use of the CocoaPods classes and the expected return values, which may change between versions
 # of CocoaPods.
 RSpec.describe CycloneDX::CocoaPods::SearchEngine do
-  let(:pod) { CycloneDX::CocoaPods::Pod.new(name: 'Alamofire', version: '5.4.2') }
+  let(:pod) { CycloneDX::CocoaPods::Pod.new(name: 'Alamofire/Core', version: '5.4.2') }
   let(:paths) { ['/cocoapods/repos/repo1/pod/pod.json', '/cocoapods/repos/repo2/pod/pod.json'] }
   let(:attributes) { { name: pod.name, version: pod.version } }
 
@@ -24,8 +24,8 @@ RSpec.describe CycloneDX::CocoaPods::SearchEngine do
   end
 
   context 'searching for a pod' do
-    it 'should search for a pod with that exact name and version' do
-      expect(@source_manager).to receive(:search_by_name).with("^#{pod.name}$")
+    it 'should search for a pod with that exact root name and version' do
+      expect(@source_manager).to receive(:search_by_name).with("^#{pod.root_name}$")
       expect(@specification_set).to receive(:specification_paths_for_version).with(pod.version)
       @search_engine.attributes_for(pod: pod)
     end
