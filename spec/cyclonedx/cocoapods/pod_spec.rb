@@ -45,8 +45,8 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           pkg:cocoapods/R.swift@5.0 pkg:cocoapods/R.swift@6.8.3 pkg:cocoapods/R.swift@2.2.0-alpha.372
           pkg:cocoapods/Sentry@5.0 pkg:cocoapods/Sentry@6.8.3 pkg:cocoapods/Sentry@2.2.0-alpha.372
           pkg:cocoapods/D%C3%A8ja%25V%C3%BA@5.0 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@6.8.3 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@2.2.0-alpha.372
-          pkg:cocoapods/Sentry/Core@5.0 pkg:cocoapods/Sentry/Core@6.8.3 pkg:cocoapods/Sentry/Core@2.2.0-alpha.372
-          pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@5.0 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@6.8.3 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@2.2.0-alpha.372
+          pkg:cocoapods/Sentry@5.0#Core pkg:cocoapods/Sentry@6.8.3#Core pkg:cocoapods/Sentry@2.2.0-alpha.372#Core
+          pkg:cocoapods/GoogleUtilities@5.0#NSData%2Bzlib pkg:cocoapods/GoogleUtilities@6.8.3#NSData%2Bzlib pkg:cocoapods/GoogleUtilities@2.2.0-alpha.372#NSData%2Bzlib
         ] }
 
         shared_examples "valid_pod" do
@@ -111,7 +111,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
             context 'from an alternative repository' do
               let(:source) { CycloneDX::CocoaPods::Source::CocoaPodsRepository.new(url: 'https://dl.cloudsmith.io/public/owner/repository/cocoapods/index.git') }
-              let(:expected_purls) { base_purls.map { |purl| "#{purl}?repository_url=#{CGI.escape(source.url)}" } }
+              let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?repository_url=#{CGI.escape(source.url)}" ) } }
               it_behaves_like "pod_with_checksum"
             end
           end
@@ -119,25 +119,25 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           context 'from a git repository' do
             context 'with just a URL' do
               let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git') }
-              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}" } }
+              let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?vcs_url=#{CGI.escape(source.url)}" ) } }
               it_behaves_like "pod_with_checksum"
             end
 
             context 'with a tag' do
               let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git', type: :tag, label: '0.7.0') }
-              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" } }
+              let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" ) } }
               it_behaves_like "pod_with_checksum"
             end
 
             context 'with a branch' do
               let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git', type: :branch, label: 'dev') }
-              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" } }
+              let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" ) } }
               it_behaves_like "pod_with_checksum"
             end
 
             context 'with a commit' do
               let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git', type: :commit, label: '082f8319af') }
-              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" } }
+              let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" ) } }
               it_behaves_like "pod_with_checksum"
             end
           end
@@ -150,7 +150,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
           context 'from other location' do
             let(:source) { CycloneDX::CocoaPods::Source::Podspec.new(url: 'https://example.com/JSONKit.podspec') }
-            let(:expected_purls) { base_purls.map { |purl| "#{purl}?download_url=#{CGI.escape(source.url)}" } }
+            let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?download_url=#{CGI.escape(source.url)}" ) } }
             it_behaves_like "pod_with_checksum"
           end
         end
