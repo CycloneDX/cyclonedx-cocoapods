@@ -26,6 +26,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
     context 'with a valid name' do
       let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry/Core GoogleUtilities/NSData+zlib] }
+      let(:valid_pod_root_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry GoogleUtilities] }
 
       context 'and an invalid version' do
         it 'should raise an error' do
@@ -36,6 +37,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       context 'and a valid version' do
         let(:valid_versions) { ['5.0', '6.8.3', '2.2.0-alpha.372'] }
         let(:valid_pod_names_and_versions) { valid_pod_names.product(valid_versions) }
+        let(:valid_pod_root_names_and_versions) { valid_pod_root_names.product(valid_versions) }
 
         context 'without checksum' do
           let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) } }
@@ -44,6 +46,10 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
             expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] })
             expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
             expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { nil })
+          end
+
+          it 'should properly compute the root name' do
+            expect(valid_pods.map(&:root_name)).to eq(valid_pod_root_names_and_versions.map { |pair| pair[0] })
           end
 
           it 'should return a proper purl' do

@@ -22,6 +22,10 @@ module CycloneDX
         @name, @version, @checksum = name.to_s, version, checksum
       end
 
+      def root_name
+        @name.split('/').first
+      end
+
       def populate(attributes)
         attributes.transform_keys!(&:to_sym)
         populate_author(attributes)
