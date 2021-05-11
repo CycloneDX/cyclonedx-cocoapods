@@ -14,7 +14,8 @@ module CycloneDX
                                # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
       def initialize(name:, version:, checksum: nil)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.empty?
-        raise ArgumentError, "Name shouldn't contain spaces or plus signs" if name.to_s.include?(' ') || name.to_s.include?('+')
+        raise ArgumentError, "Name shouldn't contain spaces" if name.to_s.include?(' ')
+        raise ArgumentError, "Root name shouldn't contain plus signs" if name.to_s.split('/').first.include?('+')
         raise ArgumentError, "Name shouldn't start with a dot" if name.to_s.start_with?('.')
         Gem::Version.new(version) # To check that the version string is well formed
         raise ArgumentError, "#{checksum} is not valid SHA-1 hash" unless checksum.nil? || checksum =~ /[a-fA-F0-9]{40}/

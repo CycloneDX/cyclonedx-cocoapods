@@ -25,7 +25,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'with a valid name' do
-      let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú] }
+      let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry/Core GoogleUtilities/NSData+zlib] }
 
       context 'and an invalid version' do
         it 'should raise an error' do
