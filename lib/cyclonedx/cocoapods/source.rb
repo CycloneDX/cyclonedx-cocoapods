@@ -43,6 +43,8 @@ module CycloneDX
       end
 
       class Podspec
+        attr_reader :url
+
         def initialize(url:)
           @url = url
         end

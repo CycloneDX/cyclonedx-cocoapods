@@ -1,5 +1,6 @@
 require 'rspec'
 require 'cyclonedx/cocoapods/pod'
+require 'cyclonedx/cocoapods/source'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
   context 'when creating new pods' do
@@ -38,28 +39,25 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
         let(:valid_versions) { %w[5.0 6.8.3 2.2.0-alpha.372] }
         let(:valid_pod_names_and_versions) { valid_pod_names.product(valid_versions) }
         let(:valid_pod_root_names_and_versions) { valid_pod_root_names.product(valid_versions) }
-
-        let(:expected_purls) { %w[
-            pkg:cocoapods/Alamofire@5.0 pkg:cocoapods/Alamofire@6.8.3 pkg:cocoapods/Alamofire@2.2.0-alpha.372
-            pkg:cocoapods/FirebaseAnalytics@5.0 pkg:cocoapods/FirebaseAnalytics@6.8.3 pkg:cocoapods/FirebaseAnalytics@2.2.0-alpha.372
-            pkg:cocoapods/R.swift@5.0 pkg:cocoapods/R.swift@6.8.3 pkg:cocoapods/R.swift@2.2.0-alpha.372
-            pkg:cocoapods/Sentry@5.0 pkg:cocoapods/Sentry@6.8.3 pkg:cocoapods/Sentry@2.2.0-alpha.372
-            pkg:cocoapods/D%C3%A8ja%25V%C3%BA@5.0 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@6.8.3 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@2.2.0-alpha.372
-            pkg:cocoapods/Sentry/Core@5.0 pkg:cocoapods/Sentry/Core@6.8.3 pkg:cocoapods/Sentry/Core@2.2.0-alpha.372
-            pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@5.0 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@6.8.3 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@2.2.0-alpha.372
+        let(:base_purls) { %w[
+          pkg:cocoapods/Alamofire@5.0 pkg:cocoapods/Alamofire@6.8.3 pkg:cocoapods/Alamofire@2.2.0-alpha.372
+          pkg:cocoapods/FirebaseAnalytics@5.0 pkg:cocoapods/FirebaseAnalytics@6.8.3 pkg:cocoapods/FirebaseAnalytics@2.2.0-alpha.372
+          pkg:cocoapods/R.swift@5.0 pkg:cocoapods/R.swift@6.8.3 pkg:cocoapods/R.swift@2.2.0-alpha.372
+          pkg:cocoapods/Sentry@5.0 pkg:cocoapods/Sentry@6.8.3 pkg:cocoapods/Sentry@2.2.0-alpha.372
+          pkg:cocoapods/D%C3%A8ja%25V%C3%BA@5.0 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@6.8.3 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@2.2.0-alpha.372
+          pkg:cocoapods/Sentry/Core@5.0 pkg:cocoapods/Sentry/Core@6.8.3 pkg:cocoapods/Sentry/Core@2.2.0-alpha.372
+          pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@5.0 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@6.8.3 pkg:cocoapods/GoogleUtilities/NSData%2Bzlib@2.2.0-alpha.372
         ] }
 
-        context 'without checksum' do
-          let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version) } }
-
+        shared_examples "valid_pod" do
           it 'should properly build the pod' do
-            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] })
-            expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
-            expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { nil })
+            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |name, _| name })
+            expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |_, version| version })
+            expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { checksum })
           end
 
           it 'should properly compute the root name' do
-            expect(valid_pods.map(&:root_name)).to eq(valid_pod_root_names_and_versions.map { |pair| pair[0] })
+            expect(valid_pods.map(&:root_name)).to eq(valid_pod_root_names_and_versions.map { |name, _| name })
           end
 
           it 'should return a proper purl' do
@@ -67,26 +65,91 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           end
         end
 
-        context 'with a valid checksum' do
-          let(:valid_checksum) { '9a8ccc3a24b87624f4b40883adab3d98a9fdc00d' }
-          let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, checksum: valid_checksum) } }
-
-          it 'should properly build the pod' do
-            expect(valid_pods.map(&:name)).to eq(valid_pod_names_and_versions.map { |pair| pair[0] })
-            expect(valid_pods.map(&:version)).to eq(valid_pod_names_and_versions.map { |pair| pair[1] })
-            expect(valid_pods.map(&:checksum)).to eq(valid_pod_names_and_versions.map { valid_checksum })
+        shared_examples "pod_with_checksum" do
+          context 'without checksum' do
+            let(:checksum) { nil }
+            let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, source: source) } }
+            it_behaves_like "valid_pod"
           end
 
-          it 'should return a proper purl' do
-            expect(valid_pods.map(&:purl)).to eq(expected_purls)
+          context 'with a valid checksum' do
+            let(:checksum) { '9a8ccc3a24b87624f4b40883adab3d98a9fdc00d' }
+            let(:valid_pods) { valid_pod_names_and_versions.map { |name, version| described_class.new(name: name, version: version, source: source, checksum: checksum) } }
+            it_behaves_like "valid_pod"
+          end
+
+          context 'with an invalid checksum' do
+            it 'should raise an error' do
+              expect {
+                described_class.new(name: valid_pod_names.sample, version: valid_versions.sample, checksum: 'not-a-valid-checksum')
+              }.to raise_error(ArgumentError)
+            end
           end
         end
 
-        context 'with an invalid checksum' do
-          it 'should raise an error' do
-            expect {
-              described_class.new(name: valid_pod_names.sample, version: valid_versions.sample, checksum: 'not-a-valid-checksum')
-            }.to raise_error(ArgumentError)
+        context 'without source' do
+          let(:source) { nil }
+          let(:expected_purls) { base_purls }
+          it_behaves_like "pod_with_checksum"
+        end
+
+        context 'with source' do
+          context 'from a repository' do
+            context 'from the legacy repository' do
+              let(:source) { CycloneDX::CocoaPods::Source::CocoaPodsRepository.new(url: 'https://github.com/CocoaPods/Specs.git') }
+              let(:expected_purls) { base_purls }
+              it_behaves_like "pod_with_checksum"
+            end
+
+            context 'from the CDN repository' do
+              let(:source) { CycloneDX::CocoaPods::Source::CocoaPodsRepository.new(url: 'trunk') }
+              let(:expected_purls) { base_purls }
+              it_behaves_like "pod_with_checksum"
+            end
+
+            context 'from an alternative repository' do
+              let(:source) { CycloneDX::CocoaPods::Source::CocoaPodsRepository.new(url: 'https://dl.cloudsmith.io/public/owner/repository/cocoapods/index.git') }
+              let(:expected_purls) { base_purls.map { |purl| "#{purl}?repository_url=#{CGI.escape(source.url)}" } }
+              it_behaves_like "pod_with_checksum"
+            end
+          end
+
+          context 'from a git repository' do
+            context 'with just a URL' do
+              let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git') }
+              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}" } }
+              it_behaves_like "pod_with_checksum"
+            end
+
+            context 'with a tag' do
+              let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git', type: :tag, label: '0.7.0') }
+              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" } }
+              it_behaves_like "pod_with_checksum"
+            end
+
+            context 'with a branch' do
+              let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git', type: :branch, label: 'dev') }
+              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" } }
+              it_behaves_like "pod_with_checksum"
+            end
+
+            context 'with a commit' do
+              let(:source) { CycloneDX::CocoaPods::Source::GitRepository.new(url: 'https://github.com/gowalla/AFNetworking.git', type: :commit, label: '082f8319af') }
+              let(:expected_purls) { base_purls.map { |purl| "#{purl}?vcs_url=#{CGI.escape(source.url)}%40#{CGI.escape(source.label)}" } }
+              it_behaves_like "pod_with_checksum"
+            end
+          end
+
+          context 'from local disk' do
+            let(:source) { CycloneDX::CocoaPods::Source::LocalPod.new(path: '~/Documents/AFNetworking') }
+            let(:expected_purls) { base_purls }
+            it_behaves_like "pod_with_checksum"
+          end
+
+          context 'from other location' do
+            let(:source) { CycloneDX::CocoaPods::Source::Podspec.new(url: 'https://example.com/JSONKit.podspec') }
+            let(:expected_purls) { base_purls.map { |purl| "#{purl}?download_url=#{CGI.escape(source.url)}" } }
+            it_behaves_like "pod_with_checksum"
           end
         end
       end

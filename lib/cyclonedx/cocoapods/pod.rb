@@ -6,20 +6,22 @@ module CycloneDX
     class Pod
       attr_reader :name        # xs:normalizedString
       attr_reader :version     # xs:normalizedString
+      attr_reader :source      # Anything responding to :source_qualifier
       attr_reader :homepage    # xs:anyURI - https://cyclonedx.org/docs/1.2/#type_externalReference
       attr_reader :checksum    # https://cyclonedx.org/docs/1.2/#type_hashValue (We only use SHA-1 hashes - length == 40)
       attr_reader :author      # xs:normalizedString
       attr_reader :description # xs:normalizedString
       attr_reader :license     # https://cyclonedx.org/docs/1.2/#type_licenseType
                                # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
-      def initialize(name:, version:, checksum: nil)
+      def initialize(name:, version:, source: nil, checksum: nil)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.empty?
         raise ArgumentError, "Name shouldn't contain spaces" if name.to_s.include?(' ')
         raise ArgumentError, "Root name shouldn't contain plus signs" if name.to_s.split('/').first.include?('+')
         raise ArgumentError, "Name shouldn't start with a dot" if name.to_s.start_with?('.')
         Gem::Version.new(version) # To check that the version string is well formed
+        raise ArgumentError, "Invalid pod source" unless source.nil? || source.respond_to?(:source_qualifier)
         raise ArgumentError, "#{checksum} is not valid SHA-1 hash" unless checksum.nil? || checksum =~ /[a-fA-F0-9]{40}/
-        @name, @version, @checksum = name.to_s, version, checksum
+        @name, @version, @source, @checksum = name.to_s, version, source, checksum
       end
 
       def root_name
@@ -36,7 +38,8 @@ module CycloneDX
       end
 
       def purl
-        "pkg:cocoapods/#{name.split('/').map { |component| CGI.escape(component) }.join('/')}@#{version}"
+        source_qualifier = source.nil? || source.source_qualifier.empty? ? '' : "?#{source.source_qualifier.map { |key, value| "#{key}=#{CGI.escape(value)}" }.join('&')}"
+        return "pkg:cocoapods/#{name.split('/').map { |component| CGI.escape(component) }.join('/')}@#{version}#{source_qualifier}"
       end
 
       def to_s
