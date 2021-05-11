@@ -39,7 +39,7 @@ module CycloneDX
 
       def purl
         source_qualifier = source.nil? || source.source_qualifier.empty? ? '' : "?#{source.source_qualifier.map { |key, value| "#{key}=#{CGI.escape(value)}" }.join('&')}"
-        return "pkg:cocoapods/#{name.split('/').map { |component| CGI.escape(component) }.join('/')}@#{version}#{source_qualifier}"
+        return "pkg:cocoapods/#{name.split('/').map { |component| CGI.escape(component) }.join('/')}@#{CGI.escape(version)}#{source_qualifier}"
       end
 
       def to_s
