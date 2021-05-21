@@ -9,7 +9,6 @@ require_relative 'pod'
 require_relative 'pod_attributes'
 require_relative 'source'
 require_relative 'bom_builder'
-require_relative 'search_engine'
 
 module CycloneDX
   module CocoaPods
