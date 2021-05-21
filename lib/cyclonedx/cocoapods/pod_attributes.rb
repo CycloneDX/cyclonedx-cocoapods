@@ -42,5 +42,12 @@ module CycloneDX
         end
       end
     end
+
+
+    class Pod
+      def complete_information_from_source
+        populate(source.attributes_for(pod: self))
+      end
+    end
   end
 end
