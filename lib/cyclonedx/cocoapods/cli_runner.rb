@@ -6,6 +6,7 @@ require 'cocoapods'
 
 require_relative 'component'
 require_relative 'pod'
+require_relative 'pod_attributes'
 require_relative 'source'
 require_relative 'bom_builder'
 require_relative 'search_engine'
@@ -23,11 +24,10 @@ module CycloneDX
           setup_logger(verbose: options[:verbose])
           @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-          ensure_podfile_and_lock_are_present(options)
-          pods = parse_pod_file(options)
-          search_engine = SearchEngine.new(source_manager: create_source_manager(options))
+          podfile, lockfile = ensure_podfile_and_lock_are_present(options)
+          pods = parse_pods(podfile, lockfile)
 
-          populate_pods_with_additional_info(pods, search_engine)
+          populate_pods_with_additional_info(pods)
 
           bom = BOMBuilder.new(component: component_from_options(options), pods: pods).bom(version: options[:bom_version] || 1)
           write_bom_to_file(bom: bom, options: options)
@@ -108,6 +108,13 @@ module CycloneDX
         raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(options[:podfile_path])
         options[:podfile_lock_path] = project_dir + 'Podfile.lock'
         raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(options[:podfile_lock_path])
+        return ::Pod::Podfile.from_file(options[:podfile_path]), ::Pod::Lockfile.from_file(options[:podfile_lock_path])
+      end
+
+
+      def cocoapods_repository_source(podfile, lockfile, pod_name)
+        @source_manager ||= create_source_manager(podfile)
+        return Source::CocoaPodsRepository.searchable_source(url: lockfile.spec_repo(pod_name), source_manager: @source_manager)
       end
 
 
@@ -121,9 +128,9 @@ module CycloneDX
       end
 
 
-      def source_for_pod(lockfile, pod_name)
+      def source_for_pod(podfile, lockfile, pod_name)
         root_name = pod_name.split('/').first
-        return Source::CocoaPodsRepository.new(url: lockfile.spec_repo(root_name)) unless lockfile.spec_repo(root_name).nil?
+        return cocoapods_repository_source(podfile, lockfile, root_name) unless lockfile.spec_repo(root_name).nil?
         return git_source(lockfile, root_name) unless lockfile.checkout_options_for_pod_named(root_name).nil?
         return Source::LocalPod.new(path: lockfile.to_hash['EXTERNAL SOURCES'][root_name][:path]) if lockfile.to_hash['EXTERNAL SOURCES'][root_name][:path]
         return Source::Podspec.new(url: lockfile.to_hash['EXTERNAL SOURCES'][root_name][:podspec]) if lockfile.to_hash['EXTERNAL SOURCES'][root_name][:podspec]
@@ -131,20 +138,17 @@ module CycloneDX
       end
 
 
-      def parse_pod_file(options)
-        @logger.debug "Parsing pods from #{options[:podfile_lock_path]}"
-        lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
-        @logger.debug "Pods successfully parsed"
+      def parse_pods(podfile, lockfile)
+        @logger.debug "Parsing pods from #{podfile.defined_in_file}"
         return lockfile.pod_names.map do |name|
-          Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(lockfile, name), checksum: lockfile.checksum(name))
+          Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(podfile, lockfile, name), checksum: lockfile.checksum(name))
         end
       end
 
 
-      def create_source_manager(options)
+      def create_source_manager(podfile)
         sourceManager = ::Pod::Source::Manager.new('~/.cocoapods/repos') # TODO: Can we use CocoaPods configuration somehow?
-        @logger.debug "Parsing sources from #{options[:podfile_path]}"
-        podfile = ::Pod::Podfile.from_file(options[:podfile_path])
+        @logger.debug "Parsing sources from #{podfile.defined_in_file}"
         podfile.sources.each do |source|
           @logger.debug "Ensuring #{source} is available for searches"
           sourceManager.find_or_create_source_with_url(source)
@@ -154,10 +158,10 @@ module CycloneDX
       end
 
 
-      def populate_pods_with_additional_info(pods, search_engine)
+      def populate_pods_with_additional_info(pods)
         pods.each do |pod|
           @logger.debug "Completing information for #{pod.name}"
-          pod.populate(search_engine.attributes_for(pod: pod))
+          pod.complete_information_from_source
         end
         return pods
       end
