@@ -5,9 +5,46 @@ require_relative 'version'
 
 module CycloneDX
   module CocoaPods
+    module Source
+      class CocoaPodsRepository
+        LEGACY_REPOSITORY = 'https://github.com/CocoaPods/Specs.git'.freeze
+        CDN_REPOSITORY = 'trunk'.freeze
+
+        def source_qualifier
+          url == LEGACY_REPOSITORY || url == CDN_REPOSITORY ? {} : { repository_url: url }
+        end
+      end
+
+      class GitRepository
+        def source_qualifier
+          { vcs_url: (label.nil? ? url : "#{url}@#{label}") }
+        end
+      end
+
+      class LocalPod
+        def source_qualifier
+          # TODO: Should we generate a source qualifier for :path dependencies?
+          {}
+        end
+      end
+
+      class Podspec
+        def source_qualifier
+          { download_url: @url }
+        end
+      end
+    end
+
     class Pod
       CHECKSUM_ALGORITHM = 'SHA-1'.freeze
       HOMEPAGE_REFERENCE_TYPE = 'website'.freeze
+
+      def purl
+        purl_name = CGI.escape(name.split('/').first)
+        source_qualifier = source.nil? || source.source_qualifier.empty? ? '' : "?#{source.source_qualifier.map { |key, value| "#{key}=#{CGI.escape(value)}" }.join('&')}"
+        purl_subpath = name.split('/').length > 1 ? "##{name.split('/').drop(1).map { |component| CGI.escape(component) }.join('/')}" : ''
+        return "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{source_qualifier}#{purl_subpath}"
+      end
 
       def add_to_bom(xml)
         xml.component(type: 'library') do
