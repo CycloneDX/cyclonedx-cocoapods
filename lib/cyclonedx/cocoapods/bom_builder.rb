@@ -71,7 +71,7 @@ module CycloneDX
           xml.publisher author unless author.nil?
           xml.name name
           xml.version version.to_s
-          xml.description description unless description.nil?
+          xml.description { xml.cdata description } unless description.nil?
           unless checksum.nil?
             xml.hashes do
               xml.hash_(checksum, alg: CHECKSUM_ALGORITHM)
