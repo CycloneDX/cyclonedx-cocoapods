@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added this CHANGELOG.md file. (macblazer)
 - Local pods now use the `file_name` purl qualifier, and have more information pulled from the local .podspec file. (macblazer)
+- Added a small section in the README.md for contributors and how to set up for local development. (macblazer)
 
 ## [0.1.1]
 
