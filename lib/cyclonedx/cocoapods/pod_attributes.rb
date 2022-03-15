@@ -51,7 +51,11 @@ module CycloneDX
 
       class LocalPod
         def attributes_for(pod:)
-          {} # TODO: Retrieve attributes from podspec in local file system
+          podspec_files = Dir.glob("#{pod.source.path}/#{pod.name}.podspec")
+          raise SearchError, "No podspec file found in #{pod.source.path}" if podspec_files.length == 0
+          raise SearchError, "More than one podspec file found in #{pod.source.path}" if podspec_files.length > 1
+
+          ::Pod::Specification.from_file(podspec_files[0]).attributes_hash
         end
       end
 
