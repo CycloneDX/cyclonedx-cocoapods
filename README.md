@@ -51,9 +51,12 @@ To set up for local development, make a fork of this repo, make a branch on your
 
 ### Right to Contribute
 
-This project runs the [DOC](https://probot.github.io/apps/dco/) checker to validate that the code author has the right to submit the code they are
+This project runs the [DCO](https://probot.github.io/apps/dco/) checker to validate that the code author has the right to submit the code they are
 contributing to the project.  Please verify that you do have the right to contribute, then when running `git commit` add the `-s` flag to
 automatically add the proper `Signed-off-by` line to the commit message.
+
+To make this easier, once you have verified your right to contribute run `git config --local --add format.signOff true` in your local checkout.  This
+will make any future `git commit` add the proper `Signed-off-by` line automatically.
 
 ### Pull requests
 
