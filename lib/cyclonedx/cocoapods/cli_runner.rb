@@ -126,10 +126,17 @@ module CycloneDX
         options[:podfile_lock_path] = project_dir + 'Podfile.lock'
         raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(options[:podfile_lock_path])
 
+        initialize_cocoapods_config(project_dir)
+
         lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
         verify_synced_sandbox(lockfile)
 
         return ::Pod::Podfile.from_file(options[:podfile_path]), lockfile
+      end
+
+
+      def initialize_cocoapods_config(project_dir)
+        ::Pod::Config.instance.installation_root = project_dir
       end
 
 
