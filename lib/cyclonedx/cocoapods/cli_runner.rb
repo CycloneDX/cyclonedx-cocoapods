@@ -124,7 +124,7 @@ module CycloneDX
         options[:podfile_path] = project_dir + 'Podfile'
         raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(options[:podfile_path])
         options[:podfile_lock_path] = project_dir + 'Podfile.lock'
-        raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(options[:podfile_lock_path])
+        raise PodfileParsingError, "Missing Podfile.lock, please run 'pod install' before generating BOM" unless File.exist?(options[:podfile_lock_path])
         return ::Pod::Podfile.from_file(options[:podfile_path]), ::Pod::Lockfile.from_file(options[:podfile_lock_path])
       end
 
