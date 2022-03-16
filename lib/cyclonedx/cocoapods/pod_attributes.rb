@@ -45,19 +45,19 @@ module CycloneDX
 
       class GitRepository
         def attributes_for(pod:)
-          {} # TODO: Retrieve attributes from podspec in git repository
+          ::Pod::Config.new().sandbox.specification(pod.name).attributes_hash
         end
       end
 
       class LocalPod
         def attributes_for(pod:)
-          {} # TODO: Retrieve attributes from podspec in local file system
+          ::Pod::Config.new().sandbox.specification(pod.name).attributes_hash
         end
       end
 
       class Podspec
         def attributes_for(pod:)
-          {} # TODO: Retrieve attributes from podspec in specified location
+          ::Pod::Config.new().sandbox.specification(pod.name).attributes_hash
         end
       end
     end
