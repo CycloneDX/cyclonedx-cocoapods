@@ -125,7 +125,18 @@ module CycloneDX
         raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(options[:podfile_path])
         options[:podfile_lock_path] = project_dir + 'Podfile.lock'
         raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(options[:podfile_lock_path])
-        return ::Pod::Podfile.from_file(options[:podfile_path]), ::Pod::Lockfile.from_file(options[:podfile_lock_path])
+
+        lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
+        verify_synced_sandbox(lockfile)
+
+        return ::Pod::Podfile.from_file(options[:podfile_path]), lockfile
+      end
+
+
+      def verify_synced_sandbox(lockfile)
+        manifestFile = ::Pod::Config.instance.sandbox.manifest
+        raise PodfileParsingError, "Missing Manifest.lock, please run 'pod install' before generating BOM" if manifestFile.nil?
+        raise PodfileParsingError, "The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation." unless lockfile == manifestFile
       end
 
 
