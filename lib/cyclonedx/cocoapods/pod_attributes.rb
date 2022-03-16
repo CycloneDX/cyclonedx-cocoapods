@@ -45,19 +45,19 @@ module CycloneDX
 
       class GitRepository
         def attributes_for(pod:)
-          ::Pod::Config.new().sandbox.specification(pod.name).attributes_hash
+          ::Pod::Config.instance.sandbox.specification(pod.name).attributes_hash
         end
       end
 
       class LocalPod
         def attributes_for(pod:)
-          ::Pod::Config.new().sandbox.specification(pod.name).attributes_hash
+          ::Pod::Config.instance.sandbox.specification(pod.name).attributes_hash
         end
       end
 
       class Podspec
         def attributes_for(pod:)
-          ::Pod::Config.new().sandbox.specification(pod.name).attributes_hash
+          ::Pod::Config.instance.sandbox.specification(pod.name).attributes_hash
         end
       end
     end
