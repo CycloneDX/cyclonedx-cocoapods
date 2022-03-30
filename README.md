@@ -45,6 +45,18 @@ Usage: `cyclonedx-cocoapods` [options]
 % cyclonedx-cocoapods --path /path/to/cocoapods/project --output /path/to/bom.xml --version 6 
 ```
 
+#### Specific example
+
+This repo contains a file named `example_bom.xml` that was generated with this tool.
+
+It represents the open source [PodsUpdater application](https://github.com/kizitonwose/PodsUpdater).  The PodsUpdater code was checked out,
+then these two commands were run in the checked out code directory.
+
+```shell
+% pod install
+% cyclonedx-cocoapods -n "kizitonwose/PodsUpdater" -v 1.0.3 -t application --output example_bom.xml
+```
+
 ## Contributing
 
 To set up for local development, make a fork of this repo, make a branch on your fork named after the issue or workflow you are improving, checkout your branch, then run `bundle install`.
