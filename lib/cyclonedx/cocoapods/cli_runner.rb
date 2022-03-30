@@ -124,7 +124,7 @@ module CycloneDX
         options[:podfile_path] = project_dir + 'Podfile'
         raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(options[:podfile_path])
         options[:podfile_lock_path] = project_dir + 'Podfile.lock'
-        raise PodfileParsingError, "Missing Podfile.lock, please run pod install before generating BOM" unless File.exist?(options[:podfile_lock_path])
+        raise PodfileParsingError, "Missing Podfile.lock, please run 'pod install' before generating BOM" unless File.exist?(options[:podfile_lock_path])
         return ::Pod::Podfile.from_file(options[:podfile_path]), ::Pod::Lockfile.from_file(options[:podfile_lock_path])
       end
 
@@ -164,7 +164,7 @@ module CycloneDX
 
 
       def create_source_manager(podfile)
-        sourceManager = ::Pod::Source::Manager.new('~/.cocoapods/repos') # TODO: Can we use CocoaPods configuration somehow?
+        sourceManager = ::Pod::Source::Manager.new(::Pod::Config::instance.repos_dir)
         @logger.debug "Parsing sources from #{podfile.defined_in_file}"
         podfile.sources.each do |source|
           @logger.debug "Ensuring #{source} is available for searches"

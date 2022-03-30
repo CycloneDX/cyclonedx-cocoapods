@@ -163,7 +163,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
 
           context 'from local disk' do
             let(:source) { CycloneDX::CocoaPods::Source::LocalPod.new(path: '~/Documents/AFNetworking') }
-            let(:expected_purls) { base_purls }
+            let(:expected_purls) { base_purls.map { |purl| purl.insert(purl.index('#') || -1, "?file_name=#{CGI.escape(source.path)}" ) } }
             it_behaves_like "pod_with_checksum"
           end
 

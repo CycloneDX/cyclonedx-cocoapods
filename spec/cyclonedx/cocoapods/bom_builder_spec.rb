@@ -62,7 +62,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'when not having an author' do
-      it 'shouldn''t generate a component author' do
+      it 'shouldn\'t generate a component author' do
         expect(xml.at('/component/author')).to be_nil
         expect(xml.at('/component/publisher')).to be_nil
       end
@@ -80,7 +80,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'when not having a description' do
-      it 'shouldn''t generate a component description' do
+      it 'shouldn\'t generate a component description' do
         expect(xml.at('/component/description')).to be_nil
       end
     end
@@ -135,7 +135,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'when not having a homepage' do
-      it 'shouldn''t generate an external references list' do
+      it 'shouldn\'t generate an external references list' do
         expect(xml.at('/component/externalReferences')).to be_nil
       end
     end

@@ -57,6 +57,23 @@ then these two commands were run in the checked out code directory.
 % cyclonedx-cocoapods -n "kizitonwose/PodsUpdater" -v 1.0.3 -t application --output example_bom.xml
 ```
 
+## Contributing
+
+To set up for local development, make a fork of this repo, make a branch on your fork named after the issue or workflow you are improving, checkout your branch, then run `bundle install`.
+
+### Right to Contribute
+
+This project runs the [DCO](https://probot.github.io/apps/dco/) checker to validate that the code author has the right to submit the code they are
+contributing to the project.  Please verify that you do have the right to contribute, then when running `git commit` add the `-s` flag to
+automatically add the proper `Signed-off-by` line to the commit message.
+
+### Pull requests
+
+Before submitting your pull request, please do the following:
+
+- Run `rake spec` and make sure all the tests pass. If you are adding new commands or features, they must include tests. If you are changing functionality, update the tests or add new tests as needed.
+- Add a note to the CHANGELOG describing what you changed.
+- Make your pull request. If it is related to an issue, add a link to the issue in the description.
 
 ## Copyright & License
 Permission to modify and redistribute is granted under the terms of the Apache 2.0 license. See the [LICENSE] file for the full license.
