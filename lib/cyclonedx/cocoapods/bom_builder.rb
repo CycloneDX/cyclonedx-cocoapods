@@ -42,8 +42,7 @@ module CycloneDX
 
       class LocalPod
         def source_qualifier
-          # TODO: Should we generate a source qualifier for :path dependencies?
-          {}
+          { file_name: @path }
         end
       end
 
