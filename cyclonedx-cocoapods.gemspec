@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/CycloneDX/cyclonedx-cocoapods.git"
 
   # Specify which files should be added to the gem when it is released.
-  spec.files = Dir["lib/**/*.{rb,json}"] + %w{ exe/cyclonedx-cocoapods README.md LICENSE NOTICE }
+  spec.files = Dir["lib/**/*.{rb,json}"] + %w{ exe/cyclonedx-cocoapods README.md CHANGELOG.md LICENSE NOTICE }
 
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

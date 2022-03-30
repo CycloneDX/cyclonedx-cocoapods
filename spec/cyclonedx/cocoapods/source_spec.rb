@@ -87,8 +87,7 @@ RSpec.describe CycloneDX::CocoaPods::Source::LocalPod do
     let(:path) { '~/Documents/AFNetworking' }
 
     it 'should generate a proper source qualifier' do
-      # TODO: Should we generate a source qualifier for :path dependencies?
-      expect(described_class.new(path: path).source_qualifier).to eq({})
+      expect(described_class.new(path: path).source_qualifier).to eq({ file_name: "#{path}"})
     end
   end
 end
