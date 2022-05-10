@@ -36,7 +36,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'with an invalid name' do
-      let(:invalid_pod_names) { ['NoSpaces AllowedInsideName', ' NoSpacesAllowedOutsideName  ', 'No+SignAllowed', '.Can''tStartWithDot'] }
+      let(:invalid_pod_names) { ['NoSpaces AllowedInsideName', ' NoSpacesAllowedOutsideName  ', '.Can''tStartWithDot'] }
       it 'should raise an error' do
         invalid_pod_names.each { |pod_name|
           expect { described_class.new(name: pod_name, version: '1.3.5') }.to raise_error(ArgumentError)
@@ -45,8 +45,8 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'with a valid name' do
-      let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry/Core GoogleUtilities/NSData+zlib] }
-      let(:valid_pod_root_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry GoogleUtilities] }
+      let(:valid_pod_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry/Core GoogleUtilities/NSData+zlib NSDate+TimeAgo] }
+      let(:valid_pod_root_names) { %w[Alamofire FirebaseAnalytics R.swift Sentry Dèja%Vú Sentry GoogleUtilities NSDate+TimeAgo] }
 
       context 'and an invalid version' do
         it 'should raise an error' do
@@ -66,6 +66,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
           pkg:cocoapods/D%C3%A8ja%25V%C3%BA@5.0 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@6.8.3 pkg:cocoapods/D%C3%A8ja%25V%C3%BA@2.2.0-alpha.372
           pkg:cocoapods/Sentry@5.0#Core pkg:cocoapods/Sentry@6.8.3#Core pkg:cocoapods/Sentry@2.2.0-alpha.372#Core
           pkg:cocoapods/GoogleUtilities@5.0#NSData%2Bzlib pkg:cocoapods/GoogleUtilities@6.8.3#NSData%2Bzlib pkg:cocoapods/GoogleUtilities@2.2.0-alpha.372#NSData%2Bzlib
+          pkg:cocoapods/NSDate%2BTimeAgo@5.0 pkg:cocoapods/NSDate%2BTimeAgo@6.8.3 pkg:cocoapods/NSDate%2BTimeAgo@2.2.0-alpha.372
         ] }
 
         shared_examples "valid_pod" do

@@ -35,8 +35,10 @@ module CycloneDX
       def initialize(name:, version:, source: nil, checksum: nil)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.empty?
         raise ArgumentError, "Name shouldn't contain spaces" if name.to_s.include?(' ')
-        raise ArgumentError, "Root name shouldn't contain plus signs" if name.to_s.split('/').first.include?('+')
         raise ArgumentError, "Name shouldn't start with a dot" if name.to_s.start_with?('.')
+        # `pod create` also enforces no plus sign, but more than 500 public pods have a plus in the root name.
+        # https://github.com/CocoaPods/CocoaPods/blob/9461b346aeb8cba6df71fd4e71661688138ec21b/lib/cocoapods/command/lib/create.rb#L35
+
         Gem::Version.new(version) # To check that the version string is well formed
         raise ArgumentError, "Invalid pod source" unless source.nil? || source.respond_to?(:source_qualifier)
         raise ArgumentError, "#{checksum} is not valid SHA-1 hash" unless checksum.nil? || checksum =~ /[a-fA-F0-9]{40}/
