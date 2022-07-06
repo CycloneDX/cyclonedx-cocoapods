@@ -149,12 +149,6 @@ module CycloneDX
               xml.name 'cyclonedx-cocoapods'
               xml.version VERSION
             end
-            DEPENDENCIES.each do |dependency, version|
-              xml.tool do
-                xml.name dependency
-                xml.version version
-              end
-            end
           end
           component.add_to_bom(xml) unless component.nil?
         end

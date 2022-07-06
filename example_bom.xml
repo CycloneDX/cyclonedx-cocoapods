@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bom xmlns="http://cyclonedx.org/schema/bom/1.2" version="1" serialNumber="urn:uuid:f7e44a2a-24e6-4653-b2a1-9513bdbd83c5">
+<bom xmlns="http://cyclonedx.org/schema/bom/1.2" version="1" serialNumber="urn:uuid:d9a751d0-6e8c-4cdd-9252-95e0f1c7c58d">
   <metadata>
-    <timestamp>2022-03-16T18:55:27Z</timestamp>
+    <timestamp>2022-07-06T21:09:13Z</timestamp>
     <tools>
       <tool>
         <vendor>CycloneDX</vendor>
         <name>cyclonedx-cocoapods</name>
         <version>0.1.1</version>
-      </tool>
-      <tool>
-        <name>cocoapods</name>
-        <version>~&gt; 1.10.1</version>
-      </tool>
-      <tool>
-        <name>nokogiri</name>
-        <version>~&gt; 1.11.2</version>
       </tool>
     </tools>
     <component type="application">
@@ -103,7 +95,7 @@ Probably the best analogy for those who have never heard of Rx would be:
 
 ```
 git diff | grep bug | less          #  linux pipes - programs communicate by sending
-				    #  sequences of bytes, words, lines, ']]></description>
+            #  sequences of bytes, words, lines, ']]></description>
       <hashes>
         <hash alg="SHA-1">74c29b693c8e42b0f64400e8b06564575742d649</hash>
       </hashes>
