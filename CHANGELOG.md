@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added this CHANGELOG.md file. (macblazer)
-- Local pods now use the `file_name` purl qualifier.
-- Added a small section in the README.md for contributors and how to set up for local development. (macblazer)
+- Local pods now use the `file_name` purl qualifier ([Issue #11](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/11)) [@macblazer](https://github.com/macblazer).
 - Gathering more info for local pods, Git based pods, and podspec based pods ([Issues #11](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/11), [#12](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/12), and [#13](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/13)) [@macblazer](https://github.com/macblazer).
+- Added a small section in the README.md for contributors and how to set up for local development [@macblazer](https://github.com/macblazer).
+- Added this CHANGELOG.md file [@macblazer](https://github.com/macblazer).
 
 ### Changed
 - Removed the cyclonedx-cocoapods dependencies from the list of tools in the bom metadata ([Issue #29](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/29)) [@macblazer](https://github.com/macblazer).
