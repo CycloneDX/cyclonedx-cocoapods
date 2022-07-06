@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -15,5 +15,5 @@ jobs:
       with:
         ruby-version: '3.0'
         bundler-cache: true
-    - name: Run unit tests
+    - name: Unit tests
       run: bundle exec rake
