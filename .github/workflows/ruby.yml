@@ -9,11 +9,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        persist-credentials: false
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.0'
-        bundler-cache: true
     - name: Unit tests
-      run: bundle exec rake
+      run: bundle install; bundle exec rake
