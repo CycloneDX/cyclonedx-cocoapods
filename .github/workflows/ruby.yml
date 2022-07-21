@@ -1,0 +1,13 @@
+name: Ruby CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Unit tests
+      run: bundle install; bundle exec rake
