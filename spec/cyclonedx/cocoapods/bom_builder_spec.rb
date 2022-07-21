@@ -317,17 +317,10 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         it 'should generate tools metadata' do
           expect(xml.at('bom/metadata/tools')).not_to be_nil
 
-          # First tool should be cyclonedx-cocoapods
-          expect(xml.css('bom/metadata/tools/tool[1]/name').text).to eq('cyclonedx-cocoapods')
-          expect(xml.css('bom/metadata/tools/tool[1]/version').text).to eq(CycloneDX::CocoaPods::VERSION)
-
-          # Check rest of tools
-          expect(xml.css('bom/metadata/tools/tool/name').drop(1).map(&:text).map(&:to_sym).to_set).to eq(CycloneDX::CocoaPods::DEPENDENCIES.keys.to_set)
-          xml.css('bom/metadata/tools/tool').drop(1).each do |tool|
-            tool_name = tool.at('name').text
-            tool_version = tool.at('version').text
-            expect(CycloneDX::CocoaPods::DEPENDENCIES[tool_name.to_sym]).to eq(tool_version)
-          end
+          # Only tool should be cyclonedx-cocoapods
+          expect(xml.css('bom/metadata/tools/tool/vendor').text).to eq('CycloneDX')
+          expect(xml.css('bom/metadata/tools/tool/name').text).to eq('cyclonedx-cocoapods')
+          expect(xml.css('bom/metadata/tools/tool/version').text).to eq(CycloneDX::CocoaPods::VERSION)
         end
 
         it 'should generate component metadata when a component is available' do
