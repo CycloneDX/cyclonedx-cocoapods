@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Removed the cyclonedx-cocoapods dependencies from the list of tools in the bom metadata ([Issue #29](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/29)) [@macblazer](https://github.com/macblazer).
+- Changed copyright to OWASP Foundation ([Issue #36](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/36)) [@macblazer](https://github.com/macblazer).
 
 ## [0.1.1]
 
-- Initial publication.
+- Initial publication. [@jgongo](https://github.com/jgongo)

@@ -1,13 +1,24 @@
-name: Ruby CI
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  build:
-
-    runs-on: macos-latest
-
+  licensecheck:
+    name: License Check
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
     steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Check license headers
+      uses: apache/skywalking-eyes@v0.4.0
+      with:
+        config: .licenserc.yml
+
+  build:
+    name: Unit Tests
+    runs-on: macos-latest
+    steps:
+    - name: Run tests
     - uses: actions/checkout@v3
-    - name: Unit tests
       run: bundle install; bundle exec rake
