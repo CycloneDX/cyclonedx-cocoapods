@@ -19,6 +19,7 @@ jobs:
     name: Unit Tests
     runs-on: macos-latest
     steps:
-    - name: Run tests
-    - uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Unit tests
       run: bundle install; bundle exec rake
