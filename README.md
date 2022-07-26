@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/CycloneDX/cyclonedx-cocoapods/workflows/ruby.yml/badge.svg)](https://github.com/CycloneDX/cyclonedx-cocoapods/actions/workflows/ruby.yml)
+[![Build Status](https://github.com/CycloneDX/cyclonedx-cocoapods/actions/workflows/ruby.yml/badge.svg)](https://github.com/CycloneDX/cyclonedx-cocoapods/actions/workflows/ruby.yml)
 [![Gem Version](https://badge.fury.io/rb/cyclonedx-cocoapods.svg)](https://badge.fury.io/rb/cyclonedx-cocoapods)
 [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg)][License]
 [![Website](https://img.shields.io/badge/https://-cyclonedx.org-blue.svg)](https://cyclonedx.org/)
