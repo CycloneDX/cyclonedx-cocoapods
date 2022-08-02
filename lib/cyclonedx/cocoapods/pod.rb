@@ -26,11 +26,11 @@ module CycloneDX
       attr_reader :name        # xs:normalizedString
       attr_reader :version     # xs:normalizedString
       attr_reader :source      # Anything responding to :source_qualifier
-      attr_reader :homepage    # xs:anyURI - https://cyclonedx.org/docs/1.2/#type_externalReference
-      attr_reader :checksum    # https://cyclonedx.org/docs/1.2/#type_hashValue (We only use SHA-1 hashes - length == 40)
+      attr_reader :homepage    # xs:anyURI - https://cyclonedx.org/docs/1.4/#type_externalReference
+      attr_reader :checksum    # https://cyclonedx.org/docs/1.4/#type_hashValue (We only use SHA-1 hashes - length == 40)
       attr_reader :author      # xs:normalizedString
       attr_reader :description # xs:normalizedString
-      attr_reader :license     # https://cyclonedx.org/docs/1.2/#type_licenseType
+      attr_reader :license     # https://cyclonedx.org/docs/1.4/#type_licenseType
                                # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
       def initialize(name:, version:, source: nil, checksum: nil)
         raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.empty?
