@@ -1,0 +1,19 @@
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: OWASP Foundation
+  paths-ignore:
+    - ".github/**"
+    - ".gitignore"
+    - ".licenserc.yml"
+    - ".rspec*"
+    - "Gemfile*"
+    - "Rakefile"
+    - "example_bom.xml"
+    - "**/*.gemspec"
+    - "**/*.json"
+    - "**/*.md"
+    - "bin/**"
+    - "CODEOWNERS"
+    - "LICENSE"
+    - "NOTICE"
