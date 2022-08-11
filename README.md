@@ -9,20 +9,31 @@
 
 # CycloneDX CocoaPods (Objective-C/Swift)
 
-The CycloneDX CocoaPods Gem creates a valid CycloneDX bill-of-material document from all project dependencies. CycloneDX is a lightweight BoM specification that is easily created, human readable, and simple to parse.
+The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material document from all project dependencies. CycloneDX is a lightweight BoM specification that is easily created, human readable, and simple to parse.
 
-## Installing from RubyGems
+## Installation
+
+### From RubyGems
 
 ```shell
 % gem install cyclonedx-cocoapods
 ```
 
-## Building and Installing From Source
+### From Source
+
+First, clone/copy the source code from GitHub.  Then in the source code directory run these ommands:
 
 ```shell
 gem build cyclonedx-cocoapods.gemspec
 gem install cyclonedx-cocoapods-x.x.x.gem
 ```
+
+Building from source requires Ruby 2.4.0 or newer.
+
+## Compatibility
+
+*cyclonedx-cocoapods* aims to produce SBOMs according to the latest CycloneDX specification, which currently is [1.4](https://cyclonedx.org/docs/1.4/).
+You can use the [CycloneDX CLI](https://github.com/CycloneDX/cyclonedx-cli#convert-command) to convert between multiple BOM formats or specification versions.
 
 ## Usage
 Usage: `cyclonedx-cocoapods` [options]
