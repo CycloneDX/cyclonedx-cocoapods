@@ -59,32 +59,42 @@ module CycloneDX
         component_types = Component::VALID_COMPONENT_TYPES
         OptionParser.new do |options|
           options.banner = <<~BANNER
-            Usage: cyclonedx-cocoapods [options]
-            Generates a BOM with the given parameters. BOM component metadata is only generated if the component's name and version are provided using the --name and --version parameters.
+            Generates a BOM with the given parameters. BOM component metadata is only generated if the component's name, version, and type are provided using the --name, --version, and --type parameters.
+            [version #{CycloneDX::CocoaPods::VERSION}]
+
+            USAGE
+              cyclonedx-cocoapods [options]
+
+            OPTIONS
           BANNER
 
-          options.on('--[no-]verbose', 'Run verbosely') do |v|
+          options.on('--[no-]verbose', 'Show verbose debugging output') do |v|
             parsedOptions[:verbose] = v
           end
-          options.on('-p', '--path path', '(Optional) Path to CocoaPods project directory, current directory if missing') do |path|
+          options.on('-h', '--help', 'Show help message') do
+            puts options
+            exit
+          end
+
+          options.separator("\n  BOM Generation")
+          options.on('-p', '--path path', 'Path to CocoaPods project directory (default: current directory)') do |path|
             parsedOptions[:path] = path
+          end
+          options.on('-o', '--output bom_file_path', 'Path to output the bom.xml file to (default: "bom.xml")') do |bom_file_path|
+            parsedOptions[:bom_file_path] = bom_file_path
+          end
+          options.on('-b', '--bom-version bom_version', Integer, 'Version of the generated BOM (default: "1")') do |version|
+            parsedOptions[:bom_version] = version
           end
           options.on('-x', '--exclude-test-targets', 'Eliminate Podfile targets whose name contains the word "test"') do |exclude|
             parsedOptions[:exclude_test_targets] = exclude
           end
-          options.on('-o', '--output bom_file_path', '(Optional) Path to output the bom.xml file to') do |bom_file_path|
-            parsedOptions[:bom_file_path] = bom_file_path
-          end
-          options.on('-b', '--bom-version bom_version', Integer, '(Optional) Version of the generated BOM, 1 if not provided') do |version|
-            parsedOptions[:bom_version] = version
-          end
-          options.on('-g', '--group group', '(Optional) Group of the component for which the BOM is generated') do |group|
-            parsedOptions[:group] = group
-          end
-          options.on('-n', '--name name', '(Optional, if specified version and type are also required) Name of the component for which the BOM is generated') do |name|
+
+          options.separator("\n  Component Metadata\n")
+          options.on('-n', '--name name', '(If specified version and type are also required) Name of the component for which the BOM is generated') do |name|
             parsedOptions[:name] = name
           end
-          options.on('-v', '--version version', '(Optional) Version of the component for which the BOM is generated') do |version|
+          options.on('-v', '--version version', 'Version of the component for which the BOM is generated') do |version|
             begin
               Gem::Version.new(version)
               parsedOptions[:version] = version
@@ -92,13 +102,12 @@ module CycloneDX
               raise OptionParser::InvalidArgument, e.message
             end
           end
-          options.on('-t', '--type type', "(Optional) Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
+          options.on('-t', '--type type', "Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
             raise OptionParser::InvalidArgument, "Invalid value for component's type (#{type}). It must be one of #{component_types.join('|')}" unless component_types.include?(type)
             parsedOptions[:type] = type
           end
-          options.on_tail('-h', '--help', 'Show help message') do
-            puts options
-            exit
+          options.on('-g', '--group group', 'Group of the component for which the BOM is generated') do |group|
+            parsedOptions[:group] = group
           end
         end.parse!
 
