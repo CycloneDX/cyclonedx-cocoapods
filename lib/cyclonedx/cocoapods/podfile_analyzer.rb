@@ -30,8 +30,9 @@ module CycloneDX
     class PodfileParsingError < StandardError; end
 
     class PodfileAnalyzer
-      def initialize(logger:)
+      def initialize(logger:, exclude_test_targets: false)
         @logger = logger
+        @exclude_test_targets = exclude_test_targets
       end
 
       def ensure_podfile_and_lock_are_present(options)
@@ -53,7 +54,8 @@ module CycloneDX
 
       def parse_pods(podfile, lockfile)
         @logger.debug "Parsing pods from #{podfile.defined_in_file}"
-        return lockfile.pod_names.map do |name|
+        included_pods = create_list_of_included_pods(podfile, lockfile)
+        return lockfile.pod_names.select { |name| included_pods.include?(name) }.map do |name|
           Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(podfile, lockfile, name), checksum: lockfile.checksum(name))
         end
       end
@@ -80,6 +82,62 @@ module CycloneDX
         manifestFile = ::Pod::Config.instance.sandbox.manifest
         raise PodfileParsingError, "Missing Manifest.lock, please run 'pod install' before generating BOM" if manifestFile.nil?
         raise PodfileParsingError, "The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation." unless lockfile == manifestFile
+      end
+
+      def simple_hash_of_lockfile_pods(lockfile)
+        pods_hash = { }
+
+        pods_used = lockfile.internal_data['PODS']
+        pods_used.each { |pod|
+          if pod.is_a?(String)
+            # Pods stored as String have no dependencies
+            pod_name = pod.split.first
+            pods_hash[pod_name] = []
+          else
+            # Pods stored as a hash have pod name and dependencies.
+            pod.each { |pod, dependencies|
+              pod_name = pod.split.first
+              pods_hash[pod_name] = dependencies.map { |d| d.split.first }
+            }
+          end
+        }
+        pods_hash
+      end
+
+      def append_all_pod_dependencies(pods_used, pods_cache)
+        result = pods_used
+        original_number = 0
+        # Loop adding pod dependencies until we are not adding any more dependencies to the result
+        # This brings in all the transitive dependencies of every top level pod.
+        # Note this also handles the edge case of having a Podfile with no pods used.
+        while result.length != original_number
+          original_number = result.length
+          pods_used.each { |pod_name|
+            result.push(*pods_cache[pod_name]) unless pods_cache[pod_name].empty?
+          }
+          result = result.uniq
+          pods_used = result
+        end
+        result
+      end
+
+      def create_list_of_included_pods(podfile, lockfile)
+        pods_cache = simple_hash_of_lockfile_pods(lockfile)
+
+        includedTargets = podfile.target_definition_list.select{ |target| include_target_named(target.label) }
+        includedTargetNames = includedTargets.map { |target| target.label }
+        @logger.debug "Including all pods for targets: #{includedTargetNames}"
+
+        topLevelDeps = includedTargets.map(&:dependencies).flatten.uniq
+        pods_used = topLevelDeps.map(&:name).uniq
+        pods_used = append_all_pod_dependencies(pods_used, pods_cache)
+
+        return pods_used.sort
+      end
+
+
+      def include_target_named(targetname)
+          !@exclude_test_targets || !targetname.downcase.include?('test')
       end
 
 

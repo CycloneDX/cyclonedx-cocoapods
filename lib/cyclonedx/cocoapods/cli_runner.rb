@@ -37,7 +37,7 @@ module CycloneDX
           setup_logger(verbose: options[:verbose])
           @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-          analyzer = PodfileAnalyzer.new(logger: @logger)
+          analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
           podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
           pods = analyzer.parse_pods(podfile, lockfile)
           analyzer.populate_pods_with_additional_info(pods)
@@ -68,6 +68,9 @@ module CycloneDX
           end
           options.on('-p', '--path path', '(Optional) Path to CocoaPods project directory, current directory if missing') do |path|
             parsedOptions[:path] = path
+          end
+          options.on('-x', '--exclude-test-targets', 'Eliminate Podfile targets whose name contains the word "test"') do |exclude|
+            parsedOptions[:exclude_test_targets] = exclude
           end
           options.on('-o', '--output bom_file_path', '(Optional) Path to output the bom.xml file to') do |bom_file_path|
             parsedOptions[:bom_file_path] = bom_file_path

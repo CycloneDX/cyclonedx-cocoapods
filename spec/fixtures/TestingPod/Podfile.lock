@@ -1,0 +1,22 @@
+PODS:
+  - Alamofire (5.6.2)
+  - MSAL (1.2.1):
+    - MSAL/app-lib (= 1.2.1)
+  - MSAL/app-lib (1.2.1)
+
+DEPENDENCIES:
+  - Alamofire
+  - MSAL
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - MSAL
+
+SPEC CHECKSUMS:
+  Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
+  MSAL: 460571f34a9062c501841d099f8e51fc30557deb
+
+PODFILE CHECKSUM: 80a4b35ba91cd678c73505fc72e14e71738bd693
+
+COCOAPODS: 1.10.1
