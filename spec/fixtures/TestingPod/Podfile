@@ -1,0 +1,10 @@
+project 'SampleProject.xcodeproj'
+platform :osx, '11.0'
+
+target 'SampleProject' do
+  pod 'Alamofire'
+end
+
+target 'SampleProjectTests' do
+  pod 'MSAL'
+end

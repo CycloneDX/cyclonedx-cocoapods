@@ -9,7 +9,7 @@
 
 # CycloneDX CocoaPods (Objective-C/Swift)
 
-The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material document from all project dependencies. CycloneDX is a lightweight BoM specification that is easily created, human readable, and simple to parse.
+The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material document from all [CocoaPods](https://cocoapods.org/) project dependencies. CycloneDX is a lightweight BoM specification that is easily created, human readable, and simple to parse.
 
 ## Installation
 
@@ -36,17 +36,29 @@ Building from source requires Ruby 2.4.0 or newer.
 You can use the [CycloneDX CLI](https://github.com/CycloneDX/cyclonedx-cli#convert-command) to convert between multiple BOM formats or specification versions.
 
 ## Usage
-Usage: `cyclonedx-cocoapods` [options]
+```
+Generates a BOM with the given parameters. BOM component metadata is only generated if the component's name, version, and type are provided using the --name, --version, and --type parameters.
+[version <version_number>]
 
-        --[no-]verbose               Run verbosely
-    -p, --path path                  (Optional) Path to CocoaPods project directory, current directory if missing
-    -o, --output bom_file_path       (Optional) Path to output the bom.xml file to
-    -b, --bom-version bom_version    (Optional) Version of the generated BOM, 1 if not provided
-    -g, --group group                (Optional) Group of the component for which the BOM is generated
-    -n, --name name                  (Optional, if specified version and type are also required) Name of the component for which the BOM is generated
-    -v, --version version            (Optional) Version of the component for which the BOM is generated
-    -t, --type type                  (Optional) Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
+USAGE
+  cyclonedx-cocoapods [options]
+
+OPTIONS
+        --[no-]verbose               Show verbose debugging output
     -h, --help                       Show help message
+
+  BOM Generation
+    -p, --path path                  Path to CocoaPods project directory (default: current directory)
+    -o, --output bom_file_path       Path to output the bom.xml file to (default: "bom.xml")
+    -b, --bom-version bom_version    Version of the generated BOM (default: "1")
+    -x, --exclude-test-targets       Eliminate Podfile targets whose name contains the word "test"
+
+  Component Metadata
+    -n, --name name                  (If specified version and type are also required) Name of the component for which the BOM is generated
+    -v, --version version            Version of the component for which the BOM is generated
+    -t, --type type                  Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
+    -g, --group group                Group of the component for which the BOM is generated
+```
 
 **Output:** BoM file at specified location, `./bom.xml` if not specified
 

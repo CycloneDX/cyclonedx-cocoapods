@@ -18,19 +18,15 @@
 # Copyright (c) OWASP Foundation. All Rights Reserved.
 #
 
-require 'optparse'
 require 'logger'
-require 'cocoapods'
+require 'optparse'
 
-require_relative 'component'
-require_relative 'pod'
-require_relative 'pod_attributes'
-require_relative 'source'
 require_relative 'bom_builder'
+require_relative 'component'
+require_relative 'podfile_analyzer'
 
 module CycloneDX
   module CocoaPods
-    class PodfileParsingError < StandardError; end
     class BOMOutputError < StandardError; end
 
     class CLIRunner
@@ -41,10 +37,10 @@ module CycloneDX
           setup_logger(verbose: options[:verbose])
           @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-          podfile, lockfile = ensure_podfile_and_lock_are_present(options)
-          pods = parse_pods(podfile, lockfile)
-
-          populate_pods_with_additional_info(pods)
+          analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
+          podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+          pods = analyzer.parse_pods(podfile, lockfile)
+          analyzer.populate_pods_with_additional_info(pods)
 
           bom = BOMBuilder.new(component: component_from_options(options), pods: pods).bom(version: options[:bom_version] || 1)
           write_bom_to_file(bom: bom, options: options)
@@ -57,34 +53,48 @@ module CycloneDX
 
       private
 
+
       def parseOptions
         parsedOptions = {}
         component_types = Component::VALID_COMPONENT_TYPES
         OptionParser.new do |options|
           options.banner = <<~BANNER
-            Usage: cyclonedx-cocoapods [options]
-            Generates a BOM with the given parameters. BOM component metadata is only generated if the component's name and version are provided using the --name and --version parameters.
+            Generates a BOM with the given parameters. BOM component metadata is only generated if the component's name, version, and type are provided using the --name, --version, and --type parameters.
+            [version #{CycloneDX::CocoaPods::VERSION}]
+
+            USAGE
+              cyclonedx-cocoapods [options]
+
+            OPTIONS
           BANNER
 
-          options.on('--[no-]verbose', 'Run verbosely') do |v|
+          options.on('--[no-]verbose', 'Show verbose debugging output') do |v|
             parsedOptions[:verbose] = v
           end
-          options.on('-p', '--path path', '(Optional) Path to CocoaPods project directory, current directory if missing') do |path|
+          options.on('-h', '--help', 'Show help message') do
+            puts options
+            exit
+          end
+
+          options.separator("\n  BOM Generation")
+          options.on('-p', '--path path', 'Path to CocoaPods project directory (default: current directory)') do |path|
             parsedOptions[:path] = path
           end
-          options.on('-o', '--output bom_file_path', '(Optional) Path to output the bom.xml file to') do |bom_file_path|
+          options.on('-o', '--output bom_file_path', 'Path to output the bom.xml file to (default: "bom.xml")') do |bom_file_path|
             parsedOptions[:bom_file_path] = bom_file_path
           end
-          options.on('-b', '--bom-version bom_version', Integer, '(Optional) Version of the generated BOM, 1 if not provided') do |version|
+          options.on('-b', '--bom-version bom_version', Integer, 'Version of the generated BOM (default: "1")') do |version|
             parsedOptions[:bom_version] = version
           end
-          options.on('-g', '--group group', '(Optional) Group of the component for which the BOM is generated') do |group|
-            parsedOptions[:group] = group
+          options.on('-x', '--exclude-test-targets', 'Eliminate Podfile targets whose name contains the word "test"') do |exclude|
+            parsedOptions[:exclude_test_targets] = exclude
           end
-          options.on('-n', '--name name', '(Optional, if specified version and type are also required) Name of the component for which the BOM is generated') do |name|
+
+          options.separator("\n  Component Metadata\n")
+          options.on('-n', '--name name', '(If specified version and type are also required) Name of the component for which the BOM is generated') do |name|
             parsedOptions[:name] = name
           end
-          options.on('-v', '--version version', '(Optional) Version of the component for which the BOM is generated') do |version|
+          options.on('-v', '--version version', 'Version of the component for which the BOM is generated') do |version|
             begin
               Gem::Version.new(version)
               parsedOptions[:version] = version
@@ -92,13 +102,12 @@ module CycloneDX
               raise OptionParser::InvalidArgument, e.message
             end
           end
-          options.on('-t', '--type type', "(Optional) Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
+          options.on('-t', '--type type', "Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
             raise OptionParser::InvalidArgument, "Invalid value for component's type (#{type}). It must be one of #{component_types.join('|')}" unless component_types.include?(type)
             parsedOptions[:type] = type
           end
-          options.on_tail('-h', '--help', 'Show help message') do
-            puts options
-            exit
+          options.on('-g', '--group group', 'Group of the component for which the BOM is generated') do |group|
+            parsedOptions[:group] = group
           end
         end.parse!
 
@@ -115,90 +124,6 @@ module CycloneDX
       def setup_logger(verbose: true)
         @logger ||= Logger.new($stdout)
         @logger.level = verbose ? Logger::DEBUG : Logger::INFO
-      end
-
-
-      def ensure_podfile_and_lock_are_present(options)
-        project_dir = Pathname.new(options[:path] || Dir.pwd)
-        raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
-        options[:podfile_path] = project_dir + 'Podfile'
-        raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if not running from the CocoaPods project directory." unless File.exist?(options[:podfile_path])
-        options[:podfile_lock_path] = project_dir + 'Podfile.lock'
-        raise PodfileParsingError, "Missing Podfile.lock, please run 'pod install' before generating BOM" unless File.exist?(options[:podfile_lock_path])
-
-        initialize_cocoapods_config(project_dir)
-
-        lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
-        verify_synced_sandbox(lockfile)
-
-        return ::Pod::Podfile.from_file(options[:podfile_path]), lockfile
-      end
-
-
-      def initialize_cocoapods_config(project_dir)
-        ::Pod::Config.instance.installation_root = project_dir
-      end
-
-
-      def verify_synced_sandbox(lockfile)
-        manifestFile = ::Pod::Config.instance.sandbox.manifest
-        raise PodfileParsingError, "Missing Manifest.lock, please run 'pod install' before generating BOM" if manifestFile.nil?
-        raise PodfileParsingError, "The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation." unless lockfile == manifestFile
-      end
-
-
-      def cocoapods_repository_source(podfile, lockfile, pod_name)
-        @source_manager ||= create_source_manager(podfile)
-        return Source::CocoaPodsRepository.searchable_source(url: lockfile.spec_repo(pod_name), source_manager: @source_manager)
-      end
-
-
-      def git_source(lockfile, pod_name)
-        checkout_options = lockfile.checkout_options_for_pod_named(pod_name)
-        url = checkout_options[:git]
-        [:tag, :branch, :commit].each do |type|
-          return Source::GitRepository.new(url: url, type: type, label: checkout_options[type]) if checkout_options[type]
-        end
-        return Source::GitRepository.new(url: url)
-      end
-
-
-      def source_for_pod(podfile, lockfile, pod_name)
-        root_name = pod_name.split('/').first
-        return cocoapods_repository_source(podfile, lockfile, root_name) unless lockfile.spec_repo(root_name).nil?
-        return git_source(lockfile, root_name) unless lockfile.checkout_options_for_pod_named(root_name).nil?
-        return Source::LocalPod.new(path: lockfile.to_hash['EXTERNAL SOURCES'][root_name][:path]) if lockfile.to_hash['EXTERNAL SOURCES'][root_name][:path]
-        return Source::Podspec.new(url: lockfile.to_hash['EXTERNAL SOURCES'][root_name][:podspec]) if lockfile.to_hash['EXTERNAL SOURCES'][root_name][:podspec]
-        return nil
-      end
-
-
-      def parse_pods(podfile, lockfile)
-        @logger.debug "Parsing pods from #{podfile.defined_in_file}"
-        return lockfile.pod_names.map do |name|
-          Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(podfile, lockfile, name), checksum: lockfile.checksum(name))
-        end
-      end
-
-
-      def create_source_manager(podfile)
-        sourceManager = ::Pod::Source::Manager.new(::Pod::Config::instance.repos_dir)
-        @logger.debug "Parsing sources from #{podfile.defined_in_file}"
-        podfile.sources.each do |source|
-          @logger.debug "Ensuring #{source} is available for searches"
-          sourceManager.find_or_create_source_with_url(source)
-        end
-        @logger.debug "Source manager successfully created with all needed sources"
-        return sourceManager
-      end
-
-
-      def populate_pods_with_additional_info(pods)
-        pods.each do |pod|
-          @logger.debug "Completing information for #{pod.name}"
-          pod.complete_information_from_source
-        end
-        return pods
       end
 
 

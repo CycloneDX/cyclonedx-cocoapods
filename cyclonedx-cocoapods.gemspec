@@ -5,8 +5,8 @@ require_relative "lib/cyclonedx/cocoapods/version"
 Gem::Specification.new do |spec|
   spec.name          = "cyclonedx-cocoapods"
   spec.version       = CycloneDX::CocoaPods::VERSION
-  spec.authors       = ["José González"]
-  spec.email         = ["jose.gonzalez@openinput.com"]
+  spec.authors       = ["José González", "Kyle Hammond"]
+  spec.email         = ["jose.gonzalez@openinput.com", "kyle.hammond@jamf.com"]
 
   spec.summary       = "CycloneDX software bill-of-material (SBOM) generation utility"
   spec.description   = "CycloneDX is a lightweight software bill-of-material (SBOM) specification designed for use in application security contexts and supply chain component analysis. This Gem generates CycloneDX BOMs from CocoaPods projects."
