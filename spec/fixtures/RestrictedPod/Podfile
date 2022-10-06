@@ -1,0 +1,7 @@
+project 'SampleProject.xcodeproj'
+platform :ios, '13.0'
+
+target 'SampleProject' do
+  # EFQRCode has a dependency only for watchOS so it's not actually included in this iOS project
+  pod 'EFQRCode'
+end

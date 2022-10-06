@@ -22,7 +22,9 @@ require 'rspec'
 
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   let(:fixtures) { Pathname.new(File.expand_path('../../../fixtures/', __FILE__)) }
+  let(:empty_podfile) { 'EmptyPodfile/Podfile' }
   let(:simple_pod) { 'SimplePod/Podfile' }
+  let(:restricted_pod) { 'RestrictedPod/Podfile' }
   let(:tests_pod) { 'TestingPod/Podfile' }
 
   ::Pod::Config.instance.installation_root = File.expand_path('../../../fixtures/', __FILE__) + '/'
@@ -34,18 +36,46 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
 
   context 'parsing pods' do
     context 'when created with standard parameters' do
+      it 'should handle no pods correctly' do
+        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+        pod_file = ::Pod::Podfile.from_file(fixtures + empty_podfile)
+        expect(pod_file).not_to be_nil
+        lock_file = ::Pod::Lockfile.from_file(fixtures + (empty_podfile + '.lock'))
+        expect(lock_file).not_to be_nil
+
+        included_pods = analyzer.parse_pods(pod_file, lock_file)
+
+        pod_names = included_pods.map(&:name)
+        expect(pod_names).to eq([])
+      end
+
       it 'should find all simple pods' do
         analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
-        simple_pod_file = ::Pod::Podfile.from_file(fixtures + simple_pod)
-        expect(simple_pod_file).not_to be_nil
-        simple_lock_file = ::Pod::Lockfile.from_file(fixtures + (simple_pod + '.lock'))
-        expect(simple_lock_file).not_to be_nil
+        pod_file = ::Pod::Podfile.from_file(fixtures + simple_pod)
+        expect(pod_file).not_to be_nil
+        lock_file = ::Pod::Lockfile.from_file(fixtures + (simple_pod + '.lock'))
+        expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(simple_pod_file, simple_lock_file)
+        included_pods = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq(['Alamofire', 'MSAL', 'MSAL/app-lib'])
+      end
+
+      it 'should find all pods actually used' do
+        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+        pod_file = ::Pod::Podfile.from_file(fixtures + restricted_pod)
+        expect(pod_file).not_to be_nil
+        lock_file = ::Pod::Lockfile.from_file(fixtures + (restricted_pod + '.lock'))
+        expect(lock_file).not_to be_nil
+
+        included_pods = analyzer.parse_pods(pod_file, lock_file)
+
+        pod_names = included_pods.map(&:name)
+        expect(pod_names).to eq(['EFQRCode'])
       end
 
       it 'should find all pods' do
