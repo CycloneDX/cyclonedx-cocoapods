@@ -88,7 +88,7 @@ module CycloneDX
         pods_hash = { }
 
         pods_used = lockfile.internal_data['PODS']
-        pods_used.each { |pod|
+        pods_used&.each { |pod|
           if pod.is_a?(String)
             # Pods stored as String have no dependencies
             pod_name = pod.split.first
@@ -109,11 +109,13 @@ module CycloneDX
         original_number = 0
         # Loop adding pod dependencies until we are not adding any more dependencies to the result
         # This brings in all the transitive dependencies of every top level pod.
-        # Note this also handles the edge case of having a Podfile with no pods used.
+        # Note this also handles two edge cases:
+        #  1. Having a Podfile with no pods used.
+        #  2. Having a pod that has a platform-specific dependency that is unused for this Podfile.
         while result.length != original_number
           original_number = result.length
           pods_used.each { |pod_name|
-            result.push(*pods_cache[pod_name]) unless pods_cache[pod_name].empty?
+            result.push(*pods_cache[pod_name]) unless !pods_cache.key?(pod_name) || pods_cache[pod_name].empty?
           }
           result = result.uniq
           pods_used = result

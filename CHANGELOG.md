@@ -4,8 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1]
+
+### Changed
+- Better error messaging when a problem is encountered while gathering pod information ([Issue #48](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/48)) [@macblazer](https://github.com/macblazer).
+
+### Fixed
+- Including a pod that has a platform-specific dependency for an unused platform no longer causes a crash ([Issue #46](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/46)) [@macblazer](https://github.com/macblazer).
+- Analyzing a Podfile that has no pods defined in it no longer causes a crash [@macblazer](https://github.com/macblazer).
+
 ## [1.1.0]
 
+### Added
 - Can now eliminate Podfile targets that include "test" in their name ([Issue #43](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/43)) [@macblazer](https://github.com/macblazer).
 
 ## [1.0.0]

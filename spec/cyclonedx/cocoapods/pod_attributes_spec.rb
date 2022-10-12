@@ -64,7 +64,7 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
       it 'should raise an error' do
         expect {
           @source.attributes_for(pod: pod)
-        }.to raise_error(CycloneDX::CocoaPods::SearchError, "No pod found named #{pod.name}")
+        }.to raise_error(CycloneDX::CocoaPods::SearchError, "No pod found named #{pod.name}; run 'pod repo update' and try again")
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
       it 'should raise an error' do
         expect {
           @source.attributes_for(pod: pod)
-        }.to raise_error(CycloneDX::CocoaPods::SearchError, "More than one pod found named #{pod.name}")
+        }.to raise_error(CycloneDX::CocoaPods::SearchError, "More than one pod found named #{pod.name}; a pod in a private spec repo should not have the same name as a public pod")
       end
     end
 
@@ -89,7 +89,7 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
         it 'should raise an error' do
           expect {
             @source.attributes_for(pod: pod)
-          }.to raise_error(CycloneDX::CocoaPods::SearchError, "Version #{pod.version} not found for pod #{pod.name}")
+          }.to raise_error(CycloneDX::CocoaPods::SearchError, "Version #{pod.version} not found for pod #{pod.name}; run 'pod repo update' and try again")
         end
       end
 

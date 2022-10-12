@@ -1,0 +1,6 @@
+project 'SampleProject.xcodeproj'
+platform :ios, '16.0'
+
+target 'SampleProject' do
+  # No pods specified!
+end
