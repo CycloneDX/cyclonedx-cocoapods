@@ -105,7 +105,6 @@ with:
   component_version: 0.0.1 # optional
   exclude_test: true # optional
   output: bom.xml # optional
-  package_lock_only: true # optional
 ```
 
 ## Contributing
