@@ -80,6 +80,34 @@ then these two commands were run in the checked out code directory.
 % cyclonedx-cocoapods -n "kizitonwose/PodsUpdater" -v 1.0.3 -t application --output example_bom.xml
 ```
 
+
+## Github Action usage
+
+Add the following entry to your Github workflow YAML file:
+
+```
+uses: CycloneDX/cyclonedx-cocoapods
+with:
+  path: '.'
+```
+
+### Example using all optional inputs:
+
+```
+uses: CycloneDX/cyclonedx-cocoapods
+with:
+  path: "."
+  version: 1.1.1 # optional
+  bom_version: 1 # optional
+  component_type: application # optional
+  component_group: com.example # optional
+  component_name: App # optional
+  component_version: 0.0.1 # optional
+  exclude_test: true # optional
+  output: bom.xml # optional
+  package_lock_only: true # optional
+```
+
 ## Contributing
 
 To set up for local development, make a fork of this repo, make a branch on your fork named after the issue or workflow you are improving, checkout your branch, then run `bundle install`.
