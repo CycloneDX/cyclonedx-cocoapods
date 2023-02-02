@@ -1,0 +1,72 @@
+name: 'CycloneDX Cocoapods Generate SBOM'
+description: 'Github action to generate a CycloneDX BOM for Cocoapods projects'
+inputs:
+  path:
+    description: "Path to CocoaPods project directory"
+    required: true
+  bom_version:
+    description: "Version of the generated BOM"
+    default: "1"
+    required: false
+  component_group:
+    description: "Group of the component for which the BOM is generated"
+    required: false
+  component_name:
+    description: "Name of the component for which the BOM is generated"
+    required: false
+  component_type:
+    description: "Type of the component for which the BOM is generated"
+    default: "application"
+    required: false
+  component_version:
+    description: "Version of the component for which the BOM is generated"
+    required: false
+  exclude_test:
+    description: "Eliminates Podfile targets whose name contains the word `test`"
+    required: false
+  output:
+    description: "Path to output the bom.xml"
+    default: "bom.xml"
+    required: false
+  
+  
+
+runs:
+  using: "composite"
+  steps:
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1
+    - name: Install cyclonedx-cocoapods
+      shell: bash
+      run: gem install cyclonedx-cocoapods
+    - name: Parse inputs
+      shell: bash
+      id: vars
+      run: |
+        params="-p ${{ inputs.path }}"
+
+        if [ "${{ inputs.bom_version }}" ]; then
+          params="${params} -b ${{ inputs.bom_version }}"
+        fi
+        
+        if [[ "${{ inputs.component_group }}" ]] && [[ "${{ inputs.component_name }}" ]] && [[ "${{ inputs.component_version }}" ]]; then
+          params="${params} -g ${{ inputs.component_group }}  -n ${{ inputs.component_name }}  -v ${{ inputs.component_version }}"
+        fi
+
+        if [ "${{ inputs.component_type }}" ]; then
+          params="${params} -t ${{ inputs.component_type }}"
+        fi
+        
+        if [ "${{ inputs.exclude_test }}" ]; then
+          params="${params} -x"
+        fi
+
+        if [ "${{ inputs.output }}" ]; then
+          params="${params} -o ${{ inputs.output }}"
+        fi
+        
+        echo "params=$params" >> $GITHUB_OUTPUT
+    - name: Run cyclonedx-cocoapods
+      shell: bash
+      run: cyclonedx-cocoapods ${{ steps.vars.outputs.params }}
