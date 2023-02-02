@@ -28,6 +28,10 @@ inputs:
     description: "Path to output the bom.xml"
     default: "bom.xml"
     required: false
+  version:
+    description: "Version of cyclonedx-cocoapods to be used"
+    default: "1.1.1"
+    required: false
   
   
 
@@ -39,7 +43,7 @@ runs:
         ruby-version: 3.1
     - name: Install cyclonedx-cocoapods
       shell: bash
-      run: gem install cyclonedx-cocoapods
+      run: gem install cyclonedx-cocoapods -v ${{ inputs.version }}
     - name: Parse inputs
       shell: bash
       id: vars
@@ -65,7 +69,7 @@ runs:
         if [ "${{ inputs.output }}" ]; then
           params="${params} -o ${{ inputs.output }}"
         fi
-        
+
         echo "params=$params" >> $GITHUB_OUTPUT
     - name: Run cyclonedx-cocoapods
       shell: bash
