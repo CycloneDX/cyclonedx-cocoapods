@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Updated gem dependency for cocoapods to be minimum v1.10.1 up to anything less than v2. ([Issue #51](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/51)) [@macblazer](https://github.com/macblazer).
+- Updated gem dependency for nokogiri to be minimum v1.11.2 up to anything less than v2. [@macblazer](https://github.com/macblazer).
+
 ## [1.1.1]
 
 ### Changed
