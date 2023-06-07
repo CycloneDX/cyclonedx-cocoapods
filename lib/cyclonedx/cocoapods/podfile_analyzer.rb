@@ -48,7 +48,15 @@ module CycloneDX
         lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
         verify_synced_sandbox(lockfile)
 
-        return ::Pod::Podfile.from_file(options[:podfile_path]), lockfile
+        # Override the inhibit_warnings_with_condition method to do nothing
+        ::Pod::Podfile.class_eval do
+          def inhibit_warnings_with_condition(*)
+            # Do nothing
+          end
+        end
+        
+        podfile = ::Pod::Podfile.from_file(options[:podfile_path])      
+        return podfile, lockfile
       end
 
 
