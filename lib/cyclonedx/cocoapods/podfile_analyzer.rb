@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #
 # This file is part of CycloneDX CocoaPods
 #
@@ -51,7 +52,7 @@ module CycloneDX
             @logger.warn("Failed to load plugin #{plugin_name}. #{e.message}")
           end
         end
-      end      
+      end
 
       def ensure_podfile_and_lock_are_present(options)
         project_dir = Pathname.new(options[:path] || Dir.pwd)
