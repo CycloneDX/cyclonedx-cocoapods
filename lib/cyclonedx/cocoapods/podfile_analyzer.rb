@@ -19,6 +19,7 @@
 #
 
 require 'cocoapods'
+require 'cocoapods-core'
 require 'logger'
 
 require_relative 'pod'
@@ -35,6 +36,23 @@ module CycloneDX
         @exclude_test_targets = exclude_test_targets
       end
 
+      def load_plugins(podfile_path)
+        podfile_contents = File.read(podfile_path)
+        plugin_syntax = /\s*plugin\s+['"]([^'"]+)['"]/
+        plugin_names = podfile_contents.scan(plugin_syntax).flatten
+      
+        plugin_names.each do |plugin_name|
+          @logger.debug("Loading plugin #{plugin_name}")
+          begin
+            plugin_spec = Gem::Specification.find_by_name(plugin_name)
+            plugin_spec.activate if plugin_spec
+            load(plugin_spec.gem_dir + '/lib/cocoapods_plugin.rb') if plugin_spec
+          rescue Gem::LoadError => e
+            @logger.warn("Failed to load plugin #{plugin_name}. #{e.message}")
+          end
+        end
+      end      
+
       def ensure_podfile_and_lock_are_present(options)
         project_dir = Pathname.new(options[:path] || Dir.pwd)
         raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
@@ -47,7 +65,8 @@ module CycloneDX
 
         lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
         verify_synced_sandbox(lockfile)
-
+        load_plugins(options[:podfile_path])
+        
         return ::Pod::Podfile.from_file(options[:podfile_path]), lockfile
       end
 
