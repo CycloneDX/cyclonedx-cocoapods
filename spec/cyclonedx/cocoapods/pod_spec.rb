@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 #
 # This file is part of CycloneDX CocoaPods
 #

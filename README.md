@@ -80,6 +80,41 @@ then these two commands were run in the checked out code directory.
 % cyclonedx-cocoapods -n "kizitonwose/PodsUpdater" -v 1.0.3 -t application --output example_bom.xml
 ```
 
+### A Note About CocoaPod Subspecs
+
+Many CocoaPods make use of [subspec functionality](https://guides.cocoapods.org/syntax/podspec.html#subspec).
+Podfiles can require whole pods, or just subspecs; pods themselves may require whole pods or subspecs of other
+pods.  In complex projects such as React Native apps this often results in a single pod being included as a
+dependency multiple times as several of its subspecs are included individually.
+
+*cyclonedx-cocoapods* works properly with this, and adds a dependency in the BOM output for each subspec that is
+required by the Podfile and throughout the chain of dependencies.  Each subspec will only appear once in the BOM
+file.  This gives you granular detail in the BOM of which subspecs of which pods are used.  This is easiest seen
+with an example.
+
+The Podfile
+```ruby
+target 'SampleProject' do
+  pod 'SamplePod/firstsubspec'
+  pod 'SamplePod/secondsubspec'
+end
+```
+
+If the SamplePod is at v2.1, running *cyclonedx-cocoapods* on this will output a BOM file with two `component`
+dependencies:
+- `pkg:cocoapods/SamplePod@2.1#firstsubspec` at `https://github.com/example/SamplePod`
+- `pkg:cocoapods/SamplePod@2.1#secondsubspec` at `https://github.com/example/SamplePod`
+
+[Dependency Track](https://dependencytrack.org) (DT) is a tool that many organizations use to help automate SBOM
+related tasks.  When uploading an SBOM that contains multiple subspecs from the same pod, or a single subspec
+alongside the complete pod dependency, the initial upload will indicate a number of dependencies equal to the number
+of `component` objects within the BOM.  However, DT analysis then looks for unique repositories in use which will
+merge all of the subspecs of a particular pod into a single entry.  On later uploads to DT of the same or similar BOM
+it will indicate just the number of unique repositories.
+
+Uploading the above SamplePod BOM file to DT will initially see two dependencies.  Later analysis by DT notices
+that both dependencies resolve to the same repository, so DT will then only show a single dependency.
+
 ## Contributing
 
 To set up for local development, make a fork of this repo, make a branch on your fork named after the issue or workflow you are improving, checkout your branch, then run `bundle install`.

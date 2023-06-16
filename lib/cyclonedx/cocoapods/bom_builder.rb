@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # This file is part of CycloneDX CocoaPods
 #
@@ -26,8 +28,8 @@ module CycloneDX
   module CocoaPods
     module Source
       class CocoaPodsRepository
-        LEGACY_REPOSITORY = 'https://github.com/CocoaPods/Specs.git'.freeze
-        CDN_REPOSITORY = 'trunk'.freeze
+        LEGACY_REPOSITORY = 'https://github.com/CocoaPods/Specs.git'
+        CDN_REPOSITORY = 'trunk'
 
         def source_qualifier
           url == LEGACY_REPOSITORY || url == CDN_REPOSITORY ? {} : { repository_url: url }
@@ -54,8 +56,8 @@ module CycloneDX
     end
 
     class Pod
-      CHECKSUM_ALGORITHM = 'SHA-1'.freeze
-      HOMEPAGE_REFERENCE_TYPE = 'website'.freeze
+      CHECKSUM_ALGORITHM = 'SHA-1'
+      HOMEPAGE_REFERENCE_TYPE = 'website'
 
       def purl
         purl_name = CGI.escape(name.split('/').first)
@@ -115,7 +117,7 @@ module CycloneDX
     end
 
     class BOMBuilder
-      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.4'.freeze
+      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.4'
 
       attr_reader :component, :pods
 
