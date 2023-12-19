@@ -84,6 +84,7 @@ module CycloneDX
             end
           end
           xml.purl purl
+          xml.bomRef purl
           unless homepage.nil?
             xml.externalReferences do
               xml.reference(type: HOMEPAGE_REFERENCE_TYPE) do
@@ -119,10 +120,12 @@ module CycloneDX
     class BOMBuilder
       NAMESPACE = 'http://cyclonedx.org/schema/bom/1.4'
 
-      attr_reader :component, :pods
+      attr_reader :component, :pods, :dependencies
 
-      def initialize(component: nil, pods:)
-        @component, @pods = component, pods
+      def initialize(pods:, component: nil, dependencies: nil)
+        @pods = pods
+        @component = component
+        @dependencies = dependencies
       end
 
       def bom(version: 1)
@@ -136,11 +139,25 @@ module CycloneDX
                 pod.add_to_bom(xml)
               end
             end
+
+            xml.dependencies do
+              bom_dependencies(xml, dependencies)
+            end
           end
         end.to_xml
       end
 
       private
+
+      def bom_dependencies(xml, dependencies)
+        dependencies&.each do |key, array|
+          xml.dependency(ref: key) do
+            array.each do |value|
+              xml.dependency(ref: value)
+            end
+          end
+        end
+      end
 
       def bom_metadata(xml)
         xml.metadata do

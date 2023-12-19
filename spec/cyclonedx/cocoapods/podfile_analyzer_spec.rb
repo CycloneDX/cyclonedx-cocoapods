@@ -21,7 +21,6 @@
 
 require 'cyclonedx/cocoapods/podfile_analyzer'
 require 'rspec'
-
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   let(:fixtures) { Pathname.new(File.expand_path('../../../fixtures/', __FILE__)) }
   let(:empty_podfile) { 'EmptyPodfile/Podfile' }
@@ -46,10 +45,12 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         lock_file = ::Pod::Lockfile.from_file(fixtures + (empty_podfile + '.lock'))
         expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(pod_file, lock_file)
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq([])
+        expect(dependencies).to eq({})
+        expect(pod_names.length).to eq(dependencies.length)
       end
 
       it 'should find all simple pods' do
@@ -60,10 +61,16 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         lock_file = ::Pod::Lockfile.from_file(fixtures + (simple_pod + '.lock'))
         expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(pod_file, lock_file)
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq(['Alamofire', 'MSAL', 'MSAL/app-lib'])
+        expect(dependencies).to eq({
+                                     'pkg:cocoapods/Alamofire@5.6.2' => [],
+                                     'pkg:cocoapods/MSAL@1.2.1' => ['pkg:cocoapods/MSAL@1.2.1#app-lib'],
+                                     'pkg:cocoapods/MSAL@1.2.1#app-lib' => []
+                                   })
+        expect(pod_names.length).to eq(dependencies.length)
       end
 
       it 'should find all pods actually used' do
@@ -74,10 +81,12 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         lock_file = ::Pod::Lockfile.from_file(fixtures + (restricted_pod + '.lock'))
         expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(pod_file, lock_file)
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq(['EFQRCode'])
+        expect(dependencies).to eq({ 'pkg:cocoapods/EFQRCode@6.2.1' => [] })
+        expect(pod_names.length).to eq(dependencies.length)
       end
 
       it 'should find all pods' do
@@ -88,10 +97,16 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         lock_file = ::Pod::Lockfile.from_file(fixtures + (tests_pod + '.lock'))
         expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(pod_file, lock_file)
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq(['Alamofire', 'MSAL', 'MSAL/app-lib'])
+        expect(dependencies).to eq({
+                                     'pkg:cocoapods/Alamofire@5.6.2' => [],
+                                     'pkg:cocoapods/MSAL@1.2.1' => ['pkg:cocoapods/MSAL@1.2.1#app-lib'],
+                                     'pkg:cocoapods/MSAL@1.2.1#app-lib' => []
+                                   })
+        expect(pod_names.length).to eq(dependencies.length)
       end
     end
 
@@ -104,10 +119,16 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         lock_file = ::Pod::Lockfile.from_file(fixtures + (simple_pod + '.lock'))
         expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(pod_file, lock_file)
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq(['Alamofire', 'MSAL', 'MSAL/app-lib'])
+        expect(dependencies).to eq({
+                                     'pkg:cocoapods/Alamofire@5.6.2' => [],
+                                     'pkg:cocoapods/MSAL@1.2.1' => ['pkg:cocoapods/MSAL@1.2.1#app-lib'],
+                                     'pkg:cocoapods/MSAL@1.2.1#app-lib' => []
+                                   })
+        expect(pod_names.length).to eq(dependencies.length)
       end
 
       it 'should not include testing pods' do
@@ -118,10 +139,12 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         lock_file = ::Pod::Lockfile.from_file(fixtures + (tests_pod + '.lock'))
         expect(lock_file).not_to be_nil
 
-        included_pods = analyzer.parse_pods(pod_file, lock_file)
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
 
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq(['Alamofire'])
+        expect(dependencies).to eq({ 'pkg:cocoapods/Alamofire@5.6.2' => [] })
+        expect(pod_names.length).to eq(dependencies.length)
       end
     end
   end

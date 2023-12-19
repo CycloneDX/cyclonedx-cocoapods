@@ -40,10 +40,11 @@ module CycloneDX
 
           analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
           podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
-          pods = analyzer.parse_pods(podfile, lockfile)
+          pods, dependencies = analyzer.parse_pods(podfile, lockfile)
           analyzer.populate_pods_with_additional_info(pods)
 
-          bom = BOMBuilder.new(component: component_from_options(options), pods: pods).bom(version: options[:bom_version] || 1)
+          builder = BOMBuilder.new(pods: pods, component: component_from_options(options), dependencies: dependencies)
+          bom = builder.bom(version: options[:bom_version] || 1)
           write_bom_to_file(bom: bom, options: options)
         rescue StandardError => e
           @logger.error ([e.message] + e.backtrace).join($/)

@@ -41,7 +41,7 @@ module CycloneDX
         podfile_contents = File.read(podfile_path)
         plugin_syntax = /\s*plugin\s+['"]([^'"]+)['"]/
         plugin_names = podfile_contents.scan(plugin_syntax).flatten
-      
+
         plugin_names.each do |plugin_name|
           @logger.debug("Loading plugin #{plugin_name}")
           begin
@@ -67,17 +67,32 @@ module CycloneDX
         lockfile = ::Pod::Lockfile.from_file(options[:podfile_lock_path])
         verify_synced_sandbox(lockfile)
         load_plugins(options[:podfile_path])
-        
+
         return ::Pod::Podfile.from_file(options[:podfile_path]), lockfile
       end
 
 
       def parse_pods(podfile, lockfile)
         @logger.debug "Parsing pods from #{podfile.defined_in_file}"
-        included_pods = create_list_of_included_pods(podfile, lockfile)
-        return lockfile.pod_names.select { |name| included_pods.include?(name) }.map do |name|
+        included_pods, dependencies = create_list_of_included_pods(podfile, lockfile)
+
+        pods = lockfile.pod_names.select { |name| included_pods.include?(name) }.map do |name|
           Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(podfile, lockfile, name), checksum: lockfile.checksum(name))
         end
+
+        pod_dependencies = { }
+        dependencies.each {|key, value|
+          if lockfile.pod_names.include? key
+            pod = Pod.new(name: key, version: lockfile.version(key), source: source_for_pod(podfile, lockfile, key), checksum: lockfile.checksum(key))
+
+            pod_dependencies[pod.purl] = lockfile.pod_names.select { |name| value.include?(name) }.map do |name|
+              pod = Pod.new(name: name, version: lockfile.version(name), source: source_for_pod(podfile, lockfile, name), checksum: lockfile.checksum(name))
+              pod.purl
+            end
+          end
+        }
+
+        return pods, pod_dependencies
       end
 
 
@@ -88,7 +103,6 @@ module CycloneDX
         end
         return pods
       end
-
 
       private
 
@@ -124,9 +138,12 @@ module CycloneDX
         pods_hash
       end
 
+
       def append_all_pod_dependencies(pods_used, pods_cache)
         result = pods_used
         original_number = 0
+        dependencies_hash = { }
+
         # Loop adding pod dependencies until we are not adding any more dependencies to the result
         # This brings in all the transitive dependencies of every top level pod.
         # Note this also handles two edge cases:
@@ -134,13 +151,20 @@ module CycloneDX
         #  2. Having a pod that has a platform-specific dependency that is unused for this Podfile.
         while result.length != original_number
           original_number = result.length
+
           pods_used.each { |pod_name|
-            result.push(*pods_cache[pod_name]) unless !pods_cache.key?(pod_name) || pods_cache[pod_name].empty?
+            if pods_cache.key?(pod_name)
+              result.push(*pods_cache[pod_name])
+              dependencies_hash[pod_name] = pods_cache[pod_name].empty? ? [] : pods_cache[pod_name]
+            end
           }
+
           result = result.uniq
+          # maybe additional dependency processing needed here???
           pods_used = result
         end
-        result
+
+        return result, dependencies_hash
       end
 
       def create_list_of_included_pods(podfile, lockfile)
@@ -152,9 +176,9 @@ module CycloneDX
 
         topLevelDeps = includedTargets.map(&:dependencies).flatten.uniq
         pods_used = topLevelDeps.map(&:name).uniq
-        pods_used = append_all_pod_dependencies(pods_used, pods_cache)
+        pods_used, dependencies = append_all_pod_dependencies(pods_used, pods_cache)
 
-        return pods_used.sort
+        return pods_used.sort, dependencies
       end
 
 
