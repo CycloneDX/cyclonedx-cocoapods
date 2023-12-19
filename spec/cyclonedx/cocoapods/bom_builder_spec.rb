@@ -378,25 +378,16 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         it 'shoudl properly set dependencies node' do
           dependencies_generated_from_bom_builder = xml.at('bom/dependencies')
 
-          dependencies = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-            xml.dependencies(xmlns: described_class::NAMESPACE) do
-              bom_builder.dependencies.to_a.map do |key, array|
-                xml.dependency(ref: key) do
-                  array.each do |value|
-                    xml.dependency(ref: value)
-                  end
-                end
-              end
-            end
-          end.to_xml).at('dependencies')
+          dependencies = Nokogiri::XML dependencies_result
 
-          expect(dependencies_generated_from_bom_builder).to be_equivalent_to(dependencies)
+          expect(dependencies_generated_from_bom_builder.to_xml).to be_equivalent_to(dependencies.root.to_xml)
         end
       end
     end
 
     context 'without a component' do
       let(:bom_builder) { described_class.new(pods: pods) }
+      let(:dependencies_result) { '<dependencies/>' }
 
       it_behaves_like "bom_generator"
     end
@@ -404,6 +395,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     context 'with a component' do
       let(:component) { CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application') }
       let(:bom_builder) { described_class.new(component: component, pods: pods, dependencies: dependencies) }
+      let(:dependencies_result) do
+        '<dependencies>
+                                    <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
+                                    <dependency ref="pkg:cocoapods/MSAL@1.2.1">
+                                      <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
+                                    </dependency>
+                                    <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0#app-lib"/>
+                                    <dependency ref="pkg:cocoapods/RxSwift@5.1.2#app-lib"/>
+                                    <dependency ref="pkg:cocoapods/Realm@5.5.1#app-lib"/>
+                                  </dependencies>'
+      end
 
       it_behaves_like "bom_generator"
     end
