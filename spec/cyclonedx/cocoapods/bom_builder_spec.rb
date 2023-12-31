@@ -269,9 +269,9 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       {
         'pkg:cocoapods/Alamofire@5.6.2' => [],
         'pkg:cocoapods/MSAL@1.2.1' => ['pkg:cocoapods/MSAL@1.2.1#app-lib'],
-        'pkg:cocoapods/FirebaseAnalytics@7.10.0#app-lib' => [],
-        'pkg:cocoapods/RxSwift@5.1.2#app-lib' => [],
-        'pkg:cocoapods/Realm@5.5.1#app-lib' => []
+        'pkg:cocoapods/FirebaseAnalytics@7.10.0' => [],
+        'pkg:cocoapods/RxSwift@5.1.2' => [],
+        'pkg:cocoapods/Realm@5.5.1' => []
       }
     end
 
@@ -401,9 +401,9 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                                     <dependency ref="pkg:cocoapods/MSAL@1.2.1">
                                       <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
                                     </dependency>
-                                    <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0#app-lib"/>
-                                    <dependency ref="pkg:cocoapods/RxSwift@5.1.2#app-lib"/>
-                                    <dependency ref="pkg:cocoapods/Realm@5.5.1#app-lib"/>
+                                    <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
+                                    <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
+                                    <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
                                   </dependencies>'
       end
 
