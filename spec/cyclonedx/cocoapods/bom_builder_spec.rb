@@ -253,12 +253,27 @@ RSpec.describe CycloneDX::CocoaPods::Component do
   end
 end
 
-
 RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
   context 'when generating a BOM' do
-    let(:pods) { {
-      'Alamofire' => '5.4.2', 'FirebaseAnalytics' => '7.10.0', 'RxSwift' => '5.1.2', 'Realm' => '5.5.1'
-    }.map { |name, version| CycloneDX::CocoaPods::Pod.new(name: name, version: version) } }
+    let(:pods)  do
+      {
+        'Alamofire' => '5.6.2',
+        'FirebaseAnalytics' => '7.10.0',
+        'RxSwift' => '5.1.2',
+        'Realm' => '5.5.1',
+        'MSAL' => '1.2.1',
+        'MSAL/app-lib' => '1.2.1'
+      }.map { |name, version| CycloneDX::CocoaPods::Pod.new(name: name, version: version) }
+    end
+    let(:dependencies) do
+      {
+        'pkg:cocoapods/Alamofire@5.6.2' => [],
+        'pkg:cocoapods/MSAL@1.2.1' => ['pkg:cocoapods/MSAL@1.2.1#app-lib'],
+        'pkg:cocoapods/FirebaseAnalytics@7.10.0' => [],
+        'pkg:cocoapods/RxSwift@5.1.2' => [],
+        'pkg:cocoapods/Realm@5.5.1' => []
+      }
+    end
 
     shared_examples "bom_generator" do
       context 'with an incorrect version' do
@@ -328,7 +343,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         it 'should generate component metadata when a component is available' do
           if bom_builder.component
             component_metadata = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-              xml.metadata('xmlns': described_class::NAMESPACE) do
+              xml.metadata(xmlns: described_class::NAMESPACE) do
                 component.add_to_bom(xml)
               end
             end.to_xml).at('metadata/component')
@@ -348,25 +363,49 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
           components_generated_from_bom_builder = xml.at('bom/components')
 
           components = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-            xml.components('xmlns': described_class::NAMESPACE) do
+            xml.components(xmlns: described_class::NAMESPACE) do
               bom_builder.pods.each { |pod| pod.add_to_bom(xml) }
             end
           end.to_xml).at('components')
 
           expect(components_generated_from_bom_builder).to be_equivalent_to(components)
         end
+
+        it 'should generate a child dependencies node' do
+          expect(xml.at('bom/dependencies')).not_to be_nil
+        end
+
+        it 'shoudl properly set dependencies node' do
+          dependencies_generated_from_bom_builder = xml.at('bom/dependencies')
+
+          dependencies = Nokogiri::XML dependencies_result
+
+          expect(dependencies_generated_from_bom_builder.to_xml).to be_equivalent_to(dependencies.root.to_xml)
+        end
       end
     end
 
     context 'without a component' do
       let(:bom_builder) { described_class.new(pods: pods) }
+      let(:dependencies_result) { '<dependencies/>' }
 
       it_behaves_like "bom_generator"
     end
 
     context 'with a component' do
       let(:component) { CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application') }
-      let(:bom_builder) { described_class.new(component: component, pods: pods) }
+      let(:bom_builder) { described_class.new(component: component, pods: pods, dependencies: dependencies) }
+      let(:dependencies_result) do
+        '<dependencies>
+                                    <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
+                                    <dependency ref="pkg:cocoapods/MSAL@1.2.1">
+                                      <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
+                                    </dependency>
+                                    <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
+                                    <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
+                                    <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
+                                  </dependencies>'
+      end
 
       it_behaves_like "bom_generator"
     end
