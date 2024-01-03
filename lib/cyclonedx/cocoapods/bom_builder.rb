@@ -123,9 +123,9 @@ module CycloneDX
       attr_reader :component, :pods, :dependencies
 
       def initialize(pods:, component: nil, dependencies: nil)
-        @pods = pods
+        @pods = pods.sort_by(&:purl)
         @component = component
-        @dependencies = dependencies
+        @dependencies = dependencies&.sort
       end
 
       def bom(version: 1)
@@ -152,7 +152,7 @@ module CycloneDX
       def bom_dependencies(xml, dependencies)
         dependencies&.each do |key, array|
           xml.dependency(ref: key) do
-            array.each do |value|
+            array.sort.each do |value|
               xml.dependency(ref: value)
             end
           end
