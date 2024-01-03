@@ -255,6 +255,7 @@ end
 
 RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
   context 'when generating a BOM' do
+    # Important: these pods are NOT in alphabetical order; they will be sorted in output
     let(:pods)  do
       {
         'Alamofire' => '5.6.2',
@@ -265,6 +266,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         'MSAL/app-lib' => '1.2.1'
       }.map { |name, version| CycloneDX::CocoaPods::Pod.new(name: name, version: version) }
     end
+    # Important: these dependencies are NOT in alphabetical order; they will be sorted in output
     let(:dependencies) do
       {
         'pkg:cocoapods/Alamofire@5.6.2' => [],
@@ -362,13 +364,50 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         it 'should properly delegate component node generation to pods' do
           components_generated_from_bom_builder = xml.at('bom/components')
 
-          components = Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-            xml.components(xmlns: described_class::NAMESPACE) do
-              bom_builder.pods.each { |pod| pod.add_to_bom(xml) }
-            end
-          end.to_xml).at('components')
+          # Important: these expected components are sorted alphabetically
+          expected_components_string =
+            '<components>
+                <component type="library">
+                  <name>Alamofire</name>
+                  <version>5.6.2</version>
+                  <purl>pkg:cocoapods/Alamofire@5.6.2</purl>
+                  <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
+                </component>
+                <component type="library">
+                  <name>FirebaseAnalytics</name>
+                  <version>7.10.0</version>
+                  <purl>pkg:cocoapods/FirebaseAnalytics@7.10.0</purl>
+                  <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
+                </component>
+                <component type="library">
+                  <name>MSAL</name>
+                  <version>1.2.1</version>
+                  <purl>pkg:cocoapods/MSAL@1.2.1</purl>
+                  <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
+                </component>
+                <component type="library">
+                  <name>MSAL/app-lib</name>
+                  <version>1.2.1</version>
+                  <purl>pkg:cocoapods/MSAL@1.2.1#app-lib</purl>
+                  <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
+                </component>
+                <component type="library">
+                  <name>Realm</name>
+                  <version>5.5.1</version>
+                  <purl>pkg:cocoapods/Realm@5.5.1</purl>
+                  <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
+                </component>
+                <component type="library">
+                  <name>RxSwift</name>
+                  <version>5.1.2</version>
+                  <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
+                  <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
+                </component>
+              </components>'
 
-          expect(components_generated_from_bom_builder).to be_equivalent_to(components)
+          components = Nokogiri::XML expected_components_string
+
+          expect(components_generated_from_bom_builder.to_xml).to be_equivalent_to(components.root.to_xml).respecting_element_order
         end
 
         it 'should generate a child dependencies node' do
@@ -380,7 +419,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
 
           dependencies = Nokogiri::XML dependencies_result
 
-          expect(dependencies_generated_from_bom_builder.to_xml).to be_equivalent_to(dependencies.root.to_xml)
+          expect(dependencies_generated_from_bom_builder.to_xml).to be_equivalent_to(dependencies.root.to_xml).respecting_element_order
         end
       end
     end
@@ -395,16 +434,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     context 'with a component' do
       let(:component) { CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application') }
       let(:bom_builder) { described_class.new(component: component, pods: pods, dependencies: dependencies) }
+      # Important: these expected dependencies are sorted alphabetically
       let(:dependencies_result) do
         '<dependencies>
-                                    <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
-                                    <dependency ref="pkg:cocoapods/MSAL@1.2.1">
-                                      <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
-                                    </dependency>
-                                    <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
-                                    <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
-                                    <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
-                                  </dependencies>'
+          <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
+          <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
+          <dependency ref="pkg:cocoapods/MSAL@1.2.1">
+            <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
+          </dependency>
+          <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
+          <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
+        </dependencies>'
       end
 
       it_behaves_like "bom_generator"
