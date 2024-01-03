@@ -185,7 +185,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
       context 'which includes text' do
         let(:license) {
           license_with_text = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
-          license_with_text.text = "Copyright 2012\nPermission is granted to..."
+          license_with_text.text = 'Copyright 2012\nPermission is granted to...'
           license_with_text
         }
 
@@ -198,7 +198,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
       context 'which includes url' do
         let(:license) {
           license_with_url = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
-          license_with_url.url = "https://opensource.org/licenses/MIT"
+          license_with_url.url = 'https://opensource.org/licenses/MIT'
           license_with_url
         }
 
@@ -214,7 +214,7 @@ end
 
 RSpec.describe CycloneDX::CocoaPods::Component do
   context 'when generating a component in a BOM' do
-    shared_examples "component" do
+    shared_examples 'component' do
       it 'should generate a root component element' do
         expect(xml.at('/component')).not_to be_nil
         expect(xml.at('/component')['type']).to eq(component.type)
@@ -232,7 +232,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       let(:component) { described_class.new(name: 'Application', version: '1.3.5', type: 'application') }
       let(:xml) { Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml) }
 
-      it_behaves_like "component"
+      it_behaves_like 'component'
 
       it 'should not generate any group element' do
         expect(xml.at('/component/group')).to be_nil
@@ -243,7 +243,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       let(:component) { described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application') }
       let(:xml) { Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml) }
 
-      it_behaves_like "component"
+      it_behaves_like 'component'
 
       it 'should generate a proper group element' do
         expect(xml.at('/component/group')).not_to be_nil
@@ -277,7 +277,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       }
     end
 
-    shared_examples "bom_generator" do
+    shared_examples 'bom_generator' do
       context 'with an incorrect version' do
         it 'should raise for non integer versions' do
           expect { bom_builder.bom(version: 'foo') }.to raise_error(ArgumentError)
@@ -414,7 +414,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
           expect(xml.at('bom/dependencies')).not_to be_nil
         end
 
-        it 'shoudl properly set dependencies node' do
+        it 'should properly set dependencies node' do
           dependencies_generated_from_bom_builder = xml.at('bom/dependencies')
 
           dependencies = Nokogiri::XML dependencies_result
@@ -428,7 +428,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       let(:bom_builder) { described_class.new(pods: pods) }
       let(:dependencies_result) { '<dependencies/>' }
 
-      it_behaves_like "bom_generator"
+      it_behaves_like 'bom_generator'
     end
 
     context 'with a component' do
@@ -447,7 +447,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         </dependencies>'
       end
 
-      it_behaves_like "bom_generator"
+      it_behaves_like 'bom_generator'
     end
   end
 end
