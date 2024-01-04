@@ -278,7 +278,8 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
     # Important: these expected components are sorted alphabetically
     let(:pod_result) do
-      '<components>
+      <<~XML
+      <components>
         <component type="library">
           <name>Alamofire</name>
           <version>5.6.2</version>
@@ -315,7 +316,8 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
           <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
           <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
         </component>
-      </components>'
+      </components>
+      XML
     end
 
     shared_examples 'bom_generator' do
@@ -438,7 +440,8 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       let(:bom_builder) { described_class.new(component: component, pods: pods, dependencies: dependencies) }
       # Important: these expected dependencies are sorted alphabetically
       let(:dependencies_result) do
-        '<dependencies>
+        <<~XML
+        <dependencies>
           <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
           <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
           <dependency ref="pkg:cocoapods/MSAL@1.2.1">
@@ -446,7 +449,8 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
           </dependency>
           <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
           <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
-        </dependencies>'
+        </dependencies>
+        XML
       end
 
       it_behaves_like 'bom_generator'
