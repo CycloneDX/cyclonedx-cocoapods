@@ -17,12 +17,18 @@
 # Copyright (c) OWASP Foundation. All Rights Reserved.
 #
 
+inherit_mode:
+  # Keep the default excluded file paths, and we will exclude more paths
+  merge:
+    - Exclude
+
 AllCops:
   TargetRubyVersion: 2.4.0
   NewCops: enable
+  # Completely ignore test fixture files
   Exclude:
-    - 'node_modules/**/*'
-    - 'tmp/**/*'
-    - 'vendor/**/*'
-    - '.git/**/*'
     - 'spec/fixtures/**/*'
+
+# Allow RSpec files to have long blocks for the tests.
+Metrics/BlockLength:
+  AllowedMethods: ['describe', 'context', 'shared_examples']
