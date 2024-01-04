@@ -36,11 +36,11 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:homepage) { 'https://github.com/Alamofire/Alamofire' }
 
   let(:pod) { described_class.new(name: pod_name, version: pod_version, checksum: checksum) }
-  let(:xml) {
+  let(:xml) do
     Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
       pod.add_to_bom(xml)
     end.to_xml)
-  }
+  end
 
   context 'when generating a pod component in a BOM' do
     it 'should generate a root component of type library' do
@@ -71,7 +71,9 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'when having an author' do
-      let(:pod) { described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(author: author) }
+      let(:pod) do
+        described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(author: author)
+      end
 
       it 'should generate a correct component author' do
         expect(xml.at('/component/author')).not_to be_nil
@@ -88,7 +90,9 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'when having a description' do
-      let(:pod) { described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(summary: summary) }
+      let(:pod) do
+        described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(summary: summary)
+      end
 
       it 'should generate a correct component description' do
         expect(xml.at('/component/description')).not_to be_nil
@@ -99,7 +103,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'when not having a checksum' do
       let(:pod) { described_class.new(name: pod_name, version: pod_version) }
 
-      it 'shouldn''t generate a component hash' do
+      it 'shouldn\'t generate a component hash' do
         expect(xml.at('/component/hashes')).to be_nil
       end
     end
@@ -107,19 +111,22 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     context 'when having a checksum' do
       it 'should generate a correct component hash' do
         expect(xml.at('/component/hashes/hash')).not_to be_nil
-        expect(xml.at('/component/hashes/hash')['alg']).to eq(described_class::CHECKSUM_ALGORITHM)  # CocoaPods always uses SHA-1
+        # CocoaPods always uses SHA-1
+        expect(xml.at('/component/hashes/hash')['alg']).to eq(described_class::CHECKSUM_ALGORITHM)
         expect(xml.at('/component/hashes/hash').text).to eql(pod.checksum)
       end
     end
 
     context 'when not having a license' do
-      it 'shouldn''t generate a license list' do
+      it 'shouldn\'t generate a license list' do
         expect(xml.at('/component/licenses')).to be_nil
       end
     end
 
     context 'when having a license' do
-      let(:pod) { described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(license: 'MIT') }
+      let(:pod) do
+        described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(license: 'MIT')
+      end
 
       it 'should generate a child licenses node' do
         expect(xml.at('/component/licenses')).not_to be_nil
@@ -143,12 +150,15 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
 
     context 'when having a homepage' do
-      let(:pod) { described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(homepage: homepage) }
+      let(:pod) do
+        described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(homepage: homepage)
+      end
 
       it 'should properly generate a component external references list' do
         expect(xml.at('/component/externalReferences')).not_to be_nil
         expect(xml.at('/component/externalReferences/reference')).not_to be_nil
-        expect(xml.at('/component/externalReferences/reference')['type']).to eq(described_class::HOMEPAGE_REFERENCE_TYPE)
+        actual = xml.at('/component/externalReferences/reference')['type']
+        expect(actual).to eq(described_class::HOMEPAGE_REFERENCE_TYPE)
         expect(xml.at('/component/externalReferences/reference/url')).not_to be_nil
         expect(xml.at('/component/externalReferences/reference/url').text).to eq(homepage)
       end
@@ -156,16 +166,15 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
   end
 end
 
-
 RSpec.describe CycloneDX::CocoaPods::Pod::License do
   context 'when generating a license in a BOM' do
     context 'for known licenses' do
       let(:license) { described_class.new(identifier: described_class::SPDX_LICENSES.sample) }
-      let(:xml) {
+      let(:xml) do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           license.add_to_bom(xml)
         end.to_xml)
-      }
+      end
 
       it 'should generate a root license element' do
         expect(xml.at('/license')).not_to be_nil
@@ -183,11 +192,11 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
       end
 
       context 'which includes text' do
-        let(:license) {
+        let(:license) do
           license_with_text = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
           license_with_text.text = 'Copyright 2012\nPermission is granted to...'
           license_with_text
-        }
+        end
 
         it 'should create text element' do
           expect(xml.at('/license/text')).not_to be_nil
@@ -196,11 +205,11 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
       end
 
       context 'which includes url' do
-        let(:license) {
+        let(:license) do
           license_with_url = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
           license_with_url.url = 'https://opensource.org/licenses/MIT'
           license_with_url
-        }
+        end
 
         it 'should create text element' do
           expect(xml.at('/license/url')).not_to be_nil
@@ -210,7 +219,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
     end
   end
 end
-
 
 RSpec.describe CycloneDX::CocoaPods::Component do
   context 'when generating a component in a BOM' do
@@ -230,7 +238,9 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
     context 'without a group' do
       let(:component) { described_class.new(name: 'Application', version: '1.3.5', type: 'application') }
-      let(:xml) { Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml) }
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
+      end
 
       it_behaves_like 'component'
 
@@ -240,8 +250,12 @@ RSpec.describe CycloneDX::CocoaPods::Component do
     end
 
     context 'with a group' do
-      let(:component) { described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application') }
-      let(:xml) { Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml) }
+      let(:component) do
+        described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application')
+      end
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
+      end
 
       it_behaves_like 'component'
 
@@ -279,44 +293,44 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     # Important: these expected components are sorted alphabetically
     let(:pod_result) do
       <<~XML
-      <components>
-        <component type="library">
-          <name>Alamofire</name>
-          <version>5.6.2</version>
-          <purl>pkg:cocoapods/Alamofire@5.6.2</purl>
-          <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
-        </component>
-        <component type="library">
-          <name>FirebaseAnalytics</name>
-          <version>7.10.0</version>
-          <purl>pkg:cocoapods/FirebaseAnalytics@7.10.0</purl>
-          <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
-        </component>
-        <component type="library">
-          <name>MSAL</name>
-          <version>1.2.1</version>
-          <purl>pkg:cocoapods/MSAL@1.2.1</purl>
-          <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
-        </component>
-        <component type="library">
-          <name>MSAL/app-lib</name>
-          <version>1.2.1</version>
-          <purl>pkg:cocoapods/MSAL@1.2.1#app-lib</purl>
-          <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
-        </component>
-        <component type="library">
-          <name>Realm</name>
-          <version>5.5.1</version>
-          <purl>pkg:cocoapods/Realm@5.5.1</purl>
-          <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
-        </component>
-        <component type="library">
-          <name>RxSwift</name>
-          <version>5.1.2</version>
-          <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
-          <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
-        </component>
-      </components>
+        <components>
+          <component type="library">
+            <name>Alamofire</name>
+            <version>5.6.2</version>
+            <purl>pkg:cocoapods/Alamofire@5.6.2</purl>
+            <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
+          </component>
+          <component type="library">
+            <name>FirebaseAnalytics</name>
+            <version>7.10.0</version>
+            <purl>pkg:cocoapods/FirebaseAnalytics@7.10.0</purl>
+            <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
+          </component>
+          <component type="library">
+            <name>MSAL</name>
+            <version>1.2.1</version>
+            <purl>pkg:cocoapods/MSAL@1.2.1</purl>
+            <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
+          </component>
+          <component type="library">
+            <name>MSAL/app-lib</name>
+            <version>1.2.1</version>
+            <purl>pkg:cocoapods/MSAL@1.2.1#app-lib</purl>
+            <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
+          </component>
+          <component type="library">
+            <name>Realm</name>
+            <version>5.5.1</version>
+            <purl>pkg:cocoapods/Realm@5.5.1</purl>
+            <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
+          </component>
+          <component type="library">
+            <name>RxSwift</name>
+            <version>5.1.2</version>
+            <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
+            <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
+          </component>
+        </components>
       XML
     end
 
@@ -345,7 +359,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       end
 
       context 'with a valid version' do
-        let(:version) { Random.rand(100) + 1 }
+        let(:version) { Random.rand(1..100) }
         let(:xml) { Nokogiri::XML(bom_builder.bom(version: version)) }
 
         it 'should be able to use integer-ish versions' do
@@ -354,8 +368,9 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
 
         context 'twice' do
           it 'should generate different serial numbers' do
-            original_serial_number = Nokogiri::XML(bom_builder.bom(version: version)).root['serialNumber']
-            expect(Nokogiri::XML(bom_builder.bom(version: version)).root['serialNumber']).not_to eq(original_serial_number)
+            first_serial_number = Nokogiri::XML(bom_builder.bom(version: version)).root['serialNumber']
+            second_serial_number = Nokogiri::XML(bom_builder.bom(version: version)).root['serialNumber']
+            expect(second_serial_number).not_to eq(first_serial_number)
           end
         end
 
@@ -436,20 +451,22 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
 
     context 'with a component' do
-      let(:component) { CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application') }
+      let(:component) do
+        CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application')
+      end
       let(:bom_builder) { described_class.new(component: component, pods: pods, dependencies: dependencies) }
       # Important: these expected dependencies are sorted alphabetically
       let(:dependencies_result) do
         <<~XML
-        <dependencies>
-          <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
-          <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
-          <dependency ref="pkg:cocoapods/MSAL@1.2.1">
-            <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
-          </dependency>
-          <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
-          <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
-        </dependencies>
+          <dependencies>
+            <dependency ref="pkg:cocoapods/Alamofire@5.6.2"/>
+            <dependency ref="pkg:cocoapods/FirebaseAnalytics@7.10.0"/>
+            <dependency ref="pkg:cocoapods/MSAL@1.2.1">
+              <dependency ref="pkg:cocoapods/MSAL@1.2.1#app-lib"/>
+            </dependency>
+            <dependency ref="pkg:cocoapods/Realm@5.5.1"/>
+            <dependency ref="pkg:cocoapods/RxSwift@5.1.2"/>
+          </dependencies>
         XML
       end
 

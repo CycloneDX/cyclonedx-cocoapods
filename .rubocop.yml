@@ -20,3 +20,9 @@
 AllCops:
   TargetRubyVersion: 2.4.0
   NewCops: enable
+  Exclude:
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'vendor/**/*'
+    - '.git/**/*'
+    - 'spec/fixtures/**/*'
