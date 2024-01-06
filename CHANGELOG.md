@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0]
+
+### Added
+- Includes dependency relationship information for each of the components. ([Issue #58](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/58)) [@fnxpt](https://github.com/fnxpt).
+
+### Changed
+- Components and dependencies are output in alphabetically sorted order by `purl` to increase reproducability of BOM generation. ([Issue #59](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/59)) [@macblazer](https://github.com/macblazer).
+
 ## [1.1.2]
 
 ### Changed
