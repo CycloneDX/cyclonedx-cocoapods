@@ -52,6 +52,7 @@ OPTIONS
     -o, --output bom_file_path       Path to output the bom.xml file to (default: "bom.xml")
     -b, --bom-version bom_version    Version of the generated BOM (default: "1")
     -x, --exclude-test-targets       Eliminate Podfile targets whose name contains the word "test"
+    -s, --shortened-strings length   Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems
 
   Component Metadata
     -n, --name name                  (If specified version and type are also required) Name of the component for which the BOM is generated
