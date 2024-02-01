@@ -93,7 +93,7 @@ module CycloneDX
             parsedOptions[:exclude_test_targets] = exclude
           end
           options.on('-s', '--shortened-strings length', Integer, 'Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems') do |shortened_strings|
-            parsed_options[:trim_strings_length] = shortened_strings
+            parsedOptions[:trim_strings_length] = shortened_strings
           end
 
           options.separator("\n  Component Metadata\n")
