@@ -39,15 +39,9 @@ module CycloneDX
         setup_logger(verbose: options[:verbose])
         @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-        analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
-        podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
-        pods, dependencies = analyzer.parse_pods(podfile, lockfile)
-        analyzer.populate_pods_with_additional_info(pods)
+        pods, dependencies = analyze(options)
 
-        builder = BOMBuilder.new(pods: pods, component: component_from_options(options), dependencies: dependencies)
-        bom = builder.bom(version: options[:bom_version] || 1,
-                          trim_strings_length: options[:trim_strings_length] || 0)
-        write_bom_to_file(bom: bom, options: options)
+        build_and_write_bom(options, pods, dependencies)
       rescue StandardError => e
         @logger.error ([e.message] + e.backtrace).join($INPUT_RECORD_SEPARATOR)
         exit 1
@@ -134,6 +128,22 @@ module CycloneDX
         end
 
         parsed_options
+      end
+
+      def analyze(options)
+        analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
+        podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+        pods, dependencies = analyzer.parse_pods(podfile, lockfile)
+        analyzer.populate_pods_with_additional_info(pods)
+
+        [pods, dependencies]
+      end
+
+      def build_and_write_bom(options, pods, dependencies)
+        builder = BOMBuilder.new(pods: pods, component: component_from_options(options), dependencies: dependencies)
+        bom = builder.bom(version: options[:bom_version] || 1,
+                          trim_strings_length: options[:trim_strings_length] || 0)
+        write_bom_to_file(bom: bom, options: options)
       end
 
       def component_from_options(options)
