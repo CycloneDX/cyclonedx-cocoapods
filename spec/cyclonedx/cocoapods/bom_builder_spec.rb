@@ -42,6 +42,12 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end.to_xml)
   end
 
+  let(:shortXML) do
+    Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+      pod.add_to_bom(xml, 7)
+    end.to_xml)
+  end
+
   context 'when generating a pod component in a BOM' do
     it 'should generate a root component of type library' do
       expect(xml.at('/component')).not_to be_nil
@@ -63,6 +69,13 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       expect(xml.at('/component/purl').text).to eql(pod.purl)
     end
 
+    context 'when shortening to a limited string length' do
+      it 'should truncate the purl to the right number of characters' do
+        expect(shortXML.at('/component/purl')).not_to be_nil
+        expect(shortXML.at('/component/purl').text).to eql('pkg:coc')
+      end
+    end
+
     context 'when not having an author' do
       it 'shouldn\'t generate a component author' do
         expect(xml.at('/component/author')).to be_nil
@@ -80,6 +93,15 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
         expect(xml.at('/component/author').text).to eql(pod.author)
         expect(xml.at('/component/publisher')).not_to be_nil
         expect(xml.at('/component/publisher').text).to eql(pod.author)
+      end
+
+      context 'when shortening to a limited string length' do
+        it 'should truncate the author to the right number of characters' do
+          expect(shortXML.at('/component/author')).not_to be_nil
+          expect(shortXML.at('/component/author').text).to eql('Darth V')
+          expect(shortXML.at('/component/publisher')).not_to be_nil
+          expect(shortXML.at('/component/publisher').text).to eql('Darth V')
+        end
       end
     end
 
@@ -278,7 +300,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         'Realm' => '5.5.1',
         'MSAL' => '1.2.1',
         'MSAL/app-lib' => '1.2.1'
-      }.map { |name, version| CycloneDX::CocoaPods::Pod.new(name: name, version: version) }
+      }.map { |name, version|
+        pod = CycloneDX::CocoaPods::Pod.new(name: name, version: version)
+        pod.populate(author: 'Chewbacca')
+        pod
+      }
     end
     # Important: these dependencies are NOT in alphabetical order; they will be sorted in output
     let(:dependencies) do
@@ -295,39 +321,106 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       <<~XML
         <components>
           <component type="library">
+            <author>Chewbacca</author>
+            <publisher>Chewbacca</publisher>
             <name>Alamofire</name>
             <version>5.6.2</version>
             <purl>pkg:cocoapods/Alamofire@5.6.2</purl>
             <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
           </component>
           <component type="library">
+            <author>Chewbacca</author>
+            <publisher>Chewbacca</publisher>
             <name>FirebaseAnalytics</name>
             <version>7.10.0</version>
             <purl>pkg:cocoapods/FirebaseAnalytics@7.10.0</purl>
             <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
           </component>
           <component type="library">
+            <author>Chewbacca</author>
+            <publisher>Chewbacca</publisher>
             <name>MSAL</name>
             <version>1.2.1</version>
             <purl>pkg:cocoapods/MSAL@1.2.1</purl>
             <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
           </component>
           <component type="library">
+            <author>Chewbacca</author>
+            <publisher>Chewbacca</publisher>
             <name>MSAL/app-lib</name>
             <version>1.2.1</version>
             <purl>pkg:cocoapods/MSAL@1.2.1#app-lib</purl>
             <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
           </component>
           <component type="library">
+            <author>Chewbacca</author>
+            <publisher>Chewbacca</publisher>
             <name>Realm</name>
             <version>5.5.1</version>
             <purl>pkg:cocoapods/Realm@5.5.1</purl>
             <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
           </component>
           <component type="library">
+            <author>Chewbacca</author>
+            <publisher>Chewbacca</publisher>
             <name>RxSwift</name>
             <version>5.1.2</version>
             <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
+            <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
+          </component>
+        </components>
+      XML
+    end
+    # Important: these expected components are sorted alphabetically
+    let(:short_pod_results) do
+      <<~XML
+        <components>
+          <component type="library">
+            <author>Chewba</author>
+            <publisher>Chewba</publisher>
+            <name>Alamofire</name>
+            <version>5.6.2</version>
+            <purl>pkg:co</purl>
+            <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
+          </component>
+          <component type="library">
+            <author>Chewba</author>
+            <publisher>Chewba</publisher>
+            <name>FirebaseAnalytics</name>
+            <version>7.10.0</version>
+            <purl>pkg:co</purl>
+            <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
+          </component>
+          <component type="library">
+            <author>Chewba</author>
+            <publisher>Chewba</publisher>
+            <name>MSAL</name>
+            <version>1.2.1</version>
+            <purl>pkg:co</purl>
+            <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
+          </component>
+          <component type="library">
+            <author>Chewba</author>
+            <publisher>Chewba</publisher>
+            <name>MSAL/app-lib</name>
+            <version>1.2.1</version>
+            <purl>pkg:co</purl>
+            <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
+          </component>
+          <component type="library">
+            <author>Chewba</author>
+            <publisher>Chewba</publisher>
+            <name>Realm</name>
+            <version>5.5.1</version>
+            <purl>pkg:co</purl>
+            <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
+          </component>
+          <component type="library">
+            <author>Chewba</author>
+            <publisher>Chewba</publisher>
+            <name>RxSwift</name>
+            <version>5.1.2</version>
+            <purl>pkg:co</purl>
             <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
           </component>
         </components>
@@ -342,6 +435,16 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
 
         it 'should raise for negative versions' do
           expect { bom_builder.bom(version: -1) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'with an incorrect version' do
+        it 'should raise for non integer trim_strings_length' do
+          expect { bom_builder.bom(version: 1, trim_strings_length: 'foo') }.to raise_error(ArgumentError)
+        end
+
+        it 'should raise for negative trim_strings_length' do
+          expect { bom_builder.bom(version: 1, trim_strings_length: -1) }.to raise_error(ArgumentError)
         end
       end
 
@@ -439,6 +542,19 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
           expected = expected.root.to_xml
 
           expect(actual).to be_equivalent_to(expected).respecting_element_order
+        end
+
+        context 'when asked to shorten strings' do
+          let(:shortXML) { Nokogiri::XML(bom_builder.bom(version: version, trim_strings_length: 6)) }
+
+          it 'should properly trim the author, publisher, and purl' do
+            actual = shortXML.at('bom/components').to_xml
+
+            expected = Nokogiri::XML short_pod_results
+            expected = expected.root.to_xml
+
+            expect(actual).to be_equivalent_to(expected).respecting_element_order
+          end
         end
       end
     end

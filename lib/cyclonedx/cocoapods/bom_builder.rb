@@ -66,10 +66,17 @@ module CycloneDX
         return "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{source_qualifier}#{purl_subpath}"
       end
 
-      def add_to_bom(xml)
+      def add_to_bom(xml, trim_strings_length = 0)
         xml.component(type: 'library') do
-          xml.author author unless author.nil?
-          xml.publisher author unless author.nil?
+          unless author.nil?
+            if trim_strings_length.zero?
+              xml.author author
+              xml.publisher author
+            else
+              xml.author author.slice(0, trim_strings_length)
+              xml.publisher author.slice(0, trim_strings_length)
+            end
+          end
           xml.name name
           xml.version version.to_s
           xml.description { xml.cdata description } unless description.nil?
@@ -83,7 +90,11 @@ module CycloneDX
               license.add_to_bom(xml)
             end
           end
-          xml.purl purl
+          if trim_strings_length.zero?
+            xml.purl purl
+          else
+            xml.purl purl.slice(0, trim_strings_length)
+          end
           xml.bomRef purl
           unless homepage.nil?
             xml.externalReferences do
@@ -128,15 +139,16 @@ module CycloneDX
         @dependencies = dependencies&.sort
       end
 
-      def bom(version: 1)
+      def bom(version: 1, trim_strings_length: 0)
         raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0" unless version.to_i > 0
+        raise ArgumentError, "Incorrect string length: #{trim_strings_length} should be an integer greater than 0" unless trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
 
         Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
             bom_metadata(xml)
             xml.components do
               pods.each do |pod|
-                pod.add_to_bom(xml)
+                pod.add_to_bom(xml, trim_strings_length)
               end
             end
 

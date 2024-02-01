@@ -44,7 +44,8 @@ module CycloneDX
           analyzer.populate_pods_with_additional_info(pods)
 
           builder = BOMBuilder.new(pods: pods, component: component_from_options(options), dependencies: dependencies)
-          bom = builder.bom(version: options[:bom_version] || 1)
+          bom = builder.bom(version: options[:bom_version] || 1,
+                            trim_strings_length: options[:trim_strings_length] || 0)
           write_bom_to_file(bom: bom, options: options)
         rescue StandardError => e
           @logger.error ([e.message] + e.backtrace).join($/)
@@ -90,6 +91,9 @@ module CycloneDX
           end
           options.on('-x', '--exclude-test-targets', 'Eliminate Podfile targets whose name contains the word "test"') do |exclude|
             parsedOptions[:exclude_test_targets] = exclude
+          end
+          options.on('-s', '--shortened-strings length', Integer, 'Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems') do |shortened_strings|
+            parsed_options[:trim_strings_length] = shortened_strings
           end
 
           options.separator("\n  Component Metadata\n")
