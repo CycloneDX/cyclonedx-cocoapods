@@ -61,9 +61,21 @@ module CycloneDX
 
       def purl
         purl_name = CGI.escape(name.split('/').first)
-        source_qualifier = source.nil? || source.source_qualifier.empty? ? '' : "?#{source.source_qualifier.map { |key, value| "#{key}=#{CGI.escape(value)}" }.join('&')}"
-        purl_subpath = name.split('/').length > 1 ? "##{name.split('/').drop(1).map { |component| CGI.escape(component) }.join('/')}" : ''
-        return "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{source_qualifier}#{purl_subpath}"
+        source_qualifier = if source.nil? || source.source_qualifier.empty?
+                             ''
+                           else
+                             "?#{source.source_qualifier.map do |key, value|
+                                   "#{key}=#{CGI.escape(value)}"
+                                 end.join('&')}"
+                           end
+        purl_subpath = if name.split('/').length > 1
+                         "##{name.split('/').drop(1).map do |component|
+                               CGI.escape(component)
+                             end.join('/')}"
+                       else
+                         ''
+                       end
+        "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{source_qualifier}#{purl_subpath}"
       end
 
       def add_to_bom(xml, trim_strings_length = 0)
@@ -140,11 +152,18 @@ module CycloneDX
       end
 
       def bom(version: 1, trim_strings_length: 0)
-        raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0" unless version.to_i > 0
-        raise ArgumentError, "Incorrect string length: #{trim_strings_length} should be an integer greater than 0" unless trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
+        unless version.to_i.positive?
+          raise ArgumentError,
+                "Incorrect version: #{version} should be an integer greater than 0"
+        end
+
+        unless trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
+          raise ArgumentError,
+                "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
+        end
 
         Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
+          xml.bom(xmlns: NAMESPACE, version: version.to_i.to_s, serialNumber: "urn:uuid:#{SecureRandom.uuid}") do
             bom_metadata(xml)
             xml.components do
               pods.each do |pod|
@@ -181,7 +200,7 @@ module CycloneDX
               xml.version VERSION
             end
           end
-          component.add_to_bom(xml) unless component.nil?
+          component&.add_to_bom(xml)
         end
       end
     end
