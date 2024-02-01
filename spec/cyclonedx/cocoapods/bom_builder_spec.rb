@@ -300,11 +300,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         'Realm' => '5.5.1',
         'MSAL' => '1.2.1',
         'MSAL/app-lib' => '1.2.1'
-      }.map { |name, version|
+      }.map do |name, version|
         pod = CycloneDX::CocoaPods::Pod.new(name: name, version: version)
         pod.populate(author: 'Chewbacca')
         pod
-      }
+      end
     end
     # Important: these dependencies are NOT in alphabetical order; they will be sorted in output
     let(:dependencies) do
@@ -438,7 +438,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
         end
       end
 
-      context 'with an incorrect version' do
+      context 'with an incorrect trim_strings_length' do
         it 'should raise for non integer trim_strings_length' do
           expect { bom_builder.bom(version: 1, trim_strings_length: 'foo') }.to raise_error(ArgumentError)
         end

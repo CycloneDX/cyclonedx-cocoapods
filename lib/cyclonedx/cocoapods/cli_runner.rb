@@ -94,13 +94,15 @@ module CycloneDX
             parsed_options[:exclude_test_targets] = exclude
           end
           options.on('-s', '--shortened-strings length', Integer,
-                     'Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems') do |shortened_strings|
+                     'Trim author, publisher, and purl to <length> characters; this may ' \
+                     'cause data loss but can improve compatibility with other systems') do |shortened_strings|
             parsed_options[:trim_strings_length] = shortened_strings
           end
 
           options.separator("\n  Component Metadata\n")
           options.on('-n', '--name name',
-                     '(If specified version and type are also required) Name of the component for which the BOM is generated') do |name|
+                     '(If specified version and type are also required) Name of the ' \
+                     'component for which the BOM is generated') do |name|
             parsed_options[:name] = name
           end
           options.on('-v', '--version version', 'Version of the component for which the BOM is generated') do |version|
@@ -112,7 +114,8 @@ module CycloneDX
             end
           end
           options.on('-t', '--type type',
-                     "Type of the component for which the BOM is generated (one of #{component_types.join('|')})") do |type|
+                     'Type of the component for which the BOM is generated ' \
+                     "(one of #{component_types.join('|')})") do |type|
             unless component_types.include?(type)
               raise OptionParser::InvalidArgument,
                     "Invalid value for component's type (#{type}). It must be one of #{component_types.join('|')}"
