@@ -21,7 +21,7 @@ The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material 
 
 ### From Source
 
-First, clone/copy the source code from GitHub.  Then in the source code directory run these ommands:
+First, clone/copy the source code from GitHub.  Then in the source code directory run these commands (substituting the actual version number for `x.x.x`):
 
 ```shell
 gem build cyclonedx-cocoapods.gemspec
