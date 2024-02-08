@@ -34,3 +34,7 @@ header:
     - "spec/fixtures/**"
     - "LICENSE"
     - "NOTICE"
+  language:
+    Ruby:
+      filenames:
+        - "cyclonedx-cocoapods"

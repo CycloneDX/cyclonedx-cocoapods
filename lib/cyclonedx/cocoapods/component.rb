@@ -32,8 +32,7 @@ module CycloneDX
 
         Gem::Version.new(version) # To check that the version string is well formed
         unless VALID_COMPONENT_TYPES.include?(type)
-          raise ArgumentError,
-                "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
+          raise ArgumentError, "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
         end
 
         @group = group
