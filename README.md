@@ -21,7 +21,7 @@ The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material 
 
 ### From Source
 
-First, clone/copy the source code from GitHub.  Then in the source code directory run these ommands:
+First, clone/copy the source code from GitHub.  Then in the source code directory run these commands (substituting the actual version number for `x.x.x`):
 
 ```shell
 gem build cyclonedx-cocoapods.gemspec
@@ -32,7 +32,7 @@ Building from source requires Ruby 2.4.0 or newer.
 
 ## Compatibility
 
-*cyclonedx-cocoapods* aims to produce SBOMs according to the latest CycloneDX specification, which currently is [1.4](https://cyclonedx.org/docs/1.4/).
+*cyclonedx-cocoapods* aims to produce SBOMs according to the latest CycloneDX specification, which currently is [1.5](https://cyclonedx.org/docs/1.5/xml/).
 You can use the [CycloneDX CLI](https://github.com/CycloneDX/cyclonedx-cli#convert-command) to convert between multiple BOM formats or specification versions.
 
 ## Usage

@@ -31,15 +31,15 @@ module CycloneDX
       attr_reader :version
       # Anything responding to :source_qualifier
       attr_reader :source
-      # xs:anyURI - https://cyclonedx.org/docs/1.4/xml/#type_externalReference
+      # xs:anyURI - https://cyclonedx.org/docs/1.5/xml/#type_externalReference
       attr_reader :homepage
-      # https://cyclonedx.org/docs/1.4/xml/#type_hashValue (We only use SHA-1 hashes - length == 40)
+      # https://cyclonedx.org/docs/1.5/xml/#type_hashValue (We only use SHA-1 hashes - length == 40)
       attr_reader :checksum
       # xs:normalizedString
       attr_reader :author
       # xs:normalizedString
       attr_reader :description
-      # https://cyclonedx.org/docs/1.4/xml/#type_licenseType
+      # https://cyclonedx.org/docs/1.5/xml/#type_licenseType
       # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
       attr_reader :license
 

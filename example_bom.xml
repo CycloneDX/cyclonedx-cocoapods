@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bom xmlns="http://cyclonedx.org/schema/bom/1.4" version="1" serialNumber="urn:uuid:a583f369-d5de-481f-95db-e8373467c3b1">
+<bom xmlns="http://cyclonedx.org/schema/bom/1.5" version="1" serialNumber="urn:uuid:7d67e1d1-ebd7-4ae6-8f41-cc045d3542fb">
   <metadata>
-    <timestamp>2022-08-02T16:16:51Z</timestamp>
+    <timestamp>2024-02-08T06:35:59Z</timestamp>
     <tools>
       <tool>
         <vendor>CycloneDX</vendor>
         <name>cyclonedx-cocoapods</name>
-        <version>1.0.0</version>
+        <version>1.3.0</version>
       </tool>
     </tools>
     <component type="application">
@@ -15,7 +15,7 @@
     </component>
   </metadata>
   <components>
-    <component type="library">
+    <component type="library" bom-ref="pkg:cocoapods/Highlightr@2.1.0">
       <author>J.P. Illanes &lt;jpillaness@gmail.com&gt;</author>
       <publisher>J.P. Illanes &lt;jpillaness@gmail.com&gt;</publisher>
       <name>Highlightr</name>
@@ -36,7 +36,7 @@
         </reference>
       </externalReferences>
     </component>
-    <component type="library">
+    <component type="library" bom-ref="pkg:cocoapods/RxAtomic@4.4.2">
       <author>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</author>
       <publisher>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</publisher>
       <name>RxAtomic</name>
@@ -57,7 +57,7 @@
         </reference>
       </externalReferences>
     </component>
-    <component type="library">
+    <component type="library" bom-ref="pkg:cocoapods/RxCocoa@4.4.2">
       <author>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</author>
       <publisher>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</publisher>
       <name>RxCocoa</name>
@@ -80,7 +80,7 @@
         </reference>
       </externalReferences>
     </component>
-    <component type="library">
+    <component type="library" bom-ref="pkg:cocoapods/RxSwift@4.4.2">
       <author>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</author>
       <publisher>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</publisher>
       <name>RxSwift</name>
@@ -112,4 +112,14 @@ git diff | grep bug | less          #  linux pipes - programs communicate by sen
       </externalReferences>
     </component>
   </components>
+  <dependencies>
+    <dependency ref="pkg:cocoapods/Highlightr@2.1.0"/>
+    <dependency ref="pkg:cocoapods/RxAtomic@4.4.2"/>
+    <dependency ref="pkg:cocoapods/RxCocoa@4.4.2">
+      <dependency ref="pkg:cocoapods/RxSwift@4.4.2"/>
+    </dependency>
+    <dependency ref="pkg:cocoapods/RxSwift@4.4.2">
+      <dependency ref="pkg:cocoapods/RxAtomic@4.4.2"/>
+    </dependency>
+  </dependencies>
 </bom>
