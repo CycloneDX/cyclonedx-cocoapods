@@ -105,7 +105,7 @@ module CycloneDX
       end
 
       def add_to_bom(xml, trim_strings_length = 0)
-        xml.component(type: 'library') do
+        xml.component(type: 'library', 'bom-ref': purl) do
           xml_add_author(xml, trim_strings_length)
           xml.name name
           xml.version version.to_s
@@ -125,7 +125,6 @@ module CycloneDX
           else
             xml.purl purl.slice(0, trim_strings_length)
           end
-          xml.bomRef purl
           xml_add_homepage(xml)
         end
       end

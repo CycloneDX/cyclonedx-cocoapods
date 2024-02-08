@@ -320,53 +320,47 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     let(:pod_result) do
       <<~XML
         <components>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/Alamofire@5.6.2">
             <author>Chewbacca</author>
             <publisher>Chewbacca</publisher>
             <name>Alamofire</name>
             <version>5.6.2</version>
             <purl>pkg:cocoapods/Alamofire@5.6.2</purl>
-            <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/FirebaseAnalytics@7.10.0">
             <author>Chewbacca</author>
             <publisher>Chewbacca</publisher>
             <name>FirebaseAnalytics</name>
             <version>7.10.0</version>
             <purl>pkg:cocoapods/FirebaseAnalytics@7.10.0</purl>
-            <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1">
             <author>Chewbacca</author>
             <publisher>Chewbacca</publisher>
             <name>MSAL</name>
             <version>1.2.1</version>
             <purl>pkg:cocoapods/MSAL@1.2.1</purl>
-            <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1#app-lib">
             <author>Chewbacca</author>
             <publisher>Chewbacca</publisher>
             <name>MSAL/app-lib</name>
             <version>1.2.1</version>
             <purl>pkg:cocoapods/MSAL@1.2.1#app-lib</purl>
-            <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/Realm@5.5.1">
             <author>Chewbacca</author>
             <publisher>Chewbacca</publisher>
             <name>Realm</name>
             <version>5.5.1</version>
             <purl>pkg:cocoapods/Realm@5.5.1</purl>
-            <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/RxSwift@5.1.2">
             <author>Chewbacca</author>
             <publisher>Chewbacca</publisher>
             <name>RxSwift</name>
             <version>5.1.2</version>
             <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
-            <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
           </component>
         </components>
       XML
@@ -375,53 +369,47 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     let(:short_pod_results) do
       <<~XML
         <components>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/Alamofire@5.6.2">
             <author>Chewba</author>
             <publisher>Chewba</publisher>
             <name>Alamofire</name>
             <version>5.6.2</version>
             <purl>pkg:co</purl>
-            <bomRef>pkg:cocoapods/Alamofire@5.6.2</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/FirebaseAnalytics@7.10.0">
             <author>Chewba</author>
             <publisher>Chewba</publisher>
             <name>FirebaseAnalytics</name>
             <version>7.10.0</version>
             <purl>pkg:co</purl>
-            <bomRef>pkg:cocoapods/FirebaseAnalytics@7.10.0</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1">
             <author>Chewba</author>
             <publisher>Chewba</publisher>
             <name>MSAL</name>
             <version>1.2.1</version>
             <purl>pkg:co</purl>
-            <bomRef>pkg:cocoapods/MSAL@1.2.1</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1#app-lib">
             <author>Chewba</author>
             <publisher>Chewba</publisher>
             <name>MSAL/app-lib</name>
             <version>1.2.1</version>
             <purl>pkg:co</purl>
-            <bomRef>pkg:cocoapods/MSAL@1.2.1#app-lib</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/Realm@5.5.1">
             <author>Chewba</author>
             <publisher>Chewba</publisher>
             <name>Realm</name>
             <version>5.5.1</version>
             <purl>pkg:co</purl>
-            <bomRef>pkg:cocoapods/Realm@5.5.1</bomRef>
           </component>
-          <component type="library">
+          <component type="library" bom-ref="pkg:cocoapods/RxSwift@5.1.2">
             <author>Chewba</author>
             <publisher>Chewba</publisher>
             <name>RxSwift</name>
             <version>5.1.2</version>
             <purl>pkg:co</purl>
-            <bomRef>pkg:cocoapods/RxSwift@5.1.2</bomRef>
           </component>
         </components>
       XML
