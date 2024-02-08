@@ -58,14 +58,14 @@ module CycloneDX
         project_dir = Pathname.new(options[:path] || Dir.pwd)
         raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
 
-        options[:podfile_path] = "#{project_dir}Podfile"
+        options[:podfile_path] = project_dir + 'Podfile'
         unless File.exist?(options[:podfile_path])
           raise PodfileParsingError,
                 "Missing Podfile in #{project_dir}. Please use the --path option if " \
                 'not running from the CocoaPods project directory.'
         end
 
-        options[:podfile_lock_path] = "#{project_dir}Podfile.lock"
+        options[:podfile_lock_path] = project_dir + 'Podfile.lock'
         unless File.exist?(options[:podfile_lock_path])
           raise PodfileParsingError,
                 "Missing Podfile.lock, please run 'pod install' before generating BOM"
