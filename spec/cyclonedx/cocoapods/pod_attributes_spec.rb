@@ -32,13 +32,13 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
   let(:attributes) { { name: pod.name, version: pod.version } }
 
   before(:each) do
-    @source_manager = double()
-    @specification_set = double()
-    @specification = double()
+    @source_manager = double
+    @specification_set = double
+    @specification = double
 
     allow(@source_manager).to receive(:search_by_name).and_return([@specification_set])
     allow(@specification_set).to receive(:specification_paths_for_version).and_return(paths)
-    allow(::Pod::Specification).to receive(:from_file).and_return(@specification)
+    allow(Pod::Specification).to receive(:from_file).and_return(@specification)
     allow(@specification).to receive(:attributes_hash).and_return(attributes)
 
     @source = described_class.searchable_source(url: described_class::CDN_REPOSITORY, source_manager: @source_manager)
@@ -58,15 +58,16 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
       @source.attributes_for(pod: pod_with_special_name)
     end
 
-    context 'when the source manager doesn''t find any pod with the provided name' do
+    context 'when the source manager doesn\'t find any pod with the provided name' do
       before(:each) do
         allow(@source_manager).to receive(:search_by_name).and_return([])
       end
 
       it 'should raise an error' do
-        expect {
+        expect do
           @source.attributes_for(pod: pod)
-        }.to raise_error(CycloneDX::CocoaPods::SearchError, "No pod found named #{pod.name}; run 'pod repo update' and try again")
+        end.to raise_error(CycloneDX::CocoaPods::SearchError,
+                           "No pod found named #{pod.name}; run 'pod repo update' and try again")
       end
     end
 
@@ -76,28 +77,32 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
       end
 
       it 'should raise an error' do
-        expect {
+        expect do
           @source.attributes_for(pod: pod)
-        }.to raise_error(CycloneDX::CocoaPods::SearchError, "More than one pod found named #{pod.name}; a pod in a private spec repo should not have the same name as a public pod")
+        end.to raise_error(CycloneDX::CocoaPods::SearchError,
+                           "More than one pod found named #{pod.name}; a pod in a private spec repo " \
+                           'should not have the same name as a public pod')
       end
     end
 
     context 'when the source manager finds exactly one pod with the provided name' do
-      context 'when the search manager doesn''t find an specification for the provided version' do
+      context 'when the search manager doesn\'t find an specification for the provided version' do
         before(:each) do
           allow(@specification_set).to receive(:specification_paths_for_version).and_return([])
         end
 
         it 'should raise an error' do
-          expect {
+          expect do
             @source.attributes_for(pod: pod)
-          }.to raise_error(CycloneDX::CocoaPods::SearchError, "Version #{pod.version} not found for pod #{pod.name}; run 'pod repo update' and try again")
+          end.to raise_error(CycloneDX::CocoaPods::SearchError,
+                             "Version #{pod.version} not found for pod #{pod.name}; " \
+                             "run 'pod repo update' and try again")
         end
       end
 
       context 'when the source manager finds at least a specification for the provided version' do
         it 'returns the attributes of the first specification' do
-          expect(::Pod::Specification).to receive(:from_file).with(paths[0])
+          expect(Pod::Specification).to receive(:from_file).with(paths[0])
           expect(@source.attributes_for(pod: pod)).to eq(attributes)
         end
       end

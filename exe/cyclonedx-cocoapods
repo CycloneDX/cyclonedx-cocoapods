@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 #
 # This file is part of CycloneDX CocoaPods
 #
@@ -18,6 +20,6 @@
 # Copyright (c) OWASP Foundation. All Rights Reserved.
 #
 
-require "cyclonedx/cocoapods/cli_runner"
+require 'cyclonedx/cocoapods/cli_runner'
 
-CycloneDX::CocoaPods::CLIRunner.new().run
+CycloneDX::CocoaPods::CLIRunner.new.run

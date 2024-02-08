@@ -31,31 +31,45 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
     context 'with an empty group' do
       it 'should raise an error' do
-        expect { described_class.new(group: '    ', name: name, version: version, type: type) }.to raise_error(ArgumentError, "Group, if specified, must be non empty")
+        expect do
+          described_class.new(group: '    ', name: name, version: version,
+                              type: type)
+        end.to raise_error(ArgumentError, 'Group, if specified, must be non empty')
       end
     end
 
     context 'with a nil name' do
       it 'should raise an error' do
-        expect { described_class.new(name: nil, version: version, type: type) }.to raise_error(ArgumentError, "Name must be non empty")
+        expect do
+          described_class.new(name: nil, version: version, type: type)
+        end.to raise_error(ArgumentError, 'Name must be non empty')
       end
     end
 
     context 'with an empty name' do
       it 'should raise an error' do
-        expect { described_class.new(name: '   ', version: version, type: type) }.to raise_error(ArgumentError, "Name must be non empty")
+        expect do
+          described_class.new(name: '   ', version: version,
+                              type: type)
+        end.to raise_error(ArgumentError, 'Name must be non empty')
       end
     end
 
     context 'with an invalid version' do
       it 'should raise an error' do
-        expect { described_class.new(name: name, version: 'not-a-valid.version', type: type) }.to raise_error(ArgumentError, /Malformed version number/)
+        expect do
+          described_class.new(name: name, version: 'not-a-valid.version',
+                              type: type)
+        end.to raise_error(ArgumentError, /Malformed version number/)
       end
     end
 
     context 'with an invalid type' do
       it 'should raise an error' do
-        expect { described_class.new(name: name, version: version, type: 'invalid-type') }.to raise_error(ArgumentError, /is not valid component type/)
+        expect do
+          described_class.new(name: name, version: version,
+                              type: 'invalid-type')
+        end.to raise_error(ArgumentError, /is not valid component type/)
       end
     end
 

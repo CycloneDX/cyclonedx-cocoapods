@@ -22,13 +22,13 @@
 require 'cyclonedx/cocoapods/podfile_analyzer'
 require 'rspec'
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
-  let(:fixtures) { Pathname.new(File.expand_path('../../../fixtures/', __FILE__)) }
+  let(:fixtures) { Pathname.new(File.expand_path('../../fixtures', __dir__)) }
   let(:empty_podfile) { 'EmptyPodfile/Podfile' }
   let(:simple_pod) { 'SimplePod/Podfile' }
   let(:restricted_pod) { 'RestrictedPod/Podfile' }
   let(:tests_pod) { 'TestingPod/Podfile' }
 
-  ::Pod::Config.instance.installation_root = File.expand_path('../../../fixtures/', __FILE__) + '/'
+  Pod::Config.instance.installation_root = "#{File.expand_path('../../fixtures', __dir__)}/"
 
   before(:each) do
     @log = StringIO.new
@@ -38,11 +38,11 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   context 'parsing pods' do
     context 'when created with standard parameters' do
       it 'should handle no pods correctly' do
-        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
-        pod_file = ::Pod::Podfile.from_file(fixtures + empty_podfile)
+        pod_file = Pod::Podfile.from_file(fixtures + empty_podfile)
         expect(pod_file).not_to be_nil
-        lock_file = ::Pod::Lockfile.from_file(fixtures + (empty_podfile + '.lock'))
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{empty_podfile}.lock")
         expect(lock_file).not_to be_nil
 
         included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
@@ -54,11 +54,11 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
       end
 
       it 'should find all simple pods' do
-        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
-        pod_file = ::Pod::Podfile.from_file(fixtures + simple_pod)
+        pod_file = Pod::Podfile.from_file(fixtures + simple_pod)
         expect(pod_file).not_to be_nil
-        lock_file = ::Pod::Lockfile.from_file(fixtures + (simple_pod + '.lock'))
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{simple_pod}.lock")
         expect(lock_file).not_to be_nil
 
         included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
@@ -74,11 +74,11 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
       end
 
       it 'should find all pods actually used' do
-        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
-        pod_file = ::Pod::Podfile.from_file(fixtures + restricted_pod)
+        pod_file = Pod::Podfile.from_file(fixtures + restricted_pod)
         expect(pod_file).not_to be_nil
-        lock_file = ::Pod::Lockfile.from_file(fixtures + (restricted_pod + '.lock'))
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{restricted_pod}.lock")
         expect(lock_file).not_to be_nil
 
         included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
@@ -90,11 +90,11 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
       end
 
       it 'should find all pods' do
-        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
-        pod_file = ::Pod::Podfile.from_file(fixtures + tests_pod)
+        pod_file = Pod::Podfile.from_file(fixtures + tests_pod)
         expect(pod_file).not_to be_nil
-        lock_file = ::Pod::Lockfile.from_file(fixtures + (tests_pod + '.lock'))
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{tests_pod}.lock")
         expect(lock_file).not_to be_nil
 
         included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
@@ -112,11 +112,11 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
 
     context 'when configured to exclude test pods' do
       it 'should find all simple pods' do
-        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger, exclude_test_targets: true)
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger, exclude_test_targets: true)
 
-        pod_file = ::Pod::Podfile.from_file(fixtures + simple_pod)
+        pod_file = Pod::Podfile.from_file(fixtures + simple_pod)
         expect(pod_file).not_to be_nil
-        lock_file = ::Pod::Lockfile.from_file(fixtures + (simple_pod + '.lock'))
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{simple_pod}.lock")
         expect(lock_file).not_to be_nil
 
         included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
@@ -132,11 +132,11 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
       end
 
       it 'should not include testing pods' do
-        analyzer = ::CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger, exclude_test_targets: true)
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger, exclude_test_targets: true)
 
-        pod_file = ::Pod::Podfile.from_file(fixtures + tests_pod)
+        pod_file = Pod::Podfile.from_file(fixtures + tests_pod)
         expect(pod_file).not_to be_nil
-        lock_file = ::Pod::Lockfile.from_file(fixtures + (tests_pod + '.lock'))
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{tests_pod}.lock")
         expect(lock_file).not_to be_nil
 
         included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)

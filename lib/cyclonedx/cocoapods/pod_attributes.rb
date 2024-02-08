@@ -30,16 +30,26 @@ module CycloneDX
         def self.searchable_source(url:, source_manager:)
           source = CocoaPodsRepository.new(url: url)
           source.source_manager = source_manager
-          return source
+          source
         end
 
         def attributes_for(pod:)
           specification_sets = @source_manager.search_by_name("^#{Regexp.escape(pod.root_name)}$")
-          raise SearchError, "No pod found named #{pod.name}; run 'pod repo update' and try again" if specification_sets.length == 0
-          raise SearchError, "More than one pod found named #{pod.name}; a pod in a private spec repo should not have the same name as a public pod" if specification_sets.length > 1
+          if specification_sets.empty?
+            raise SearchError,
+                  "No pod found named #{pod.name}; run 'pod repo update' and try again"
+          end
+          if specification_sets.length > 1
+            raise SearchError,
+                  "More than one pod found named #{pod.name}; a pod in a private spec repo " \
+                  'should not have the same name as a public pod'
+          end
 
           paths = specification_sets[0].specification_paths_for_version(pod.version)
-          raise SearchError, "Version #{pod.version} not found for pod #{pod.name}; run 'pod repo update' and try again" if paths.length == 0
+          if paths.empty?
+            raise SearchError,
+                  "Version #{pod.version} not found for pod #{pod.name}; run 'pod repo update' and try again"
+          end
 
           ::Pod::Specification.from_file(paths[0]).attributes_hash
         end
@@ -63,7 +73,6 @@ module CycloneDX
         end
       end
     end
-
 
     class Pod
       def complete_information_from_source

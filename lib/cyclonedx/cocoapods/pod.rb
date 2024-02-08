@@ -25,26 +25,40 @@ require_relative 'license'
 module CycloneDX
   module CocoaPods
     class Pod
-      attr_reader :name        # xs:normalizedString
-      attr_reader :version     # xs:normalizedString
-      attr_reader :source      # Anything responding to :source_qualifier
-      attr_reader :homepage    # xs:anyURI - https://cyclonedx.org/docs/1.4/#type_externalReference
-      attr_reader :checksum    # https://cyclonedx.org/docs/1.4/#type_hashValue (We only use SHA-1 hashes - length == 40)
-      attr_reader :author      # xs:normalizedString
-      attr_reader :description # xs:normalizedString
-      attr_reader :license     # https://cyclonedx.org/docs/1.4/#type_licenseType
-                               # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
+      # xs:normalizedString
+      attr_reader :name
+      # xs:normalizedString
+      attr_reader :version
+      # Anything responding to :source_qualifier
+      attr_reader :source
+      # xs:anyURI - https://cyclonedx.org/docs/1.4/xml/#type_externalReference
+      attr_reader :homepage
+      # https://cyclonedx.org/docs/1.4/xml/#type_hashValue (We only use SHA-1 hashes - length == 40)
+      attr_reader :checksum
+      # xs:normalizedString
+      attr_reader :author
+      # xs:normalizedString
+      attr_reader :description
+      # https://cyclonedx.org/docs/1.4/xml/#type_licenseType
+      # We don't currently support several licenses or license expressions https://spdx.github.io/spdx-spec/appendix-IV-SPDX-license-expressions/
+      attr_reader :license
+
       def initialize(name:, version:, source: nil, checksum: nil)
-        raise ArgumentError, "Name must be non empty" if name.nil? || name.to_s.empty?
+        raise ArgumentError, 'Name must be non empty' if name.nil? || name.to_s.empty?
         raise ArgumentError, "Name shouldn't contain spaces" if name.to_s.include?(' ')
         raise ArgumentError, "Name shouldn't start with a dot" if name.to_s.start_with?('.')
+
         # `pod create` also enforces no plus sign, but more than 500 public pods have a plus in the root name.
         # https://github.com/CocoaPods/CocoaPods/blob/9461b346aeb8cba6df71fd4e71661688138ec21b/lib/cocoapods/command/lib/create.rb#L35
 
         Gem::Version.new(version) # To check that the version string is well formed
-        raise ArgumentError, "Invalid pod source" unless source.nil? || source.respond_to?(:source_qualifier)
+        raise ArgumentError, 'Invalid pod source' unless source.nil? || source.respond_to?(:source_qualifier)
         raise ArgumentError, "#{checksum} is not valid SHA-1 hash" unless checksum.nil? || checksum =~ /[a-fA-F0-9]{40}/
-        @name, @version, @source, @checksum = name.to_s, version, source, checksum
+
+        @name = name.to_s
+        @version = version
+        @source = source
+        @checksum = checksum
       end
 
       def root_name
@@ -61,23 +75,21 @@ module CycloneDX
       end
 
       def to_s
-        "Pod<#{name}, #{version.to_s}>"
+        "Pod<#{name}, #{version}>"
       end
 
       private
 
       def populate_author(attributes)
         authors = attributes[:author] || attributes[:authors]
-        case authors
-        when String
-          @author = authors
-        when Array
-          @author = authors.join(', ')
-        when Hash
-          @author = authors.map { |name, email| "#{name} <#{email}>" }.join(', ')
-        else
-          @author = nil
-        end
+        @author = case authors
+                  when String
+                    authors
+                  when Array
+                    authors.join(', ')
+                  when Hash
+                    authors.map { |name, email| "#{name} <#{email}>" }.join(', ')
+                  end
       end
 
       def populate_description(attributes)
@@ -91,11 +103,11 @@ module CycloneDX
         when Hash
           attributes[:license].transform_keys!(&:to_sym)
           identifier = attributes[:license][:type]
-          unless identifier.nil? || identifier.to_s.strip.empty?
+          if identifier.nil? || identifier.to_s.strip.empty?
+            @license = nil
+          else
             @license = License.new(identifier: identifier)
             @license.text = attributes[:license][:text]
-          else
-            @license = nil
           end
         else
           @license = nil
