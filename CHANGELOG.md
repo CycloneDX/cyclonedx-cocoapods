@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added optional `--shortened-strings` CLI parameter to limit the author, publisher, and purl lengths. ([Issue #65](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/65)) [@macblazer](https://github.com/macblazer).
 
+### Changed
+- Updated to use v1.5 of the CycloneDX specification. ([Issue #57](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/57)) [@macblazer](https://github.com/macblazer)
+- Code cleanup based on [RuboCop](https://rubocop.org/) analysis. ([Issue #45](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/45)) [@macblazer](https://github.com/macblazer).
+
 ## [1.2.0]
 
 ### Added

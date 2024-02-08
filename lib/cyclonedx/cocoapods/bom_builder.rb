@@ -153,7 +153,7 @@ module CycloneDX
     end
 
     class BOMBuilder
-      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.4'
+      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.5'
 
       attr_reader :component, :pods, :dependencies
 
