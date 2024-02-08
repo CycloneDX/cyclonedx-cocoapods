@@ -31,45 +31,17 @@ module CycloneDX
   module CocoaPods
     class PodfileParsingError < StandardError; end
 
+    # Uses cocoapods to analyze the Podfile and Podfile.lock for component dependency information
     class PodfileAnalyzer
       def initialize(logger:, exclude_test_targets: false)
         @logger = logger
         @exclude_test_targets = exclude_test_targets
       end
 
-      def load_plugins(podfile_path)
-        podfile_contents = File.read(podfile_path)
-        plugin_syntax = /\s*plugin\s+['"]([^'"]+)['"]/
-        plugin_names = podfile_contents.scan(plugin_syntax).flatten
-
-        plugin_names.each do |plugin_name|
-          @logger.debug("Loading plugin #{plugin_name}")
-          begin
-            plugin_spec = Gem::Specification.find_by_name(plugin_name)
-            plugin_spec&.activate
-            load("#{plugin_spec.gem_dir}/lib/cocoapods_plugin.rb") if plugin_spec
-          rescue Gem::LoadError => e
-            @logger.warn("Failed to load plugin #{plugin_name}. #{e.message}")
-          end
-        end
-      end
-
       def ensure_podfile_and_lock_are_present(options)
         project_dir = Pathname.new(options[:path] || Dir.pwd)
-        raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
 
-        options[:podfile_path] = project_dir + 'Podfile'
-        unless File.exist?(options[:podfile_path])
-          raise PodfileParsingError,
-                "Missing Podfile in #{project_dir}. Please use the --path option if " \
-                'not running from the CocoaPods project directory.'
-        end
-
-        options[:podfile_lock_path] = project_dir + 'Podfile.lock'
-        unless File.exist?(options[:podfile_lock_path])
-          raise PodfileParsingError,
-                "Missing Podfile.lock, please run 'pod install' before generating BOM"
-        end
+        validate_options(project_dir, options)
 
         initialize_cocoapods_config(project_dir)
 
@@ -89,21 +61,7 @@ module CycloneDX
                   checksum: lockfile.checksum(name))
         end
 
-        pod_dependencies = {}
-        dependencies.each do |key, value|
-          next unless lockfile.pod_names.include? key
-
-          pod = Pod.new(name: key, version: lockfile.version(key), source: source_for_pod(podfile, lockfile, key),
-                        checksum: lockfile.checksum(key))
-
-          pod_dependencies[pod.purl] = lockfile.pod_names.select { |name| value.include?(name) }.map do |name|
-            pod = Pod.new(name: name,
-                          version: lockfile.version(name),
-                          source: source_for_pod(podfile, lockfile, name),
-                          checksum: lockfile.checksum(name))
-            pod.purl
-          end
-        end
+        pod_dependencies = parse_dependencies(dependencies, podfile, lockfile)
 
         [pods, pod_dependencies]
       end
@@ -117,6 +75,66 @@ module CycloneDX
       end
 
       private
+
+      def load_plugins(podfile_path)
+        podfile_contents = File.read(podfile_path)
+        plugin_syntax = /\s*plugin\s+['"]([^'"]+)['"]/
+        plugin_names = podfile_contents.scan(plugin_syntax).flatten
+
+        plugin_names.each do |plugin_name|
+          load_one_plugin(plugin_name)
+        end
+      end
+
+      def load_one_plugin(plugin_name)
+        @logger.debug("Loading plugin #{plugin_name}")
+        begin
+          plugin_spec = Gem::Specification.find_by_name(plugin_name)
+          plugin_spec&.activate
+          load("#{plugin_spec.gem_dir}/lib/cocoapods_plugin.rb") if plugin_spec
+        rescue Gem::LoadError => e
+          @logger.warn("Failed to load plugin #{plugin_name}. #{e.message}")
+        end
+      end
+
+      def validate_options(project_dir, options)
+        raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
+
+        options[:podfile_path] = project_dir + 'Podfile'
+        unless File.exist?(options[:podfile_path])
+          raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if " \
+                                     'not running from the CocoaPods project directory.'
+        end
+
+        options[:podfile_lock_path] = project_dir + 'Podfile.lock'
+        return if File.exist?(options[:podfile_lock_path])
+
+        raise PodfileParsingError, "Missing Podfile.lock, please run 'pod install' before generating BOM"
+      end
+
+      def parse_dependencies(dependencies, podfile, lockfile)
+        pod_dependencies = {}
+        dependencies.each do |key, podname_array|
+          next unless lockfile.pod_names.include? key
+
+          pod = Pod.new(name: key, version: lockfile.version(key), source: source_for_pod(podfile, lockfile, key),
+                        checksum: lockfile.checksum(key))
+
+          pod_dependencies[pod.purl] = dependencies_for_pod(podname_array, podfile, lockfile)
+        end
+
+        pod_dependencies
+      end
+
+      def dependencies_for_pod(podname_array, podfile, lockfile)
+        lockfile.pod_names.select { |name| podname_array.include?(name) }.map do |name|
+          pod = Pod.new(name: name,
+                        version: lockfile.version(name),
+                        source: source_for_pod(podfile, lockfile, name),
+                        checksum: lockfile.checksum(name))
+          pod.purl
+        end
+      end
 
       def initialize_cocoapods_config(project_dir)
         ::Pod::Config.instance.installation_root = project_dir
@@ -140,19 +158,23 @@ module CycloneDX
 
         pods_used = lockfile.internal_data['PODS']
         pods_used&.each do |pod|
-          if pod.is_a?(String)
-            # Pods stored as String have no dependencies
-            pod_name = pod.split.first
-            pods_hash[pod_name] = []
-          else
-            # Pods stored as a hash have pod name and dependencies.
-            pod.each do |pod, dependencies|
-              pod_name = pod.split.first
-              pods_hash[pod_name] = dependencies.map { |d| d.split.first }
-            end
-          end
+          map_single_pod(pod, pods_hash)
         end
         pods_hash
+      end
+
+      def map_single_pod(pod, pods_hash)
+        if pod.is_a?(String)
+          # Pods stored as String have no dependencies
+          pod_name = pod.split.first
+          pods_hash[pod_name] = []
+        else
+          # Pods stored as a hash have pod name and dependencies.
+          pod.each do |pod, dependencies|
+            pod_name = pod.split.first
+            pods_hash[pod_name] = dependencies.map { |d| d.split.first }
+          end
+        end
       end
 
       def append_all_pod_dependencies(pods_used, pods_cache)
@@ -176,7 +198,6 @@ module CycloneDX
           end
 
           result = result.uniq
-          # maybe additional dependency processing needed here???
           pods_used = result
         end
 

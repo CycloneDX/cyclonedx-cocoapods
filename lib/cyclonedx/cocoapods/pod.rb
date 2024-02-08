@@ -101,16 +101,20 @@ module CycloneDX
         when String
           @license = License.new(identifier: attributes[:license])
         when Hash
-          attributes[:license].transform_keys!(&:to_sym)
-          identifier = attributes[:license][:type]
-          if identifier.nil? || identifier.to_s.strip.empty?
-            @license = nil
-          else
-            @license = License.new(identifier: identifier)
-            @license.text = attributes[:license][:text]
-          end
+          populate_hashed_license(attributes)
         else
           @license = nil
+        end
+      end
+
+      def populate_hashed_license(attributes)
+        attributes[:license].transform_keys!(&:to_sym)
+        identifier = attributes[:license][:type]
+        if identifier.nil? || identifier.to_s.strip.empty?
+          @license = nil
+        else
+          @license = License.new(identifier: identifier)
+          @license.text = attributes[:license][:text]
         end
       end
 

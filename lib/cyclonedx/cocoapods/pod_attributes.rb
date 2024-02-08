@@ -35,15 +35,7 @@ module CycloneDX
 
         def attributes_for(pod:)
           specification_sets = @source_manager.search_by_name("^#{Regexp.escape(pod.root_name)}$")
-          if specification_sets.empty?
-            raise SearchError,
-                  "No pod found named #{pod.name}; run 'pod repo update' and try again"
-          end
-          if specification_sets.length > 1
-            raise SearchError,
-                  "More than one pod found named #{pod.name}; a pod in a private spec repo " \
-                  'should not have the same name as a public pod'
-          end
+          validate_spec_sets(specification_sets, pod)
 
           paths = specification_sets[0].specification_paths_for_version(pod.version)
           if paths.empty?
@@ -52,6 +44,20 @@ module CycloneDX
           end
 
           ::Pod::Specification.from_file(paths[0]).attributes_hash
+        end
+
+        private
+
+        def validate_spec_sets(specification_sets, pod)
+          if specification_sets.empty?
+            raise SearchError,
+                  "No pod found named #{pod.name}; run 'pod repo update' and try again"
+          end
+          return unless specification_sets.length > 1
+
+          raise SearchError,
+                "More than one pod found named #{pod.name}; a pod in a private spec repo " \
+                'should not have the same name as a public pod'
         end
       end
 
