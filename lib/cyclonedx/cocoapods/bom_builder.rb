@@ -59,17 +59,54 @@ module CycloneDX
       CHECKSUM_ALGORITHM = 'SHA-1'
       HOMEPAGE_REFERENCE_TYPE = 'website'
 
-      def purl
-        purl_name = CGI.escape(name.split('/').first)
-        source_qualifier = source.nil? || source.source_qualifier.empty? ? '' : "?#{source.source_qualifier.map { |key, value| "#{key}=#{CGI.escape(value)}" }.join('&')}"
-        purl_subpath = name.split('/').length > 1 ? "##{name.split('/').drop(1).map { |component| CGI.escape(component) }.join('/')}" : ''
-        return "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{source_qualifier}#{purl_subpath}"
+      def source_qualifier
+        return '' if source.nil? || source.source_qualifier.empty?
+
+        "?#{source.source_qualifier.map do |key, value|
+              "#{key}=#{CGI.escape(value)}"
+            end.join('&')}"
       end
 
-      def add_to_bom(xml)
+      def purl_subpath
+        return '' unless name.split('/').length > 1
+
+        "##{name.split('/').drop(1).map do |component|
+              CGI.escape(component)
+            end.join('/')}"
+      end
+
+      def purl
+        purl_name = CGI.escape(name.split('/').first)
+        src_qualifier = source_qualifier
+        subpath = purl_subpath
+        "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{src_qualifier}#{subpath}"
+      end
+
+      def xml_add_author(xml, trim_strings_length)
+        return if author.nil?
+
+        if trim_strings_length.zero?
+          xml.author author
+          xml.publisher author
+        else
+          xml.author author.slice(0, trim_strings_length)
+          xml.publisher author.slice(0, trim_strings_length)
+        end
+      end
+
+      def xml_add_homepage(xml)
+        return if homepage.nil?
+
+        xml.externalReferences do
+          xml.reference(type: HOMEPAGE_REFERENCE_TYPE) do
+            xml.url homepage
+          end
+        end
+      end
+
+      def add_to_bom(xml, trim_strings_length = 0)
         xml.component(type: 'library') do
-          xml.author author unless author.nil?
-          xml.publisher author unless author.nil?
+          xml_add_author(xml, trim_strings_length)
           xml.name name
           xml.version version.to_s
           xml.description { xml.cdata description } unless description.nil?
@@ -83,15 +120,13 @@ module CycloneDX
               license.add_to_bom(xml)
             end
           end
-          xml.purl purl
-          xml.bomRef purl
-          unless homepage.nil?
-            xml.externalReferences do
-              xml.reference(type: HOMEPAGE_REFERENCE_TYPE) do
-                xml.url homepage
-              end
-            end
+          if trim_strings_length.zero?
+            xml.purl purl
+          else
+            xml.purl purl.slice(0, trim_strings_length)
           end
+          xml.bomRef purl
+          xml_add_homepage(xml)
         end
       end
 
@@ -128,32 +163,50 @@ module CycloneDX
         @dependencies = dependencies&.sort
       end
 
-      def bom(version: 1)
-        raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0" unless version.to_i > 0
+      def bom(version: 1, trim_strings_length: 0)
+        unless version.to_i.positive?
+          raise ArgumentError,
+                "Incorrect version: #{version} should be an integer greater than 0"
+        end
 
-        Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-          xml.bom('xmlns': NAMESPACE, 'version':  version.to_i.to_s, 'serialNumber': "urn:uuid:#{SecureRandom.uuid}") do
-            bom_metadata(xml)
-            xml.components do
-              pods.each do |pod|
-                pod.add_to_bom(xml)
-              end
-            end
+        unless trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
+          raise ArgumentError,
+                "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
+        end
 
-            xml.dependencies do
-              bom_dependencies(xml, dependencies)
-            end
-          end
-        end.to_xml
+        unchecked_bom(version: version, trim_strings_length: trim_strings_length)
       end
 
       private
 
+      # does not verify parameters because the public method does that.
+      def unchecked_bom(version: 1, trim_strings_length: 0)
+        Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+          xml.bom(xmlns: NAMESPACE, version: version.to_i.to_s, serialNumber: "urn:uuid:#{SecureRandom.uuid}") do
+            bom_metadata(xml)
+
+            bom_components(xml, pods, trim_strings_length)
+
+            bom_dependencies(xml, dependencies)
+          end
+        end.to_xml
+      end
+
+      def bom_components(xml, pods, trim_strings_length)
+        xml.components do
+          pods.each do |pod|
+            pod.add_to_bom(xml, trim_strings_length)
+          end
+        end
+      end
+
       def bom_dependencies(xml, dependencies)
-        dependencies&.each do |key, array|
-          xml.dependency(ref: key) do
-            array.sort.each do |value|
-              xml.dependency(ref: value)
+        xml.dependencies do
+          dependencies&.each do |key, array|
+            xml.dependency(ref: key) do
+              array.sort.each do |value|
+                xml.dependency(ref: value)
+              end
             end
           end
         end
@@ -162,14 +215,18 @@ module CycloneDX
       def bom_metadata(xml)
         xml.metadata do
           xml.timestamp Time.now.getutc.strftime('%Y-%m-%dT%H:%M:%SZ')
-          xml.tools do
-            xml.tool do
-              xml.vendor 'CycloneDX'
-              xml.name 'cyclonedx-cocoapods'
-              xml.version VERSION
-            end
+          bom_tools(xml)
+          component&.add_to_bom(xml)
+        end
+      end
+
+      def bom_tools(xml)
+        xml.tools do
+          xml.tool do
+            xml.vendor 'CycloneDX'
+            xml.name 'cyclonedx-cocoapods'
+            xml.version VERSION
           end
-          component.add_to_bom(xml) unless component.nil?
         end
       end
     end
