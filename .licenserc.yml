@@ -35,6 +35,17 @@ header:
     - "LICENSE"
     - "NOTICE"
   language:
+    Ignore List:
+      extensions:
+        - ".gitignore"
+      comment_style_id: Hashtag
     Ruby:
+      extensions:
+        - ".rb"
       filenames:
         - "cyclonedx-cocoapods"
+      comment_style_id: Hashtag
+    YAML:
+      extensions:
+        - ".yml"
+      comment_style_id: Hashtag
