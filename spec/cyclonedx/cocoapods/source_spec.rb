@@ -26,7 +26,7 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
   context 'when created with the legacy repository URL' do
     let(:url) { 'https://github.com/CocoaPods/Specs.git' }
 
-    it 'shouldn''t generate any source qualifier' do
+    it 'shouldn\'t generate any source qualifier' do
       expect(described_class.new(url: url).source_qualifier).to eq({})
     end
   end
@@ -34,7 +34,7 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
   context 'when created with the trunk value' do
     let(:url) { 'trunk' }
 
-    it 'shouldn''t generate any source qualifier' do
+    it 'shouldn\'t generate any source qualifier' do
       expect(described_class.new(url: url).source_qualifier).to eq({})
     end
   end
@@ -47,7 +47,6 @@ RSpec.describe CycloneDX::CocoaPods::Source::CocoaPodsRepository do
     end
   end
 end
-
 
 RSpec.describe CycloneDX::CocoaPods::Source::GitRepository do
   let(:url) { 'https://github.com/gowalla/AFNetworking.git' }
@@ -70,7 +69,8 @@ RSpec.describe CycloneDX::CocoaPods::Source::GitRepository do
     let(:branch) { 'dev' }
 
     it 'should generate a proper source qualifier' do
-      expect(described_class.new(url: url, label: branch, type: :branch).source_qualifier).to eq({ vcs_url: "#{url}@#{branch}" })
+      expect(described_class.new(url: url, label: branch,
+                                 type: :branch).source_qualifier).to eq({ vcs_url: "#{url}@#{branch}" })
     end
   end
 
@@ -78,22 +78,21 @@ RSpec.describe CycloneDX::CocoaPods::Source::GitRepository do
     let(:commit) { '082f8319af' }
 
     it 'should generate a proper source qualifier' do
-      expect(described_class.new(url: url, label: commit, type: :commit).source_qualifier).to eq({ vcs_url: "#{url}@#{commit}" })
+      expect(described_class.new(url: url, label: commit,
+                                 type: :commit).source_qualifier).to eq({ vcs_url: "#{url}@#{commit}" })
     end
   end
 end
-
 
 RSpec.describe CycloneDX::CocoaPods::Source::LocalPod do
   context 'when created with a local path' do
     let(:path) { '~/Documents/AFNetworking' }
 
     it 'should generate a proper source qualifier' do
-      expect(described_class.new(path: path).source_qualifier).to eq({ file_name: "#{path}"})
+      expect(described_class.new(path: path).source_qualifier).to eq({ file_name: path.to_s })
     end
   end
 end
-
 
 RSpec.describe CycloneDX::CocoaPods::Source::Podspec do
   context 'when created with a public URL' do

@@ -34,3 +34,4 @@ header:
     - "spec/fixtures/**"
     - "LICENSE"
     - "NOTICE"
+    - "exe/cyclonedx-cocoapods"

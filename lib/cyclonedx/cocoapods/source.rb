@@ -31,13 +31,16 @@ module CycloneDX
       end
 
       class GitRepository
-        VALID_TYPES = [:branch, :tag, :commit].freeze
+        VALID_TYPES = %i[branch tag commit].freeze
 
         attr_reader :url, :type, :label
 
         def initialize(url:, type: nil, label: nil)
-          raise ArgumentError, "Invalid checkout information" if !type.nil? && !VALID_TYPES.include?(type)
-          @url, @type, @label = url, type, label
+          raise ArgumentError, 'Invalid checkout information' if !type.nil? && !VALID_TYPES.include?(type)
+
+          @url = url
+          @type = type
+          @label = label
         end
       end
 

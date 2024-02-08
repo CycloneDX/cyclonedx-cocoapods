@@ -35,6 +35,6 @@ Metrics/BlockLength:
 
 # Allow some long methods because breaking them up doesn't help anything.
 Metrics/MethodLength:
-  AllowedMethods: ['parse_options', 'add_to_bom']
+  AllowedMethods: ['parse_options', 'add_to_bom', 'append_all_pod_dependencies']
 Metrics/AbcSize:
-  AllowedMethods: ['parse_options', 'add_to_bom']
+  AllowedMethods: ['parse_options', 'add_to_bom', 'source_for_pod']

@@ -29,7 +29,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
         expect { described_class.new(identifier: '    ') }.to raise_error(ArgumentError)
       end
     end
-    
+
     context 'with an identifier included in the SPDX license list (regardless of case)' do
       it 'should create a license of type id' do
         existing_license_id = described_class::SPDX_LICENSES.sample

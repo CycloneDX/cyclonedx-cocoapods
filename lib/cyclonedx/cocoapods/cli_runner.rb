@@ -159,6 +159,17 @@ module CycloneDX
       end
 
       def write_bom_to_file(bom:, options:)
+        bom_file_path = prep_for_bom_write(options)
+
+        begin
+          File.write(bom_file_path, bom)
+          @logger.info "BOM written to #{bom_file_path}"
+        rescue StandardError
+          raise BOMOutputError, "Unable to write the BOM to #{bom_file_path}"
+        end
+      end
+
+      def prep_for_bom_write(options)
         bom_file_path = Pathname.new(options[:bom_file_path] || './bom.xml').expand_path
         bom_dir = bom_file_path.dirname
 
@@ -168,12 +179,7 @@ module CycloneDX
           raise BOMOutputError, "Unable to create the BOM output directory at #{bom_dir}"
         end
 
-        begin
-          File.write(bom_file_path, bom)
-          @logger.info "BOM written to #{bom_file_path}"
-        rescue StandardError
-          raise BOMOutputError, "Unable to write the BOM to #{bom_file_path}"
-        end
+        bom_file_path
       end
     end
   end
