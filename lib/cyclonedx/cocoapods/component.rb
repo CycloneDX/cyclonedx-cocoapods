@@ -39,12 +39,11 @@ module CycloneDX
         @name = name
         @version = version
         @type = type
-        @bomref= name + "@" + version
+        @bomref = "#{name}@#{version}"
 
-        if !group.nil?
-          @bomref= group + "/" + @bomref
-        end
+        return if group.nil?
 
+        @bomref = "#{group}/#{@bomref}"
       end
     end
   end

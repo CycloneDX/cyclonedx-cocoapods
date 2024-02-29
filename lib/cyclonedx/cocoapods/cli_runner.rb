@@ -138,8 +138,8 @@ module CycloneDX
 
         component = component_from_options(options)
 
-        if !component.nil?
-          #add top level pods to main component
+        unless component.nil?
+          # add top level pods to main component
           top_deps = analyzer.top_level_deps(podfile, lockfile)
           dependencies[component.bomref] = top_deps
         end

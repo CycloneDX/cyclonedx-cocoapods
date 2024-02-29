@@ -75,9 +75,8 @@ module CycloneDX
       end
 
       def top_level_deps(podfile, lockfile)
-        pods_used = top_level_pods(podfile, lockfile)
-        deps = dependencies_for_pod(pods_used, podfile, lockfile)
-        deps
+        pods_used = top_level_pods(podfile)
+        dependencies_for_pod(pods_used, podfile, lockfile)
       end
 
       private
@@ -106,13 +105,13 @@ module CycloneDX
       def validate_options(project_dir, options)
         raise PodfileParsingError, "#{options[:path]} is not a valid directory." unless File.directory?(project_dir)
 
-        options[:podfile_path] = project_dir + 'Podfile'
+        options[:podfile_path] = "#{project_dir}Podfile"
         unless File.exist?(options[:podfile_path])
           raise PodfileParsingError, "Missing Podfile in #{project_dir}. Please use the --path option if " \
                                      'not running from the CocoaPods project directory.'
         end
 
-        options[:podfile_lock_path] = project_dir + 'Podfile.lock'
+        options[:podfile_lock_path] = "#{project_dir}Podfile.lock"
         return if File.exist?(options[:podfile_lock_path])
 
         raise PodfileParsingError, "Missing Podfile.lock, please run 'pod install' before generating BOM"
@@ -210,21 +209,19 @@ module CycloneDX
         [result, dependencies_hash]
       end
 
-      def top_level_pods(podfile, lockfile)
+      def top_level_pods(podfile)
         included_targets = podfile.target_definition_list.select { |target| include_target_named(target.label) }
         included_target_names = included_targets.map(&:label)
         @logger.debug "Including all pods for targets: #{included_target_names}"
 
         top_level_deps = included_targets.map(&:dependencies).flatten.uniq
-        pods_used = top_level_deps.map(&:name).uniq
-
-        pods_used
+        top_level_deps.map(&:name).uniq
       end
 
       def create_list_of_included_pods(podfile, lockfile)
         pods_cache = simple_hash_of_lockfile_pods(lockfile)
 
-        pods_used = top_level_pods(podfile, lockfile)
+        pods_used = top_level_pods(podfile)
         pods_used, dependencies = append_all_pod_dependencies(pods_used, pods_cache)
 
         [pods_used.sort, dependencies]
