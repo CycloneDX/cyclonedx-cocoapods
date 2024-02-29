@@ -74,6 +74,12 @@ module CycloneDX
         pods
       end
 
+      def top_level_deps(podfile, lockfile)
+        pods_used = top_level_pods(podfile, lockfile)
+        deps = dependencies_for_pod(pods_used, podfile, lockfile)
+        deps
+      end
+
       private
 
       def load_plugins(podfile_path)
@@ -204,15 +210,21 @@ module CycloneDX
         [result, dependencies_hash]
       end
 
-      def create_list_of_included_pods(podfile, lockfile)
-        pods_cache = simple_hash_of_lockfile_pods(lockfile)
-
+      def top_level_pods(podfile, lockfile)
         included_targets = podfile.target_definition_list.select { |target| include_target_named(target.label) }
         included_target_names = included_targets.map(&:label)
         @logger.debug "Including all pods for targets: #{included_target_names}"
 
         top_level_deps = included_targets.map(&:dependencies).flatten.uniq
         pods_used = top_level_deps.map(&:name).uniq
+
+        pods_used
+      end
+
+      def create_list_of_included_pods(podfile, lockfile)
+        pods_cache = simple_hash_of_lockfile_pods(lockfile)
+
+        pods_used = top_level_pods(podfile, lockfile)
         pods_used, dependencies = append_all_pod_dependencies(pods_used, pods_cache)
 
         [pods_used.sort, dependencies]

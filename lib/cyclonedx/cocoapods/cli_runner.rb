@@ -39,9 +39,9 @@ module CycloneDX
         setup_logger(verbose: options[:verbose])
         @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-        pods, dependencies = analyze(options)
+        component, pods, dependencies = analyze(options)
 
-        build_and_write_bom(options, pods, dependencies)
+        build_and_write_bom(options, component, pods, dependencies)
       rescue StandardError => e
         @logger.error ([e.message] + e.backtrace).join($INPUT_RECORD_SEPARATOR)
         exit 1
@@ -136,11 +136,19 @@ module CycloneDX
         pods, dependencies = analyzer.parse_pods(podfile, lockfile)
         analyzer.populate_pods_with_additional_info(pods)
 
-        [pods, dependencies]
+        component = component_from_options(options)
+
+        if !component.nil?
+          #add top level pods to main component
+          top_deps = analyzer.top_level_deps(podfile, lockfile)
+          dependencies[component.bomref] = top_deps
+        end
+
+        [component, pods, dependencies]
       end
 
-      def build_and_write_bom(options, pods, dependencies)
-        builder = BOMBuilder.new(pods: pods, component: component_from_options(options), dependencies: dependencies)
+      def build_and_write_bom(options, component, pods, dependencies)
+        builder = BOMBuilder.new(pods: pods, component: component, dependencies: dependencies)
         bom = builder.bom(version: options[:bom_version] || 1,
                           trim_strings_length: options[:trim_strings_length] || 0)
         write_bom_to_file(bom: bom, options: options)
