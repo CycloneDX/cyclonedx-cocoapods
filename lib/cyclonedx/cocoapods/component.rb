@@ -24,7 +24,7 @@ module CycloneDX
     class Component
       VALID_COMPONENT_TYPES = %w[application framework library container operating-system device firmware file].freeze
 
-      attr_reader :group, :name, :version, :type
+      attr_reader :group, :name, :version, :type, :bomref
 
       def initialize(name:, version:, type:, group: nil)
         raise ArgumentError, 'Group, if specified, must be non empty' if !group.nil? && group.to_s.strip.empty?
@@ -39,6 +39,11 @@ module CycloneDX
         @name = name
         @version = version
         @type = type
+        @bomref = "#{name}@#{version}"
+
+        return if group.nil?
+
+        @bomref = "#{group}/#{@bomref}"
       end
     end
   end

@@ -143,7 +143,7 @@ module CycloneDX
 
     class Component
       def add_to_bom(xml)
-        xml.component(type: type) do
+        xml.component(type: type, 'bom-ref': bomref) do
           xml.group group unless group.nil?
           xml.name name
           xml.version version

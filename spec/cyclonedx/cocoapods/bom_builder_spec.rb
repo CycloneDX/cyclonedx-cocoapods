@@ -248,6 +248,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should generate a root component element' do
         expect(xml.at('/component')).not_to be_nil
         expect(xml.at('/component')['type']).to eq(component.type)
+        expect(xml.at('/component')['bom-ref']).not_to be_nil
       end
 
       it 'should generate proper component information' do
@@ -255,6 +256,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         expect(xml.at('/component/name').text).to eq(component.name)
         expect(xml.at('/component/version')).not_to be_nil
         expect(xml.at('/component/version').text).to eq(component.version)
+        expect(xml.at('/component')['bom-ref']).not_to be_nil
       end
     end
 
@@ -268,6 +270,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
       it 'should not generate any group element' do
         expect(xml.at('/component/group')).to be_nil
+        expect(xml.at('/component')['bom-ref']).to eq('Application@1.3.5')
       end
     end
 
@@ -284,6 +287,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should generate a proper group element' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
+        expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
       end
     end
   end
