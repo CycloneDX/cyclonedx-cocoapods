@@ -19,8 +19,9 @@
 # Copyright (c) OWASP Foundation. All Rights Reserved.
 #
 
-require 'cyclonedx/cocoapods/podfile_analyzer'
 require 'rspec'
+require 'cyclonedx/cocoapods/podfile_analyzer'
+
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   let(:fixtures) { Pathname.new(File.expand_path('../../fixtures', __dir__)) }
   let(:empty_podfile) { 'EmptyPodfile/Podfile' }
@@ -33,6 +34,20 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   before(:each) do
     @log = StringIO.new
     @logger = Logger.new(@log)
+  end
+
+  context 'Calling ensure_podfile_and_lock_are_present' do
+    it 'with EmptyPodfile fixture should raise a "Missing Manifest.lock" error' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        path: fixtures + 'EmptyPodfile/'
+      }
+      expect {
+        analyzer.ensure_podfile_and_lock_are_present(options)
+      }.to raise_error(CycloneDX::CocoaPods::PodfileParsingError,
+                       "Missing Manifest.lock, please run 'pod install' before generating BOM")
+    end
   end
 
   context 'parsing pods' do
