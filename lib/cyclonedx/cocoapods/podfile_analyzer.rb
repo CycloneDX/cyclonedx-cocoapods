@@ -142,6 +142,8 @@ module CycloneDX
       end
 
       def initialize_cocoapods_config(project_dir)
+        # First, reset the ::Pod::Config instance in case we need to use this analyzer on multiple pods
+        ::Pod::Config.instance = nil
         ::Pod::Config.instance.installation_root = project_dir
       end
 

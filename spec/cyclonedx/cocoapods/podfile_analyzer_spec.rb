@@ -37,6 +37,17 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   end
 
   context 'Calling ensure_podfile_and_lock_are_present' do
+    it 'with SimplePod fixture should succeed' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        path: fixtures + 'SimplePod/'
+      }
+      podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+      expect(podfile).not_to be_nil
+      expect(lockfile).not_to be_nil
+    end
+
     it 'with EmptyPodfile fixture should raise a "Missing Manifest.lock" error' do
       analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
@@ -47,6 +58,18 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         analyzer.ensure_podfile_and_lock_are_present(options)
       }.to raise_error(CycloneDX::CocoaPods::PodfileParsingError,
                        "Missing Manifest.lock, please run 'pod install' before generating BOM")
+    end
+
+    it 'with PodPlugin fixture should log a warning when trying to load the plugin' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        :path => fixtures + 'PodPlugin/'
+      }
+      expect(@logger).to receive(:warn).with(/Failed to load plugin fake_plugin_that_does_not_exist./)
+      podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+      expect(podfile).not_to be_nil
+      expect(lockfile).not_to be_nil
     end
   end
 
