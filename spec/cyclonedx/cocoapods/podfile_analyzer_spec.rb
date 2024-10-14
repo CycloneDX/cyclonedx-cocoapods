@@ -54,17 +54,17 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
       options = {
         path: fixtures + 'EmptyPodfile/'
       }
-      expect {
+      expect do
         analyzer.ensure_podfile_and_lock_are_present(options)
-      }.to raise_error(CycloneDX::CocoaPods::PodfileParsingError,
-                       "Missing Manifest.lock, please run 'pod install' before generating BOM")
+      end.to raise_error(CycloneDX::CocoaPods::PodfileParsingError,
+                         "Missing Manifest.lock, please run 'pod install' before generating BOM")
     end
 
     it 'with PodPlugin fixture should log a warning when trying to load the plugin' do
       analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
 
       options = {
-        :path => fixtures + 'PodPlugin/'
+        path: fixtures + 'PodPlugin/'
       }
       expect(@logger).to receive(:warn).with(/Failed to load plugin fake_plugin_that_does_not_exist./)
       podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
