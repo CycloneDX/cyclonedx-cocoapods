@@ -21,6 +21,7 @@
 
 require 'cyclonedx/cocoapods/podfile_analyzer'
 require 'rspec'
+
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   let(:fixtures) { Pathname.new(File.expand_path('../../fixtures', __dir__)) }
   let(:empty_podfile) { 'EmptyPodfile/Podfile' }
