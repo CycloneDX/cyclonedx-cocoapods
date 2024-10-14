@@ -21,6 +21,7 @@
 
 require 'cyclonedx/cocoapods/podfile_analyzer'
 require 'rspec'
+
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   let(:fixtures) { Pathname.new(File.expand_path('../../fixtures', __dir__)) }
   let(:empty_podfile) { 'EmptyPodfile/Podfile' }
@@ -33,6 +34,55 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   before(:each) do
     @log = StringIO.new
     @logger = Logger.new(@log)
+  end
+
+  context 'Calling ensure_podfile_and_lock_are_present' do
+    it 'with bad path should raise an error' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        path: 'bad_path_that_does_not_exist'
+      }
+      expect do
+        analyzer.ensure_podfile_and_lock_are_present(options)
+      end.to raise_error(CycloneDX::CocoaPods::PodfileParsingError,
+                         'bad_path_that_does_not_exist is not a valid directory.')
+    end
+
+    it 'with SimplePod fixture should succeed' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        path: fixtures + 'SimplePod/'
+      }
+      podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+      expect(podfile).not_to be_nil
+      expect(lockfile).not_to be_nil
+    end
+
+    it 'with EmptyPodfile fixture should raise a "Missing Manifest.lock" error' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        path: fixtures + 'EmptyPodfile/'
+      }
+      expect do
+        analyzer.ensure_podfile_and_lock_are_present(options)
+      end.to raise_error(CycloneDX::CocoaPods::PodfileParsingError,
+                         "Missing Manifest.lock, please run 'pod install' before generating BOM")
+    end
+
+    it 'with PluginPod fixture should log a warning when trying to load the plugin' do
+      analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+      options = {
+        path: fixtures + 'PluginPod/'
+      }
+      expect(@logger).to receive(:warn).with(/Failed to load plugin fake_plugin_that_does_not_exist./)
+      podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+      expect(podfile).not_to be_nil
+      expect(lockfile).not_to be_nil
+    end
   end
 
   context 'parsing pods' do

@@ -38,3 +38,7 @@ Metrics/MethodLength:
   AllowedMethods: ['parse_options', 'add_to_bom', 'append_all_pod_dependencies']
 Metrics/AbcSize:
   AllowedMethods: ['parse_options', 'add_to_bom', 'source_for_pod']
+
+# Configure StringConcatenation to allow Pathname string concatenation
+Style/StringConcatenation:
+  Mode: conservative
