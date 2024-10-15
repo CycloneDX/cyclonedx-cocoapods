@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.0]
+
+### Added
+- Added `evidence` element to the component output to indicate that we are doing manifest analisys to generate the bom. ([Issue #69](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/69)) [@macblazer](https://github.com/macblazer).
 
 ### Fixed
 - Properly concatenate paths to Podfile and Podfile.lock (with unit tests!). ([Issue #71](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/71)) [@macblazer](https://github.com/macblazer).
