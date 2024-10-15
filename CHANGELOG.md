@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `evidence` element to the component output to indicate that we are doing manifest analisys to generate the bom. ([Issue #69](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/69)) [@macblazer](https://github.com/macblazer).
 
 ### Fixed
+- Added top level dependencies when the metadata/component is specified (by using the `--name`, `--version`, and `--type` parameters). ([PR #70](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/70)) [@fnxpt](https://github.com/fnxpt)
 - Properly concatenate paths to Podfile and Podfile.lock (with unit tests!). ([Issue #71](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/71)) [@macblazer](https://github.com/macblazer).
 
 ## [1.3.0]
