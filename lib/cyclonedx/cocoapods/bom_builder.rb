@@ -171,6 +171,7 @@ module CycloneDX
       end
     end
 
+    # Turns the internal model data into an XML bom.
     class BOMBuilder
       NAMESPACE = 'http://cyclonedx.org/schema/bom/1.5'
 
