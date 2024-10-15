@@ -335,9 +335,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -353,9 +355,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -371,9 +375,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -389,9 +395,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -407,9 +415,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -425,9 +435,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -450,9 +462,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -468,9 +482,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -486,9 +502,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -504,9 +522,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -522,9 +542,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -540,9 +562,11 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
                 <field>purl</field>
                 <confidence>0.6</confidence>
                 <methods>
-                  <technique>manifest-analysis</technique>
-                  <confidence>0.6</confidence>
-                  <value>sample_manifest.lock</value>
+                  <method>
+                    <technique>manifest-analysis</technique>
+                    <confidence>0.6</confidence>
+                    <value>sample_manifest.lock</value>
+                  </method>
                 </methods>
               </identity>
             </evidence>
@@ -694,7 +718,12 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       let(:component) do
         CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application')
       end
-      let(:bom_builder) { described_class.new(component: component, manifest_path: 'sample_manifest.lock', pods: pods, dependencies: dependencies) }
+      let(:bom_builder) do
+        described_class.new(component: component,
+                            manifest_path: 'sample_manifest.lock',
+                            pods: pods,
+                            dependencies: dependencies)
+      end
       # Important: these expected dependencies are sorted alphabetically
       let(:dependencies_result) do
         <<~XML

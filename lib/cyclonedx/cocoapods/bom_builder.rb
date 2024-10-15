@@ -112,9 +112,11 @@ module CycloneDX
             xml.field 'purl'
             xml.confidence '0.6'
             xml.methods_ do
-              xml.technique 'manifest-analysis'
-              xml.confidence '0.6'
-              xml.value manifest_path
+              xml.method_ do
+                xml.technique 'manifest-analysis'
+                xml.confidence '0.6'
+                xml.value manifest_path
+              end
             end
           end
         end

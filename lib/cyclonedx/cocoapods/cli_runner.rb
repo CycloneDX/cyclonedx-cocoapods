@@ -39,9 +39,9 @@ module CycloneDX
         setup_logger(verbose: options[:verbose])
         @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-        component, pods, dependencies = analyze(options)
+        component, pods, manifest_path, dependencies = analyze(options)
 
-        build_and_write_bom(options, component, pods, dependencies)
+        build_and_write_bom(options, component, pods, manifest_path, dependencies)
       rescue StandardError => e
         @logger.error ([e.message] + e.backtrace).join($INPUT_RECORD_SEPARATOR)
         exit 1
@@ -144,11 +144,18 @@ module CycloneDX
           dependencies[component.bomref] = top_deps
         end
 
-        [component, pods, dependencies]
+        manifest_path = lockfile.defined_in_file
+        if manifest_path.absolute?
+          # Use the folder that we are building in, then the path to the manifest file
+          manifest_path = Pathname.pwd.basename + manifest_path.relative_path_from(Pathname.pwd)
+        end
+
+        [component, pods, manifest_path, dependencies]
       end
 
-      def build_and_write_bom(options, component, pods, dependencies)
-        builder = BOMBuilder.new(pods: pods, component: component, dependencies: dependencies)
+      def build_and_write_bom(options, component, pods, manifest_path, dependencies)
+        builder = BOMBuilder.new(pods: pods, manifest_path: manifest_path,
+                                 component: component, dependencies: dependencies)
         bom = builder.bom(version: options[:bom_version] || 1,
                           trim_strings_length: options[:trim_strings_length] || 0)
         write_bom_to_file(bom: bom, options: options)
