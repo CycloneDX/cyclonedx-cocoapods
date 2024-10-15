@@ -104,10 +104,26 @@ module CycloneDX
         end
       end
 
-      def add_to_bom(xml, trim_strings_length = 0)
+      # Add evidence of the purl identity.
+      # See https://github.com/CycloneDX/guides/blob/main/SBOM/en/0x60-Evidence.md for more info
+      def xml_add_evidence(xml, manifest_path)
+        xml.evidence do
+          xml.identity do
+            xml.field 'purl'
+            xml.confidence '0.6'
+            xml.methods_ do
+              xml.technique 'manifest-analysis'
+              xml.confidence '0.6'
+              xml.value manifest_path
+            end
+          end
+        end
+      end
+
+      def add_to_bom(xml, manifest_path, trim_strings_length = 0)
         xml.component(type: 'library', 'bom-ref': purl) do
           xml_add_author(xml, trim_strings_length)
-          xml.name name
+          xml.name_ name
           xml.version version.to_s
           xml.description { xml.cdata description } unless description.nil?
           unless checksum.nil?
@@ -126,6 +142,8 @@ module CycloneDX
             xml.purl purl.slice(0, trim_strings_length)
           end
           xml_add_homepage(xml)
+
+          xml_add_evidence(xml, manifest_path)
         end
       end
 
@@ -133,7 +151,7 @@ module CycloneDX
         def add_to_bom(xml)
           xml.license do
             xml.id identifier if identifier_type == :id
-            xml.name identifier if identifier_type == :name
+            xml.name_ identifier if identifier_type == :name
             xml.text_ text unless text.nil?
             xml.url url unless url.nil?
           end
@@ -145,7 +163,7 @@ module CycloneDX
       def add_to_bom(xml)
         xml.component(type: type, 'bom-ref': bomref) do
           xml.group group unless group.nil?
-          xml.name name
+          xml.name_ name
           xml.version version
         end
       end
@@ -154,10 +172,11 @@ module CycloneDX
     class BOMBuilder
       NAMESPACE = 'http://cyclonedx.org/schema/bom/1.5'
 
-      attr_reader :component, :pods, :dependencies
+      attr_reader :component, :pods, :manifest_path, :dependencies
 
-      def initialize(pods:, component: nil, dependencies: nil)
+      def initialize(pods:, manifest_path:, component: nil, dependencies: nil)
         @pods = pods.sort_by(&:purl)
+        @manifest_path = manifest_path
         @component = component
         @dependencies = dependencies&.sort
       end
@@ -184,17 +203,17 @@ module CycloneDX
           xml.bom(xmlns: NAMESPACE, version: version.to_i.to_s, serialNumber: "urn:uuid:#{SecureRandom.uuid}") do
             bom_metadata(xml)
 
-            bom_components(xml, pods, trim_strings_length)
+            bom_components(xml, pods, manifest_path, trim_strings_length)
 
             bom_dependencies(xml, dependencies)
           end
         end.to_xml
       end
 
-      def bom_components(xml, pods, trim_strings_length)
+      def bom_components(xml, pods, manifest_path, trim_strings_length)
         xml.components do
           pods.each do |pod|
-            pod.add_to_bom(xml, trim_strings_length)
+            pod.add_to_bom(xml, manifest_path, trim_strings_length)
           end
         end
       end
@@ -223,7 +242,7 @@ module CycloneDX
         xml.tools do
           xml.tool do
             xml.vendor 'CycloneDX'
-            xml.name 'cyclonedx-cocoapods'
+            xml.name_ 'cyclonedx-cocoapods'
             xml.version VERSION
           end
         end

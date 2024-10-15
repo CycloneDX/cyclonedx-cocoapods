@@ -38,13 +38,13 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:pod) { described_class.new(name: pod_name, version: pod_version, checksum: checksum) }
   let(:xml) do
     Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-      pod.add_to_bom(xml)
+      pod.add_to_bom(xml, 'unused.lock')
     end.to_xml)
   end
 
   let(:shortXML) do
     Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-      pod.add_to_bom(xml, 7)
+      pod.add_to_bom(xml, 'unused.lock', 7)
     end.to_xml)
   end
 
@@ -330,6 +330,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>Alamofire</name>
             <version>5.6.2</version>
             <purl>pkg:cocoapods/Alamofire@5.6.2</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/FirebaseAnalytics@7.10.0">
             <author>Chewbacca</author>
@@ -337,6 +348,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>FirebaseAnalytics</name>
             <version>7.10.0</version>
             <purl>pkg:cocoapods/FirebaseAnalytics@7.10.0</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1">
             <author>Chewbacca</author>
@@ -344,6 +366,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>MSAL</name>
             <version>1.2.1</version>
             <purl>pkg:cocoapods/MSAL@1.2.1</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1#app-lib">
             <author>Chewbacca</author>
@@ -351,6 +384,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>MSAL/app-lib</name>
             <version>1.2.1</version>
             <purl>pkg:cocoapods/MSAL@1.2.1#app-lib</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/Realm@5.5.1">
             <author>Chewbacca</author>
@@ -358,6 +402,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>Realm</name>
             <version>5.5.1</version>
             <purl>pkg:cocoapods/Realm@5.5.1</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/RxSwift@5.1.2">
             <author>Chewbacca</author>
@@ -365,6 +420,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>RxSwift</name>
             <version>5.1.2</version>
             <purl>pkg:cocoapods/RxSwift@5.1.2</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
         </components>
       XML
@@ -379,6 +445,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>Alamofire</name>
             <version>5.6.2</version>
             <purl>pkg:co</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/FirebaseAnalytics@7.10.0">
             <author>Chewba</author>
@@ -386,6 +463,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>FirebaseAnalytics</name>
             <version>7.10.0</version>
             <purl>pkg:co</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1">
             <author>Chewba</author>
@@ -393,6 +481,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>MSAL</name>
             <version>1.2.1</version>
             <purl>pkg:co</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/MSAL@1.2.1#app-lib">
             <author>Chewba</author>
@@ -400,6 +499,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>MSAL/app-lib</name>
             <version>1.2.1</version>
             <purl>pkg:co</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/Realm@5.5.1">
             <author>Chewba</author>
@@ -407,6 +517,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>Realm</name>
             <version>5.5.1</version>
             <purl>pkg:co</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
           <component type="library" bom-ref="pkg:cocoapods/RxSwift@5.1.2">
             <author>Chewba</author>
@@ -414,6 +535,17 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
             <name>RxSwift</name>
             <version>5.1.2</version>
             <purl>pkg:co</purl>
+            <evidence>
+              <identity>
+                <field>purl</field>
+                <confidence>0.6</confidence>
+                <methods>
+                  <technique>manifest-analysis</technique>
+                  <confidence>0.6</confidence>
+                  <value>sample_manifest.lock</value>
+                </methods>
+              </identity>
+            </evidence>
           </component>
         </components>
       XML
@@ -552,7 +684,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
 
     context 'without a component' do
-      let(:bom_builder) { described_class.new(pods: pods) }
+      let(:bom_builder) { described_class.new(pods: pods, manifest_path: 'sample_manifest.lock') }
       let(:dependencies_result) { '<dependencies/>' }
 
       it_behaves_like 'bom_generator'
@@ -562,7 +694,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       let(:component) do
         CycloneDX::CocoaPods::Component.new(name: 'Application', version: '1.3.5', type: 'application')
       end
-      let(:bom_builder) { described_class.new(component: component, pods: pods, dependencies: dependencies) }
+      let(:bom_builder) { described_class.new(component: component, manifest_path: 'sample_manifest.lock', pods: pods, dependencies: dependencies) }
       # Important: these expected dependencies are sorted alphabetically
       let(:dependencies_result) do
         <<~XML
