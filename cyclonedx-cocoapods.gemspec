@@ -28,8 +28,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'cocoapods', ['>= 1.10.1', '< 2.0']
   spec.add_dependency 'nokogiri', ['>= 1.11.2', '< 2.0']
-
-  spec.add_development_dependency 'equivalent-xml', '~> 0.6.0'
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
 end
