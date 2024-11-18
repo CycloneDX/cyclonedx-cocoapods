@@ -100,12 +100,10 @@ module CycloneDX
             parsed_options[:name] = name
           end
           options.on('-v', '--version version', 'Version of the component for which the BOM is generated') do |version|
-            begin
-              Gem::Version.new(version)
-              parsed_options[:version] = version
-            rescue StandardError => e
-              raise OptionParser::InvalidArgument, e.message
-            end
+            Gem::Version.new(version)
+            parsed_options[:version] = version
+          rescue StandardError => e
+            raise OptionParser::InvalidArgument, e.message
           end
           options.on('-t', '--type type',
                      'Type of the component for which the BOM is generated ' \

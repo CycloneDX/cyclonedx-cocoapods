@@ -184,12 +184,18 @@ module CycloneDX
         end
       end
 
-      def append_all_pod_dependencies(pods_used, pods_cache)
-        result = pods_used
+      # Calculate simple array of all used pods plus their direct dependencies
+      #
+      # @param [Array<String>] top_level_pods List of pod names that are directly imported by the Podfile
+      # @param [Hash<String,Array<String>>] pods_cache Dependency information directly from the Podfile.lock;
+      # keys are string pod names, values are list of direct dependencies of the given pod.
+      # @return [Array<String>, Hash<String,Array<String>>] First element is list of all used pod names.
+      # Second element is a hash: keys are string pod names, values are the direct dependencies of that pod.
+      def append_all_pod_dependencies(top_level_pods, pods_cache)
+        result = top_level_pods
         original_number = 0
-        dependencies_hash = {}
 
-        # Loop adding pod dependencies until we are not adding any more dependencies to the result
+        # Loop adding pod dependencies until we are not adding any more dependencies to the result.
         # This brings in all the transitive dependencies of every top level pod.
         # Note this also handles two edge cases:
         #  1. Having a Podfile with no pods used.
@@ -197,15 +203,20 @@ module CycloneDX
         while result.length != original_number
           original_number = result.length
 
-          pods_used.each do |pod_name|
+          top_level_pods.each do |pod_name|
             if pods_cache.key?(pod_name)
-              result.push(*pods_cache[pod_name])
-              dependencies_hash[pod_name] = pods_cache[pod_name].empty? ? [] : pods_cache[pod_name]
+              # Append all of the dependencies of this pod into the main list, if they aren't already in the list
+              result = result.union(pods_cache[pod_name])
             end
           end
 
-          result = result.uniq
-          pods_used = result
+          top_level_pods = result
+        end
+
+        # Now that we have the simple list of all unique pods, grab their direct dependencies
+        dependencies_hash = {}
+        result.each do |pod_name|
+          dependencies_hash[pod_name] = pods_cache.key?(pod_name) ? pods_cache[pod_name] : []
         end
 
         [result, dependencies_hash]

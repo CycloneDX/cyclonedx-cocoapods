@@ -25,6 +25,7 @@ require 'rspec'
 RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
   let(:fixtures) { Pathname.new(File.expand_path('../../fixtures', __dir__)) }
   let(:empty_podfile) { 'EmptyPodfile/Podfile' }
+  let(:large_podfile) { 'LargePodfile/Podfile' }
   let(:simple_pod) { 'SimplePod/Podfile' }
   let(:restricted_pod) { 'RestrictedPod/Podfile' }
   let(:tests_pod) { 'TestingPod/Podfile' }
@@ -100,6 +101,35 @@ RSpec.describe CycloneDX::CocoaPods::PodfileAnalyzer do
         pod_names = included_pods.map(&:name)
         expect(pod_names).to eq([])
         expect(dependencies).to eq({})
+        expect(pod_names.length).to eq(dependencies.length)
+      end
+
+      it 'should load large podfiles quickly' do
+        analyzer = CycloneDX::CocoaPods::PodfileAnalyzer.new(logger: @logger)
+
+        pod_file = Pod::Podfile.from_file(fixtures + large_podfile)
+        expect(pod_file).not_to be_nil
+        lock_file = Pod::Lockfile.from_file(fixtures + "#{large_podfile}.lock")
+        expect(lock_file).not_to be_nil
+
+        included_pods, dependencies = analyzer.parse_pods(pod_file, lock_file)
+
+        # Only 104 pods listed in the Podfile, but there are 187 pods counting all 104 plus dependencies.
+        expect(included_pods.count).to eq(187)
+        # There are 187 pods here!  We only verify some of them.
+        pod_names = included_pods.map(&:name)
+        expect(pod_names.first(6)).to eq(['boost', 'DoubleConversion', 'Dynatrace',
+                                          'Dynatrace/xcframework', 'EXApplication', 'EXConstants'])
+        expect(pod_names.last(5)).to eq(['VisionCameraOcr', 'Yoga', 'ZXingObjC/Core',
+                                         'ZXingObjC/OneD', 'ZXingObjC/PDF417'])
+        # rubocop:disable Layout/LineLength
+        expect(dependencies.first).to eq([
+                                           'pkg:cocoapods/boost@1.83.0?download_url=..%2Fnode_modules%2Freact-native%2Fthird-party-podspecs%2Fboost.podspec',
+                                           []
+                                         ])
+        # rubocop:enable Layout/LineLength
+
+        # Each of the pods should have an entry in the dependencies hash
         expect(pod_names.length).to eq(dependencies.length)
       end
 

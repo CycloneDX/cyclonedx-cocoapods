@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
                        'generates CycloneDX BOMs from CocoaPods projects.'
   spec.homepage      = 'https://github.com/CycloneDX/cyclonedx-cocoapods'
   spec.license       = 'Apache-2.0'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.3')
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/CycloneDX/cyclonedx-cocoapods.git'
@@ -28,8 +28,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'cocoapods', ['>= 1.10.1', '< 2.0']
   spec.add_dependency 'nokogiri', ['>= 1.11.2', '< 2.0']
-
-  spec.add_development_dependency 'equivalent-xml', '~> 0.6.0'
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
 end
