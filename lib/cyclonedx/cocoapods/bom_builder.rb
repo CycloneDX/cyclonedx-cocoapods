@@ -240,13 +240,14 @@ module CycloneDX
           component&.add_to_bom(xml)
         end
       end
-
       def bom_tools(xml)
         xml.tools do
-          xml.tool do
-            xml.vendor 'CycloneDX'
-            xml.name_ 'cyclonedx-cocoapods'
-            xml.version VERSION
+          xml.components do
+            xml.component(type: 'application') do
+              xml.group 'CycloneDX'
+              xml.name_ 'cyclonedx-cocoapods'
+              xml.version VERSION
+            end
           end
         end
       end
