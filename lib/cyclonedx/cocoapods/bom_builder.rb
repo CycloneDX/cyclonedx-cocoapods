@@ -173,7 +173,7 @@ module CycloneDX
 
     # Turns the internal model data into an XML bom.
     class BOMBuilder
-      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.5'
+      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.6'
 
       attr_reader :component, :pods, :manifest_path, :dependencies
 
