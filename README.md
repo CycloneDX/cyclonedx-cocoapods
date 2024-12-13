@@ -59,6 +59,8 @@ OPTIONS
     -v, --version version            Version of the component for which the BOM is generated
     -t, --type type                  Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
     -g, --group group                Group of the component for which the BOM is generated
+    -s, --source source_url          The Version Control System URL of the component for which the BOM is generated
+    -b, --build build_url            The build URL of the component for which the BOM is generated
 ```
 
 **Output:** BoM file at specified location, `./bom.xml` if not specified
