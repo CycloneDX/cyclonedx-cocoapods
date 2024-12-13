@@ -348,7 +348,6 @@ RSpec.describe CycloneDX::CocoaPods::Manufacturer do
   end
 end
 
-
 RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
   context 'when generating a BOM' do
     # Important: these pods are NOT in alphabetical order; they will be sorted in output

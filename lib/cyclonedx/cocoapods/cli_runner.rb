@@ -142,7 +142,6 @@ module CycloneDX
                      'Phone number of the manufacturer contact') do |phone|
             parsed_options[:manufacturer_phone] = phone
           end
-
         end.parse!
 
         if !parsed_options[:name].nil? && (parsed_options[:version].nil? || parsed_options[:type].nil?)
@@ -193,7 +192,6 @@ module CycloneDX
       end
 
       def manufacturer_from_options(options)
-
         Manufacturer.new(
           name: options[:manufacturer_name],
           url: options[:manufacturer_url],

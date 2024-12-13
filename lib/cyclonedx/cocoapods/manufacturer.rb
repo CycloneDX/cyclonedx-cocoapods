@@ -26,26 +26,11 @@ module CycloneDX
 
       def initialize(name: nil, url: nil, contact_name: nil, email: nil, phone: nil)
         raise ArgumentError, 'Name must be non empty' if name.nil? || name.to_s.strip.empty?
-
-        if !name.nil? && name.to_s.strip.empty?
-          raise ArgumentError, 'name, if specified, must be non empty'
-        end
-
-        if !url.nil? && url.to_s.strip.empty?
-          raise ArgumentError, 'URL, if specified, must be non empty'
-        end
-
-        if !contact_name.nil? && contact_name.to_s.strip.empty?
-          raise ArgumentError, 'Contact name, if specified, must be non empty'
-        end
-
-        if !email.nil? && email.to_s.strip.empty?
-          raise ArgumentError, 'Email, if specified, must be non empty'
-        end
-
-        if !phone.nil? && phone.to_s.strip.empty?
-          raise ArgumentError, 'Phone, if specified, must be non empty'
-        end
+        raise ArgumentError, 'name, if specified, must be non empty' if !name.nil? && name.to_s.strip.empty?
+        raise ArgumentError, 'URL, if specified, must be non empty' if !url.nil? && url.to_s.strip.empty?
+        raise ArgumentError, 'Contact name, if specified, must be non empty' if !contact_name.nil? && contact_name.to_s.strip.empty?
+        raise ArgumentError, 'Email, if specified, must be non empty' if !email.nil? && email.to_s.strip.empty?
+        raise ArgumentError, 'Phone, if specified, must be non empty' if !phone.nil? && phone.to_s.strip.empty?
 
         @name = name
         @url = url

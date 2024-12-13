@@ -173,19 +173,37 @@ module CycloneDX
 
     class Manufacturer
       def add_to_bom(xml)
-        return if [name, url, contact_name, email, phone].all?(&:nil?)
+        return if all_attributes_nil?
 
         xml.manufacturer do
-          xml.name_ name unless name.nil?
-          xml.url url unless url.nil?
-          unless contact_name.nil? && email.nil? && phone.nil?
-            xml.contact do
-              xml.name_ contact_name unless contact_name.nil?
-              xml.email email unless email.nil?
-              xml.phone phone unless phone.nil?
-            end
-          end
+          add_basic_info(xml)
+          add_contact_info(xml)
         end
+      end
+
+      private
+
+      def all_attributes_nil?
+        [name, url, contact_name, email, phone].all?(&:nil?)
+      end
+
+      def add_basic_info(xml)
+        xml.name_ name unless name.nil?
+        xml.url url unless url.nil?
+      end
+
+      def add_contact_info(xml)
+        return if contact_info_nil?
+
+        xml.contact do
+          xml.name_ contact_name unless contact_name.nil?
+          xml.email email unless email.nil?
+          xml.phone phone unless phone.nil?
+        end
+      end
+
+      def contact_info_nil?
+        contact_name.nil? && email.nil? && phone.nil?
       end
     end
 
