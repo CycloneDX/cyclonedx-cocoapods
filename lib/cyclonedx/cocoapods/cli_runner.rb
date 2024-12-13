@@ -25,6 +25,7 @@ require 'optparse'
 
 require_relative 'bom_builder'
 require_relative 'component'
+require_relative 'manufacturer'
 require_relative 'podfile_analyzer'
 
 module CycloneDX
@@ -39,9 +40,9 @@ module CycloneDX
         setup_logger(verbose: options[:verbose])
         @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
-        component, pods, manifest_path, dependencies = analyze(options)
+        component, manufacturer, pods, manifest_path, dependencies = analyze(options)
 
-        build_and_write_bom(options, component, pods, manifest_path, dependencies)
+        build_and_write_bom(options, component, manufacturer, pods, manifest_path, dependencies)
       rescue StandardError => e
         @logger.error ([e.message] + e.backtrace).join($INPUT_RECORD_SEPARATOR)
         exit 1
@@ -118,6 +119,30 @@ module CycloneDX
           options.on('-g', '--group group', 'Group of the component for which the BOM is generated') do |group|
             parsed_options[:group] = group
           end
+
+          # Add this section after the "Component Metadata" options group
+          options.separator("\n  Manufacturer Metadata\n")
+          options.on('--manufacturer-name name',
+                     'Name of the manufacturer') do |name|
+            parsed_options[:manufacturer_name] = name
+          end
+          options.on('--manufacturer-url url',
+                     'URL of the manufacturer') do |url|
+            parsed_options[:manufacturer_url] = url
+          end
+          options.on('--manufacturer-contact-name name',
+                     'Name of the manufacturer contact') do |contact_name|
+            parsed_options[:manufacturer_contact_name] = contact_name
+          end
+          options.on('--manufacturer-email email',
+                     'Email of the manufacturer contact') do |email|
+            parsed_options[:manufacturer_email] = email
+          end
+          options.on('--manufacturer-phone phone',
+                     'Phone number of the manufacturer contact') do |phone|
+            parsed_options[:manufacturer_phone] = phone
+          end
+
         end.parse!
 
         if !parsed_options[:name].nil? && (parsed_options[:version].nil? || parsed_options[:type].nil?)
@@ -135,6 +160,7 @@ module CycloneDX
         analyzer.populate_pods_with_additional_info(pods)
 
         component = component_from_options(options)
+        manufacturer = manufacturer_from_options(options)
 
         unless component.nil?
           # add top level pods to main component
@@ -148,12 +174,12 @@ module CycloneDX
           manifest_path = Pathname.pwd.basename + manifest_path.relative_path_from(Pathname.pwd)
         end
 
-        [component, pods, manifest_path, dependencies]
+        [component, manufacturer, pods, manifest_path, dependencies]
       end
 
-      def build_and_write_bom(options, component, pods, manifest_path, dependencies)
+      def build_and_write_bom(options, component, manufacturer, pods, manifest_path, dependencies)
         builder = BOMBuilder.new(pods: pods, manifest_path: manifest_path,
-                                 component: component, dependencies: dependencies)
+                                 component: component, manufacturer: manufacturer, dependencies: dependencies)
         bom = builder.bom(version: options[:bom_version] || 1,
                           trim_strings_length: options[:trim_strings_length] || 0)
         write_bom_to_file(bom: bom, options: options)
@@ -164,6 +190,17 @@ module CycloneDX
 
         Component.new(group: options[:group], name: options[:name], version: options[:version],
                       type: options[:type])
+      end
+
+      def manufacturer_from_options(options)
+
+        Manufacturer.new(
+          name: options[:manufacturer_name],
+          url: options[:manufacturer_url],
+          contact_name: options[:manufacturer_contact_name],
+          email: options[:manufacturer_email],
+          phone: options[:manufacturer_phone]
+        )
       end
 
       def setup_logger(verbose: true)

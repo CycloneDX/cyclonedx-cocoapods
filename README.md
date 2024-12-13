@@ -59,6 +59,13 @@ OPTIONS
     -v, --version version            Version of the component for which the BOM is generated
     -t, --type type                  Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
     -g, --group group                Group of the component for which the BOM is generated
+    
+  Manufacturer Metadata
+    --manufacturer-name name         Name of the manufacturer
+    --manufacturer-url url           URL of the manufacturer
+    --manufacturer-contact-name name Name of the manufacturer contact
+    --manufacturer-email email       Email of the manufacturer contact
+    --manufacturer-phone phone       Phone number of the manufacturer contact
 ```
 
 **Output:** BoM file at specified location, `./bom.xml` if not specified

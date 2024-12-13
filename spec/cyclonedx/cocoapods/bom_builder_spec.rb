@@ -26,6 +26,7 @@ require 'cyclonedx/cocoapods/version'
 require 'cyclonedx/cocoapods/bom_builder'
 require 'cyclonedx/cocoapods/pod'
 require 'cyclonedx/cocoapods/component'
+require 'cyclonedx/cocoapods/manufacturer'
 
 RSpec.describe CycloneDX::CocoaPods::Pod do
   let(:pod_name) { 'Alamofire' }
@@ -292,6 +293,61 @@ RSpec.describe CycloneDX::CocoaPods::Component do
     end
   end
 end
+
+RSpec.describe CycloneDX::CocoaPods::Manufacturer do
+  context 'when generating a manufacturer in a BOM' do
+    shared_examples 'manufacturer' do
+      it 'should generate a root manufacturer element' do
+        expect(xml.at('/manufacturer')).not_to be_nil
+      end
+
+      it 'should generate proper manufacturer information' do
+        expect(xml.at('/manufacturer/name')).not_to be_nil if manufacturer.name
+        expect(xml.at('/manufacturer/name')&.text).to eq(manufacturer.name) if manufacturer.name
+        expect(xml.at('/manufacturer/url')).not_to be_nil if manufacturer.url
+        expect(xml.at('/manufacturer/url')&.text).to eq(manufacturer.url) if manufacturer.url
+      end
+    end
+
+    context 'without contact information' do
+      let(:manufacturer) { described_class.new(name: 'ACME Corp', url: 'https://acme.example') }
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| manufacturer.add_to_bom(xml) }.to_xml)
+      end
+
+      it_behaves_like 'manufacturer'
+
+      it 'should not generate any contact element' do
+        expect(xml.at('/manufacturer/contact')).to be_nil
+      end
+    end
+
+    context 'with contact information' do
+      let(:manufacturer) do
+        described_class.new(
+          name: 'ACME Corp',
+          url: 'https://acme.example',
+          contact_name: 'John Doe',
+          email: 'john@acme.example',
+          phone: '+1-555-123-4567'
+        )
+      end
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| manufacturer.add_to_bom(xml) }.to_xml)
+      end
+
+      it_behaves_like 'manufacturer'
+
+      it 'should generate proper contact elements' do
+        expect(xml.at('/manufacturer/contact')).not_to be_nil
+        expect(xml.at('/manufacturer/contact/name').text).to eq(manufacturer.contact_name)
+        expect(xml.at('/manufacturer/contact/email').text).to eq(manufacturer.email)
+        expect(xml.at('/manufacturer/contact/phone').text).to eq(manufacturer.phone)
+      end
+    end
+  end
+end
+
 
 RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
   context 'when generating a BOM' do
