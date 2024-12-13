@@ -25,18 +25,27 @@ module CycloneDX
       attr_reader :name, :url, :contact_name, :email, :phone
 
       def initialize(name: nil, url: nil, contact_name: nil, email: nil, phone: nil)
-        raise ArgumentError, 'Name must be non empty' if name.nil? || name.to_s.strip.empty?
-        raise ArgumentError, 'name, if specified, must be non empty' if !name.nil? && name.to_s.strip.empty?
-        raise ArgumentError, 'URL, if specified, must be non empty' if !url.nil? && url.to_s.strip.empty?
-        raise ArgumentError, 'Contact name, if specified, must be non empty' if !contact_name.nil? && contact_name.to_s.strip.empty?
-        raise ArgumentError, 'Email, if specified, must be non empty' if !email.nil? && email.to_s.strip.empty?
-        raise ArgumentError, 'Phone, if specified, must be non empty' if !phone.nil? && phone.to_s.strip.empty?
+        validate_parameters(name, url, contact_name, email, phone)
 
         @name = name
         @url = url
         @contact_name = contact_name
         @email = email
         @phone = phone
+      end
+
+      private
+
+      def validate_parameters(name, url, contact_name, email, phone)
+        raise ArgumentError, 'name, if specified, must be non empty' if is_blank(name)
+        raise ArgumentError, 'URL, if specified, must be non empty' if is_blank(url)
+        raise ArgumentError, 'Contact name, if specified, must be non empty' if is_blank(contact_name)
+        raise ArgumentError, 'Email, if specified, must be non empty' if is_blank(email)
+        raise ArgumentError, 'Phone, if specified, must be non empty' if is_blank(phone)
+      end
+
+      def is_blank(str)
+        !str.nil? && name.to_s.strip.empty?
       end
     end
   end
