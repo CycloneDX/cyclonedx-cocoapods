@@ -118,10 +118,12 @@ module CycloneDX
           options.on('-g', '--group group', 'Group of the component for which the BOM is generated') do |group|
             parsed_options[:group] = group
           end
-          options.on('-s', '--source source_url', 'Optional: The version control system URL of the component for which the BOM is generated') do |vcs|
+          options.on('-s', '--source source_url',
+                     'Optional: The version control system URL of the component for which the BOM is generated') do |vcs|
             parsed_options[:vcs] = vcs
           end
-          options.on('-b', '--build build_url', 'Optional: The build URL of the component for which the BOM is generated') do |build|
+          options.on('-b', '--build build_url',
+                     'Optional: The build URL of the component for which the BOM is generated') do |build|
             parsed_options[:build] = build
           end
         end.parse!
@@ -169,7 +171,7 @@ module CycloneDX
         return unless options[:name]
 
         Component.new(group: options[:group], name: options[:name], version: options[:version],
-                      type: options[:type], buildSystem: options[:build], vcs: options[:vcs])
+                      type: options[:type], build_system: options[:build], vcs: options[:vcs])
       end
 
       def setup_logger(verbose: true)

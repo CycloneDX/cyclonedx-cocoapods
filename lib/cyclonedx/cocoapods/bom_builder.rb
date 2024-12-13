@@ -168,15 +168,19 @@ module CycloneDX
           xml.name_ name
           xml.version version
 
-          if !buildSystem.nil? || !vcs.nil?
+          if !build_system.nil? || !vcs.nil?
             xml.externalReferences do
-              xml.reference(type: 'build-system') do
-                xml.url buildSystem
-              end if buildSystem
+              if build_system
+                xml.reference(type: 'build-system') do
+                  xml.url build_system
+                end
+              end
 
-              xml.reference(type: 'vcs') do
-                xml.url vcs
-              end if vcs
+              if vcs
+                xml.reference(type: 'vcs') do
+                  xml.url vcs
+                end
+              end
             end
           end
         end

@@ -293,7 +293,8 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
     context 'with a vcs' do
       let(:component) do
-        described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application', vcs: 'https://github.com/Alamofire/Alamofire.git')
+        described_class.new(group: 'application-group', name: 'Application', version: '1.3.5',
+                            type: 'application', vcs: 'https://github.com/Alamofire/Alamofire.git')
       end
       let(:xml) do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
@@ -312,7 +313,8 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
     context 'with a build system' do
       let(:component) do
-        described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application', buildSystem: 'https://github.com/Alamofire/Alamofire/actions/runs/12012983790')
+        described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application',
+                            build_system: 'https://github.com/Alamofire/Alamofire/actions/runs/12012983790')
       end
       let(:xml) do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
@@ -325,7 +327,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         expect(xml.at('/component/group').text).to eq(component.group)
         expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
         expect(xml.at('/component/externalReferences/reference')['type']).to eq('build-system')
-        expect(xml.at('/component/externalReferences/reference/url').text).to eq(component.buildSystem)
+        expect(xml.at('/component/externalReferences/reference/url').text).to eq(component.build_system)
       end
     end
   end
