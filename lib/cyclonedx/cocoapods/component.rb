@@ -55,11 +55,29 @@ module CycloneDX
         @type = type
         @build_system = build_system
         @vcs = vcs
-        @bomref = "#{name}@#{version}"
+        @bomref = build_purl(name, group, version)
 
-        return if group.nil?
+      end
 
-        @bomref = "#{group}/#{@bomref}"
+      private
+
+      def build_purl(name, group, version)
+        if group.nil?
+          purls = name.split('/')
+          purl_name = CGI.escape(purls[0])
+          if purls.length > 1
+            subpath = "##{name.split('/').drop(1).map do |component|
+              CGI.escape(component)
+            end.join('/')}"
+          else
+            subpath = ''
+          end
+        else
+          # this seems wrong as cocoapods does not use groups?
+          purl_name = "#{CGI.escape(group)}/#{CGI.escape(name)}"
+          subpath = ''
+        end
+        "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{subpath}"
       end
 
       private
