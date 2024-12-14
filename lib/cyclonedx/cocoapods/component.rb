@@ -74,12 +74,12 @@ module CycloneDX
         end
       end
 
-      def missing(name)
-        name.nil? || name.to_s.strip.empty?
+      def missing(str)
+        str.nil? || str.to_s.strip.empty?
       end
 
-      def exists_and_blank(group)
-        !group.nil? && group.to_s.strip.empty?
+      def exists_and_blank(str)
+        !str.nil? && str.to_s.strip.empty?
       end
     end
   end
