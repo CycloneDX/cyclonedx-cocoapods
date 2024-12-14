@@ -69,9 +69,9 @@ module CycloneDX
         raise ArgumentError, 'Name must be non-empty' if missing(name)
 
         Gem::Version.new(version) # To check that the version string is well-formed
-        unless VALID_COMPONENT_TYPES.include?(type)
-          raise ArgumentError, "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
-        end
+        return if VALID_COMPONENT_TYPES.include?(type)
+
+        raise ArgumentError, "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
       end
 
       def missing(str)
