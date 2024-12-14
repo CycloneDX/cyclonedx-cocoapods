@@ -42,3 +42,8 @@ Metrics/AbcSize:
 # Configure StringConcatenation to allow Pathname string concatenation
 Style/StringConcatenation:
   Mode: conservative
+
+Metrics/ParameterLists:
+  Max: 6  # Set this to your desired maximum number of parameters
+  CountKeywordArgs: true  # Set to false if you don't want to count keyword arguments
+

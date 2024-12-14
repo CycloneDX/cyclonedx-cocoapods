@@ -62,7 +62,7 @@ module CycloneDX
       private
 
       def validate_parameters(name, url, contact_name, email, phone)
-        raise ArgumentError, 'name, if specified, must be non empty' if blank(name)
+        raise ArgumentError, "name, if specified, must be non empty" if blank(name)
         raise ArgumentError, 'URL, if specified, must be non empty' if blank(url)
         raise ArgumentError, 'Contact name, if specified, must be non empty' if blank(contact_name)
         raise ArgumentError, 'Email, if specified, must be non empty' if blank(email)
@@ -70,7 +70,7 @@ module CycloneDX
       end
 
       def blank(str)
-        !str.nil? && name.to_s.strip.empty?
+        !str.nil? && str.to_s.strip.empty?
       end
     end
   end
