@@ -171,6 +171,9 @@ module CycloneDX
       end
     end
 
+    # Represents manufacturer information in a CycloneDX BOM
+    # Handles generation of manufacturer XML elements including basic info and contact details
+    # Used when generating BOM metadata for CycloneDX specification
     class Manufacturer
       def add_to_bom(xml)
         return if all_attributes_nil?

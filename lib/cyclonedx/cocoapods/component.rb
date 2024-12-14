@@ -27,8 +27,8 @@ module CycloneDX
       attr_reader :group, :name, :version, :type, :bomref
 
       def initialize(name:, version:, type:, group: nil)
-        raise ArgumentError, 'Group, if specified, must be non empty' if !group.nil? && group.to_s.strip.empty?
-        raise ArgumentError, 'Name must be non empty' if name.nil? || name.to_s.strip.empty?
+        raise ArgumentError, 'Group, if specified, must be non-empty' if !group.nil? && group.to_s.strip.empty?
+        raise ArgumentError, 'Name must be non-empty' if name.nil? || name.to_s.strip.empty?
 
         Gem::Version.new(version) # To check that the version string is well formed
         unless VALID_COMPONENT_TYPES.include?(type)
