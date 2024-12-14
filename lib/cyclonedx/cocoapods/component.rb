@@ -100,7 +100,7 @@ module CycloneDX
                   else
                     ''
                   end
-        return purl_name, subpath
+        [purl_name, subpath]
       end
     end
   end
