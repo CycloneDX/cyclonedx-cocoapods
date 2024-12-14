@@ -21,6 +21,31 @@
 
 module CycloneDX
   module CocoaPods
+    # Represents manufacturer information in a CycloneDX BOM
+    #
+    # The Manufacturer class holds details about the manufacturer of a component,
+    # including company information and contact details.
+    #
+    # @attr_reader [String] name The name of the manufacturing organization
+    # @attr_reader [String] url The URL of the manufacturer's website
+    # @attr_reader [String] contact_name Name of the manufacturer contact person
+    # @attr_reader [String] email Email address of the manufacturer contact
+    # @attr_reader [String] phone Phone number of the manufacturer contact
+    #
+    # @example Creating a manufacturer with basic info
+    #   manufacturer = Manufacturer.new(
+    #     name: "ACME Corp",
+    #     url: "https://acme.example"
+    #   )
+    #
+    # @example Creating a manufacturer with full contact details
+    #   manufacturer = Manufacturer.new(
+    #     name: "ACME Corp",
+    #     url: "https://acme.example",
+    #     contact_name: "John Doe",
+    #     email: "john@acme.example",
+    #     phone: "+1-555-123-4567"
+    #   )
     class Manufacturer
       attr_reader :name, :url, :contact_name, :email, :phone
 
@@ -37,14 +62,14 @@ module CycloneDX
       private
 
       def validate_parameters(name, url, contact_name, email, phone)
-        raise ArgumentError, 'name, if specified, must be non empty' if is_blank(name)
-        raise ArgumentError, 'URL, if specified, must be non empty' if is_blank(url)
-        raise ArgumentError, 'Contact name, if specified, must be non empty' if is_blank(contact_name)
-        raise ArgumentError, 'Email, if specified, must be non empty' if is_blank(email)
-        raise ArgumentError, 'Phone, if specified, must be non empty' if is_blank(phone)
+        raise ArgumentError, 'name, if specified, must be non empty' if blank(name)
+        raise ArgumentError, 'URL, if specified, must be non empty' if blank(url)
+        raise ArgumentError, 'Contact name, if specified, must be non empty' if blank(contact_name)
+        raise ArgumentError, 'Email, if specified, must be non empty' if blank(email)
+        raise ArgumentError, 'Phone, if specified, must be non empty' if blank(phone)
       end
 
-      def is_blank(str)
+      def blank(str)
         !str.nil? && name.to_s.strip.empty?
       end
     end
