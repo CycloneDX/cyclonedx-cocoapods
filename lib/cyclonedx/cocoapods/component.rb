@@ -47,7 +47,7 @@ module CycloneDX
       attr_reader :group, :name, :version, :type, :bomref, :build_system, :vcs
 
       def initialize(name:, version:, type:, group: nil, build_system: nil, vcs: nil)
-        validate_attributes(name, version, type)
+        validate_attributes(name, version, type, group)
 
         @group = group
         @name = name
@@ -64,14 +64,22 @@ module CycloneDX
 
       private
 
-      def validate_attributes(name, version, type)
-        raise ArgumentError, 'Group, if specified, must be non empty' if !group.nil? && group.to_s.strip.empty?
-        raise ArgumentError, 'Name must be non empty' if name.nil? || name.to_s.strip.empty?
+      def validate_attributes(name, version, type, group)
+        raise ArgumentError, 'Group, if specified, must be non-empty' if exists_and_blank(group)
+        raise ArgumentError, 'Name must be non-empty' if missing(name)
 
-        Gem::Version.new(version) # To check that the version string is well formed
+        Gem::Version.new(version) # To check that the version string is well-formed
         unless VALID_COMPONENT_TYPES.include?(type)
           raise ArgumentError, "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
         end
+      end
+
+      def missing(name)
+        name.nil? || name.to_s.strip.empty?
+      end
+
+      def exists_and_blank(group)
+        !group.nil? && group.to_s.strip.empty?
       end
     end
   end
