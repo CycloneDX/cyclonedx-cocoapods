@@ -63,15 +63,7 @@ module CycloneDX
 
       def build_purl(name, group, version)
         if group.nil?
-          purls = name.split('/')
-          purl_name = CGI.escape(purls[0])
-          if purls.length > 1
-            subpath = "##{name.split('/').drop(1).map do |component|
-              CGI.escape(component)
-            end.join('/')}"
-          else
-            subpath = ''
-          end
+          purl_name, subpath = create_purl(name)
         else
           # this seems wrong as cocoapods does not use groups?
           purl_name = "#{CGI.escape(group)}/#{CGI.escape(name)}"
@@ -79,8 +71,6 @@ module CycloneDX
         end
         "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{subpath}"
       end
-
-      private
 
       def validate_attributes(name, version, type, group)
         raise ArgumentError, 'Group, if specified, must be non-empty' if exists_and_blank(group)
@@ -98,6 +88,19 @@ module CycloneDX
 
       def exists_and_blank(str)
         !str.nil? && str.to_s.strip.empty?
+      end
+
+      def create_purl(name)
+        purls = name.split('/')
+        purl_name = CGI.escape(purls[0])
+        subpath = if purls.length > 1
+                    "##{name.split('/').drop(1).map do |component|
+                      CGI.escape(component)
+                    end.join('/')}"
+                  else
+                    ''
+                  end
+        return purl_name, subpath
       end
     end
   end
