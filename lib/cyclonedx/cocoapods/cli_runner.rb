@@ -119,7 +119,7 @@ module CycloneDX
             parsed_options[:group] = group
           end
           options.on('-s', '--source source_url',
-                     'Optional: The version control system URL of the component for which the BOM is generated') do |vcs|
+                     'Optional: The version control system URL of the component for the BOM is generated') do |vcs|
             parsed_options[:vcs] = vcs
           end
           options.on('-b', '--build build_url',
