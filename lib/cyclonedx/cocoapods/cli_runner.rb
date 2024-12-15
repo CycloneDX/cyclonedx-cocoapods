@@ -126,6 +126,7 @@ module CycloneDX
           options.on('-b', '--build build_url',
                      'Optional: The build URL of the component for which the BOM is generated') do |build|
             parsed_options[:build] = build
+          end
 
           # Add this section after the "Component Metadata" options group
           options.separator("\n  Manufacturer Metadata\n")
