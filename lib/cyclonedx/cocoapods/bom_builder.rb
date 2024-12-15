@@ -167,6 +167,22 @@ module CycloneDX
           xml.group group unless group.nil?
           xml.name_ name
           xml.version version
+
+          if !build_system.nil? || !vcs.nil?
+            xml.externalReferences do
+              if build_system
+                xml.reference(type: 'build-system') do
+                  xml.url build_system
+                end
+              end
+
+              if vcs
+                xml.reference(type: 'vcs') do
+                  xml.url vcs
+                end
+              end
+            end
+          end
         end
       end
     end

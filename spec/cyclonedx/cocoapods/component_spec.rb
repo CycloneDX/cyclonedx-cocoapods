@@ -34,7 +34,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         expect do
           described_class.new(group: '    ', name: name, version: version,
                               type: type)
-        end.to raise_error(ArgumentError, 'Group, if specified, must be non empty')
+        end.to raise_error(ArgumentError, 'Group, if specified, must be non-empty')
       end
     end
 
@@ -42,7 +42,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should raise an error' do
         expect do
           described_class.new(name: nil, version: version, type: type)
-        end.to raise_error(ArgumentError, 'Name must be non empty')
+        end.to raise_error(ArgumentError, 'Name must be non-empty')
       end
     end
 
@@ -51,7 +51,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         expect do
           described_class.new(name: '   ', version: version,
                               type: type)
-        end.to raise_error(ArgumentError, 'Name must be non empty')
+        end.to raise_error(ArgumentError, 'Name must be non-empty')
       end
     end
 
