@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bom xmlns="http://cyclonedx.org/schema/bom/1.5" version="1" serialNumber="urn:uuid:fb0dad91-a67c-45f9-86d1-00cd0033c0de">
+<bom xmlns="http://cyclonedx.org/schema/bom/1.6" version="1" serialNumber="urn:uuid:fb0dad91-a67c-45f9-86d1-00cd0033c0de">
   <metadata>
     <timestamp>2024-10-15T03:43:07Z</timestamp>
     <tools>

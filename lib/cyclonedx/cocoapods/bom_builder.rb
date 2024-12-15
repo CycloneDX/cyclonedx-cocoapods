@@ -167,6 +167,22 @@ module CycloneDX
           xml.group group unless group.nil?
           xml.name_ name
           xml.version version
+
+          if !build_system.nil? || !vcs.nil?
+            xml.externalReferences do
+              if build_system
+                xml.reference(type: 'build-system') do
+                  xml.url build_system
+                end
+              end
+
+              if vcs
+                xml.reference(type: 'vcs') do
+                  xml.url vcs
+                end
+              end
+            end
+          end
         end
       end
     end
@@ -212,7 +228,7 @@ module CycloneDX
 
     # Turns the internal model data into an XML bom.
     class BOMBuilder
-      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.5'
+      NAMESPACE = 'http://cyclonedx.org/schema/bom/1.6'
 
       attr_reader :component, :pods, :manifest_path, :dependencies, :manufacturer
 
@@ -281,13 +297,14 @@ module CycloneDX
           manufacturer&.add_to_bom(xml)
         end
       end
-
       def bom_tools(xml)
         xml.tools do
-          xml.tool do
-            xml.vendor 'CycloneDX'
-            xml.name_ 'cyclonedx-cocoapods'
-            xml.version VERSION
+          xml.components do
+            xml.component(type: 'application') do
+              xml.group 'CycloneDX'
+              xml.name_ 'cyclonedx-cocoapods'
+              xml.version VERSION
+            end
           end
         end
       end

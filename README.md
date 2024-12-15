@@ -32,7 +32,7 @@ Building from source requires Ruby 2.4.0 or newer.
 
 ## Compatibility
 
-*cyclonedx-cocoapods* aims to produce SBOMs according to the latest CycloneDX specification, which currently is [1.5](https://cyclonedx.org/docs/1.5/xml/).
+*cyclonedx-cocoapods* aims to produce SBOMs according to the latest CycloneDX specification, which currently is [1.6](https://cyclonedx.org/docs/1.6/xml/).
 You can use the [CycloneDX CLI](https://github.com/CycloneDX/cyclonedx-cli#convert-command) to convert between multiple BOM formats or specification versions.
 
 ## Usage
@@ -59,6 +59,8 @@ OPTIONS
     -v, --version version            Version of the component for which the BOM is generated
     -t, --type type                  Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
     -g, --group group                Group of the component for which the BOM is generated
+    -s, --source source_url          The Version Control System URL of the component for which the BOM is generated
+    -b, --build build_url            The build URL of the component for which the BOM is generated
     
   Manufacturer Metadata
     --manufacturer-name name         Name of the manufacturer
