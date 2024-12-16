@@ -32,7 +32,7 @@ module CycloneDX
         attr_accessor :text, :url
 
         def initialize(identifier:)
-          raise ArgumentError, 'License identifier must be non empty' if identifier.nil? || identifier.to_s.strip.empty?
+          raise ArgumentError, 'License identifier must be non-empty' if identifier.nil? || identifier.to_s.strip.empty?
 
           @identifier = SPDX_LICENSES.find { |license_id| license_id.downcase == identifier.to_s.downcase }
           @identifier_type = @identifier.nil? ? :name : :id

@@ -187,17 +187,57 @@ module CycloneDX
       end
     end
 
+    # Represents manufacturer information in a CycloneDX BOM
+    # Handles generation of manufacturer XML elements including basic info and contact details
+    # Used when generating BOM metadata for CycloneDX specification
+    class Manufacturer
+      def add_to_bom(xml)
+        return if all_attributes_nil?
+
+        xml.manufacturer do
+          add_basic_info(xml)
+          add_contact_info(xml)
+        end
+      end
+
+      private
+
+      def all_attributes_nil?
+        [name, url, contact_name, email, phone].all?(&:nil?)
+      end
+
+      def add_basic_info(xml)
+        xml.name_ name unless name.nil?
+        xml.url url unless url.nil?
+      end
+
+      def add_contact_info(xml)
+        return if contact_info_nil?
+
+        xml.contact do
+          xml.name_ contact_name unless contact_name.nil?
+          xml.email email unless email.nil?
+          xml.phone phone unless phone.nil?
+        end
+      end
+
+      def contact_info_nil?
+        contact_name.nil? && email.nil? && phone.nil?
+      end
+    end
+
     # Turns the internal model data into an XML bom.
     class BOMBuilder
       NAMESPACE = 'http://cyclonedx.org/schema/bom/1.6'
 
-      attr_reader :component, :pods, :manifest_path, :dependencies
+      attr_reader :component, :pods, :manifest_path, :dependencies, :manufacturer
 
-      def initialize(pods:, manifest_path:, component: nil, dependencies: nil)
+      def initialize(pods:, manifest_path:, component: nil, dependencies: nil, manufacturer: nil)
         @pods = pods.sort_by(&:purl)
         @manifest_path = manifest_path
         @component = component
         @dependencies = dependencies&.sort
+        @manufacturer = manufacturer
       end
 
       def bom(version: 1, trim_strings_length: 0)
@@ -254,6 +294,7 @@ module CycloneDX
           xml.timestamp Time.now.getutc.strftime('%Y-%m-%dT%H:%M:%SZ')
           bom_tools(xml)
           component&.add_to_bom(xml)
+          manufacturer&.add_to_bom(xml)
         end
       end
       def bom_tools(xml)

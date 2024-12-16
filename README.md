@@ -61,6 +61,13 @@ OPTIONS
     -g, --group group                Group of the component for which the BOM is generated
     -s, --source source_url          The Version Control System URL of the component for which the BOM is generated
     -b, --build build_url            The build URL of the component for which the BOM is generated
+    
+  Manufacturer Metadata
+    --manufacturer-name name         Name of the manufacturer
+    --manufacturer-url url           URL of the manufacturer
+    --manufacturer-contact-name name Name of the manufacturer contact
+    --manufacturer-email email       Email of the manufacturer contact
+    --manufacturer-phone phone       Phone number of the manufacturer contact
 ```
 
 **Output:** BoM file at specified location, `./bom.xml` if not specified

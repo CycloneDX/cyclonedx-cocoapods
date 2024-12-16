@@ -44,7 +44,7 @@ module CycloneDX
       attr_reader :license
 
       def initialize(name:, version:, source: nil, checksum: nil)
-        raise ArgumentError, 'Name must be non empty' if name.nil? || name.to_s.empty?
+        raise ArgumentError, 'Name must be non-empty' if name.nil? || name.to_s.empty?
         raise ArgumentError, "Name shouldn't contain spaces" if name.to_s.include?(' ')
         raise ArgumentError, "Name shouldn't start with a dot" if name.to_s.start_with?('.')
 
