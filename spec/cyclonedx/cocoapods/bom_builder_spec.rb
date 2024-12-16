@@ -308,7 +308,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should generate a proper group element' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
-        expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:cocoapods/application-group/Application@1.3.5')
         expect(xml.at('/component/externalReferences/reference')['type']).to eq('vcs')
         expect(xml.at('/component/externalReferences/reference/url').text).to eq(component.vcs)
       end
@@ -328,7 +328,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should generate a proper group element' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
-        expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:cocoapods/application-group/Application@1.3.5')
         expect(xml.at('/component/externalReferences/reference')['type']).to eq('build-system')
         expect(xml.at('/component/externalReferences/reference/url').text).to eq(component.build_system)
       end
