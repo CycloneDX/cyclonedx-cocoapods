@@ -55,22 +55,25 @@ module CycloneDX
         @type = type
         @build_system = build_system
         @vcs = vcs
-        @bomref = build_purl(name, group, version)
+        @bomref = build_purl(type, name, group, version)
 
       end
 
       private
 
-      def build_purl(name, group, version)
+      def build_purl(type, name, group, version)
+        package_type = type == 'library' ? 'cocoapods' : 'generic'
         if group.nil?
-          purl_name, subpath = create_purl(name)
+          purl_name, subpath = parse_name(name)
         else
           # this seems wrong as cocoapods does not use groups?
           purl_name = "#{CGI.escape(group)}/#{CGI.escape(name)}"
           subpath = ''
         end
-        "pkg:cocoapods/#{purl_name}@#{CGI.escape(version.to_s)}#{subpath}"
+        "pkg:#{package_type}/#{purl_name}@#{CGI.escape(version.to_s)}#{subpath}"
       end
+
+      private
 
       def validate_attributes(name, version, type, group)
         raise ArgumentError, 'Group, if specified, must be non-empty' if exists_and_blank(group)
@@ -80,6 +83,19 @@ module CycloneDX
         return if VALID_COMPONENT_TYPES.include?(type)
 
         raise ArgumentError, "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
+      end
+
+      def parse_name(name)
+        purls = name.split('/')
+        purl_name = CGI.escape(purls[0])
+        subpath = if purls.length > 1
+                    "##{name.split('/').drop(1).map do |component|
+                      CGI.escape(component)
+                    end.join('/')}"
+                  else
+                    ''
+                  end
+        [purl_name, subpath]
       end
 
       def missing(str)
