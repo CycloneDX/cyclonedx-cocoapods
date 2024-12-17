@@ -127,7 +127,7 @@ module CycloneDX
           xml_add_author(xml, trim_strings_length)
           xml.name_ name
           xml.version version.to_s
-          xml.description { xml.cdata description } unless description.nil?
+          xml.description { xml.cdata description.dump[1..-2] } unless description.nil?
           unless checksum.nil?
             xml.hashes do
               xml.hash_(checksum, alg: CHECKSUM_ALGORITHM)
