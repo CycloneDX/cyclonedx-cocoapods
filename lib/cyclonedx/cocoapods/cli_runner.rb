@@ -27,6 +27,7 @@ require_relative 'bom_builder'
 require_relative 'component'
 require_relative 'manufacturer'
 require_relative 'podfile_analyzer'
+require_relative 'podspec_analyzer'
 
 module CycloneDX
   module CocoaPods
@@ -95,6 +96,8 @@ module CycloneDX
           end
 
           options.separator("\n  Component Metadata\n")
+          options.separator("  If a podspec file is present the name, version, and type do not " \
+                            "need to be specified as they will be set automatically.\n")
           options.on('-n', '--name name',
                      '(If specified version and type are also required) Name of the ' \
                      'component for which the BOM is generated') do |name|
@@ -161,12 +164,9 @@ module CycloneDX
       end
 
       def analyze(options)
-        analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
-        podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
-        pods, dependencies = analyzer.parse_pods(podfile, lockfile)
-        analyzer.populate_pods_with_additional_info(pods)
-
-        component = component_from_options(options)
+        analyzer, dependencies, lockfile, podfile, pods = analyze_podfile(options)
+        podspec = analyze_podspec(options)
+        component = component_from_options(options, podspec)
         manufacturer = manufacturer_from_options(options)
 
         unless component.nil?
@@ -184,6 +184,21 @@ module CycloneDX
         [component, manufacturer, pods, manifest_path, dependencies]
       end
 
+      def analyze_podspec(options)
+        specAnalyzer = PodspecAnalyzer.new(logger: @logger)
+        podspec = specAnalyzer.ensure_podspec_is_present(options)
+        spec = specAnalyzer.parse_podspec(podspec) unless podspec.nil?
+        spec
+      end
+
+      def analyze_podfile(options)
+        analyzer = PodfileAnalyzer.new(logger: @logger, exclude_test_targets: options[:exclude_test_targets])
+        podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
+        pods, dependencies = analyzer.parse_pods(podfile, lockfile)
+        analyzer.populate_pods_with_additional_info(pods)
+        return analyzer, dependencies, lockfile, podfile, pods
+      end
+
       def build_and_write_bom(options, component, manufacturer, pods, manifest_path, dependencies)
         builder = BOMBuilder.new(pods: pods, manifest_path: manifest_path,
                                  component: component, manufacturer: manufacturer, dependencies: dependencies)
@@ -192,8 +207,12 @@ module CycloneDX
         write_bom_to_file(bom: bom, options: options)
       end
 
-      def component_from_options(options)
-        return unless options[:name]
+      def component_from_options(options, podspec)
+        return unless options[:name] || !podspec.nil?
+
+        ensure_options_match(options, podspec)
+        options[:name] ||= podspec&.name
+        options[:version] ||= podspec&.version&.to_s
 
         Component.new(group: options[:group], name: options[:name], version: options[:version],
                       type: options[:type], build_system: options[:build], vcs: options[:vcs])
@@ -207,6 +226,28 @@ module CycloneDX
           email: options[:manufacturer_email],
           phone: options[:manufacturer_phone]
         )
+      end
+      def ensure_options_match(options, podspec)
+        if !podspec.nil? && options[:name] && options[:name] != podspec.name
+          raise OptionParser::InvalidArgument,
+                "Component name '#{options[:name]}' does not match podspec name '#{podspec.name}'"
+        end
+        if !podspec.nil? && options[:version] && options[:version] != podspec.version.to_s
+          raise OptionParser::InvalidArgument,
+                "Component version '#{options[:version]}' does not match podspec version '#{podspec.version}'"
+        end
+        if !podspec.nil?
+          if options[:type] && options[:type] != 'library'
+            raise OptionParser::InvalidArgument,
+                  "Component type must be 'library' when using a podspec"
+          else
+            options[:type] = 'library'
+          end
+        end
+        if !podspec.nil? && options[:group]
+          raise OptionParser::InvalidArgument,
+                "Component group must not be specified when using a podspec"
+        end
       end
 
       def setup_logger(verbose: true)

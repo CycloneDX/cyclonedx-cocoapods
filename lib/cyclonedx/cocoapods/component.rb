@@ -66,7 +66,6 @@ module CycloneDX
         if group.nil?
           purl_name, subpath = parse_name(name)
         else
-          # this seems wrong as cocoapods does not use groups?
           purl_name = "#{CGI.escape(group)}/#{CGI.escape(name)}"
           subpath = ''
         end
