@@ -253,14 +253,15 @@ module CycloneDX
         raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec" unless
           !podspec.nil? && options[:type] && options[:type] == 'library'
 
-        return unless !podspec.nil?
+        return if podspec.nil?
 
         options[:type] = 'library'
       end
 
       def validate_group_option(options, podspec)
+        return if podspec.nil?
         raise OptionParser::InvalidArgument, 'Component group must not be specified when using a podspec' unless
-          !podspec.nil? && options[:group].nil?
+          options[:group].nil?
       end
 
       def setup_logger(verbose: true)
