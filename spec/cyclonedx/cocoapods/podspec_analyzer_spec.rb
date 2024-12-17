@@ -43,7 +43,7 @@ RSpec.describe CycloneDX::CocoaPods::PodspecAnalyzer do
       expect do
         analyzer.ensure_podspec_is_present(options)
       end.to raise_error(CycloneDX::CocoaPods::PodspecParsingError,
-                        'bad_path_that_does_not_exist is not a valid directory.')
+                         'bad_path_that_does_not_exist is not a valid directory.')
     end
 
     it 'with EmptyPodfile fixture should return nil when no podspec exists' do

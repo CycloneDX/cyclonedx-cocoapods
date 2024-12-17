@@ -96,7 +96,7 @@ module CycloneDX
           end
 
           options.separator("\n  Component Metadata\n")
-          options.separator("  If a podspec file is present the name, version, and type do not " \
+          options.separator('  If a podspec file is present the name, version, and type do not ' \
                             "need to be specified as they will be set automatically.\n")
           options.on('-n', '--name name',
                      '(If specified version and type are also required) Name of the ' \
@@ -185,9 +185,9 @@ module CycloneDX
       end
 
       def analyze_podspec(options)
-        specAnalyzer = PodspecAnalyzer.new(logger: @logger)
-        podspec = specAnalyzer.ensure_podspec_is_present(options)
-        spec = specAnalyzer.parse_podspec(podspec) unless podspec.nil?
+        spec_analyzer = PodspecAnalyzer.new(logger: @logger)
+        podspec = spec_analyzer.ensure_podspec_is_present(options)
+        spec = spec_analyzer.parse_podspec(podspec) unless podspec.nil?
         spec
       end
 
@@ -196,7 +196,7 @@ module CycloneDX
         podfile, lockfile = analyzer.ensure_podfile_and_lock_are_present(options)
         pods, dependencies = analyzer.parse_pods(podfile, lockfile)
         analyzer.populate_pods_with_additional_info(pods)
-        return analyzer, dependencies, lockfile, podfile, pods
+        [analyzer, dependencies, lockfile, podfile, pods]
       end
 
       def build_and_write_bom(options, component, manufacturer, pods, manifest_path, dependencies)
@@ -211,8 +211,6 @@ module CycloneDX
         return unless options[:name] || !podspec.nil?
 
         ensure_options_match(options, podspec)
-        options[:name] ||= podspec&.name
-        options[:version] ||= podspec&.version&.to_s
 
         Component.new(group: options[:group], name: options[:name], version: options[:version],
                       type: options[:type], build_system: options[:build], vcs: options[:vcs])
@@ -227,7 +225,14 @@ module CycloneDX
           phone: options[:manufacturer_phone]
         )
       end
+
       def ensure_options_match(options, podspec)
+        validate_options_match(options, podspec)
+        validate_group_option(options, podspec)
+        validate_type_option(options, podspec)
+      end
+
+      def validate_options_match(options, podspec)
         if !podspec.nil? && options[:name] && options[:name] != podspec.name
           raise OptionParser::InvalidArgument,
                 "Component name '#{options[:name]}' does not match podspec name '#{podspec.name}'"
@@ -236,17 +241,21 @@ module CycloneDX
           raise OptionParser::InvalidArgument,
                 "Component version '#{options[:version]}' does not match podspec version '#{podspec.version}'"
         end
-        if !podspec.nil?
-          if options[:type] && options[:type] != 'library'
-            raise OptionParser::InvalidArgument,
-                  "Component type must be 'library' when using a podspec"
-          else
-            options[:type] = 'library'
-          end
-        end
+        options[:name] ||= podspec&.name
+        options[:version] ||= podspec&.version&.to_s
+      end
+
+      def validate_type_option(options, podspec)
+        if options[:type] && options[:type] != 'library'
+          raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec"
+        else
+          options[:type] = 'library'
+        end unless !podspec.nil?
+      end
+
+      def validate_group_option(options, podspec)
         if !podspec.nil? && options[:group]
-          raise OptionParser::InvalidArgument,
-                "Component group must not be specified when using a podspec"
+          raise OptionParser::InvalidArgument, 'Component group must not be specified when using a podspec'
         end
       end
 

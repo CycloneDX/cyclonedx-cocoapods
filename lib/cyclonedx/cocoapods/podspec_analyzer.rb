@@ -31,6 +31,18 @@ module CycloneDX
   module CocoaPods
     class PodspecParsingError < StandardError; end
 
+    # Analyzes CocoaPods podspec files to extract component information for CycloneDX BOM generation
+    #
+    # The PodspecAnalyzer is responsible for:
+    # - Validating and loading podspec files from a given path
+    # - Parsing podspec contents to extract pod metadata
+    # - Converting podspec source information into standardized Source objects
+    #
+    # @example
+    #   analyzer = PodspecAnalyzer.new(logger: Logger.new(STDOUT))
+    #   podspec = analyzer.ensure_podspec_is_present(path: '/path/to/project')
+    #   pod = analyzer.parse_podspec(podspec)
+    #
     class PodspecAnalyzer
       def initialize(logger:)
         @logger = logger
@@ -49,13 +61,12 @@ module CycloneDX
 
         @logger.debug "Parsing podspec from #{podspec.defined_in_file}"
 
-        pod = Pod.new(
+        Pod.new(
           name: podspec.name,
           version: podspec.version.to_s,
           source: source_from_podspec(podspec),
           checksum: nil
         )
-        pod
       end
 
       private
@@ -79,8 +90,6 @@ module CycloneDX
             type: determine_git_ref_type(podspec.source),
             label: determine_git_ref_label(podspec.source)
           )
-        else
-          nil
         end
       end
 
@@ -88,6 +97,7 @@ module CycloneDX
         return :tag if source[:tag]
         return :commit if source[:commit]
         return :branch if source[:branch]
+
         nil
       end
 
