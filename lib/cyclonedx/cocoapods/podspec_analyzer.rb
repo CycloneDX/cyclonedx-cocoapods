@@ -84,13 +84,13 @@ module CycloneDX
       end
 
       def source_from_podspec(podspec)
-        if podspec.source[:git]
-          Source::GitRepository.new(
-            url: podspec.source[:git],
-            type: determine_git_ref_type(podspec.source),
-            label: determine_git_ref_label(podspec.source)
-          )
-        end
+        return unless podspec.source[:git]
+
+        Source::GitRepository.new(
+          url: podspec.source[:git],
+          type: determine_git_ref_type(podspec.source),
+          label: determine_git_ref_label(podspec.source)
+        )
       end
 
       def determine_git_ref_type(source)

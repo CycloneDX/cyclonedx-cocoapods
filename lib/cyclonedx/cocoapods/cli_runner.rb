@@ -233,30 +233,25 @@ module CycloneDX
       end
 
       def validate_options_match(options, podspec)
-        if !podspec.nil? && options[:name] && options[:name] != podspec.name
-          raise OptionParser::InvalidArgument,
-                "Component name '#{options[:name]}' does not match podspec name '#{podspec.name}'"
-        end
-        if !podspec.nil? && options[:version] && options[:version] != podspec.version.to_s
-          raise OptionParser::InvalidArgument,
-                "Component version '#{options[:version]}' does not match podspec version '#{podspec.version}'"
-        end
+        raise OptionParser::InvalidArgument,
+              "Component name '#{options[:name]}' does not match podspec name '#{podspec.name}'" unless
+          !podspec.nil? && options[:name] && options[:name] != podspec.name
+        raise OptionParser::InvalidArgument,
+              "Component version '#{options[:version]}' does not match podspec version '#{podspec.version}'" unless
+          !podspec.nil? && options[:version] && options[:version] != podspec.version.to_s
         options[:name] ||= podspec&.name
         options[:version] ||= podspec&.version&.to_s
       end
 
       def validate_type_option(options, podspec)
-        if options[:type] && options[:type] != 'library'
-          raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec"
-        else
-          options[:type] = 'library'
-        end unless !podspec.nil?
+        raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec" unless
+          !podspec.nil? && options[:type] && options[:type] != 'library'
+        options[:type] = 'library' unless !podspec.nil?
       end
 
       def validate_group_option(options, podspec)
-        if !podspec.nil? && options[:group]
-          raise OptionParser::InvalidArgument, 'Component group must not be specified when using a podspec'
-        end
+        raise OptionParser::InvalidArgument, 'Component group must not be specified when using a podspec' unless
+          !podspec.nil? && options[:group]
       end
 
       def setup_logger(verbose: true)
