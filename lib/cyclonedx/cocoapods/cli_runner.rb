@@ -234,7 +234,7 @@ module CycloneDX
       end
 
       def validate_name_option(options, podspec)
-        unless !podspec.nil? && options[:name] && options[:name] != podspec.name
+        unless !podspec.nil? && options[:name] && options[:name] == podspec.name
           raise OptionParser::InvalidArgument,
                 "Component name '#{options[:name]}' does not match podspec name '#{podspec.name}'"
         end
@@ -242,7 +242,7 @@ module CycloneDX
       end
 
       def validate_version_option(options, podspec)
-        unless !podspec.nil? && options[:version] && options[:version] != podspec.version.to_s
+        unless !podspec.nil? && options[:version] && options[:version] == podspec.version.to_s
           raise OptionParser::InvalidArgument,
                 "Component version '#{options[:version]}' does not match podspec version '#{podspec.version}'"
         end
@@ -251,7 +251,7 @@ module CycloneDX
 
       def validate_type_option(options, podspec)
         raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec" unless
-          !podspec.nil? && options[:type] && options[:type] != 'library'
+          !podspec.nil? && options[:type] && options[:type] == 'library'
 
         if !podspec.nil?
           options[:type] = 'library'
@@ -260,7 +260,7 @@ module CycloneDX
 
       def validate_group_option(options, podspec)
         raise OptionParser::InvalidArgument, 'Component group must not be specified when using a podspec' unless
-          !podspec.nil? && options[:group]
+          !podspec.nil? && options[:group].nil?
       end
 
       def setup_logger(verbose: true)
