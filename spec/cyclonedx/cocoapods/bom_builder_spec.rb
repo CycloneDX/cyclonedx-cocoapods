@@ -291,6 +291,21 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       end
     end
 
+    context 'without type cocoapods - a special case' do
+      let(:component) { described_class.new(name: 'SampleProject', version: '1.0.0', type: 'cocoapods') }
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
+      end
+
+      it_behaves_like 'component'
+
+      it 'should not generate any group element' do
+        expect(xml.at('/component/group')).to be_nil
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:cocoapods/SampleProject@1.0.0')
+        expect(xml.at('/component/purl').text).to eq('pkg:cocoapods/SampleProject@1.0.0')
+      end
+    end
+
     context 'with a group and type Application' do
       let(:component) do
         described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application')
