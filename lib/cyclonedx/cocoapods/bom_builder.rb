@@ -153,14 +153,14 @@ module CycloneDX
         {
           type: "library",
           "bom-ref": purl,
-          author: trim_strings_length.zero? ? author : author&.slice(0, trim_strings_length),
-          publisher: trim_strings_length.zero? ? author : author&.slice(0, trim_strings_length),
+          author: trim(author, trim_strings_length),
+          publisher: trim(author, trim_strings_length),
           name: name,
           version: version.to_s,
           description: description,
           hashes: checksum ? [{ alg: CHECKSUM_ALGORITHM, content: checksum }] : nil,
           licenses: license ? [license.to_json_component] : nil,
-          purl: trim_strings_length.zero? ? purl : purl.slice(0, trim_strings_length),
+          purl: purl,
           externalReferences: generate_json_external_references,
           evidence: generate_json_evidence(manifest_path)
         }.compact
@@ -208,6 +208,12 @@ module CycloneDX
             xml.url url unless url.nil?
           end
         end
+      end
+
+      private
+
+      def trim(str, trim_strings_length)
+        trim_strings_length.zero? ? str : str&.slice(0, trim_strings_length)
       end
     end
 
@@ -349,6 +355,7 @@ module CycloneDX
 
         unchecked_bom(version: version, trim_strings_length: trim_strings_length, format: format)
       end
+
       private
 
       # does not verify parameters because the public method does that.
@@ -373,8 +380,8 @@ module CycloneDX
 
       def generate_json(version:, trim_strings_length:)
         {
-          "$schema": "https://cyclonedx.org/schema/bom-1.6.schema.json",
-          bomFormat: "CycloneDX",
+          '$schema': 'https://cyclonedx.org/schema/bom-1.6.schema.json',
+          bomFormat: 'CycloneDX',
           specVersion: version.to_s,
           serialNumber: "urn:uuid:#{SecureRandom.uuid}",
           version: 1,
@@ -384,16 +391,14 @@ module CycloneDX
         }.to_json
       end
 
-      private
-
       def generate_json_metadata
         {
           timestamp: Time.now.getutc.strftime('%Y-%m-%dT%H:%M:%SZ'),
           tools: {
             components: [{
-              type: "application",
-              group: "CycloneDX",
-              name: "cyclonedx-cocoapods",
+              type: 'application',
+              group: 'CycloneDX',
+              name: 'cyclonedx-cocoapods',
               version: VERSION
             }]
           },
