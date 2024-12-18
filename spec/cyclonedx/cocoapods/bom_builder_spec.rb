@@ -261,7 +261,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       end
     end
 
-    context 'without a group' do
+    context 'without a group and type application' do
       let(:component) { described_class.new(name: 'Application', version: '1.3.5', type: 'application') }
       let(:xml) do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
@@ -271,11 +271,42 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
       it 'should not generate any group element' do
         expect(xml.at('/component/group')).to be_nil
-        expect(xml.at('/component')['bom-ref']).to eq('Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/Application@1.3.5')
+        expect(xml.at('/component/purl').text).to eq('pkg:generic/Application@1.3.5')
       end
     end
 
-    context 'with a group' do
+    context 'without a group and type library' do
+      let(:component) { described_class.new(name: 'Application', version: '1.3.5', type: 'library') }
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
+      end
+
+      it_behaves_like 'component'
+
+      it 'should not generate any group element' do
+        expect(xml.at('/component/group')).to be_nil
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/Application@1.3.5')
+        expect(xml.at('/component/purl').text).to eq('pkg:generic/Application@1.3.5')
+      end
+    end
+
+    context 'without type cocoapods - a special case' do
+      let(:component) { described_class.new(name: 'SampleProject', version: '1.0.0', type: 'cocoapods') }
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
+      end
+
+      it_behaves_like 'component'
+
+      it 'should not generate any group element' do
+        expect(xml.at('/component/group')).to be_nil
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:cocoapods/SampleProject@1.0.0')
+        expect(xml.at('/component/purl').text).to eq('pkg:cocoapods/SampleProject@1.0.0')
+      end
+    end
+
+    context 'with a group and type Application' do
       let(:component) do
         described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'application')
       end
@@ -288,7 +319,27 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should generate a proper group element' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
-        expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/application-group/Application@1.3.5')
+        expect(xml.at('/component/purl').text).to eq('pkg:generic/application-group/Application@1.3.5')
+      end
+    end
+
+    ## this test is just for completeness, the group is not used for libraries
+    context 'with a group and type library' do
+      let(:component) do
+        described_class.new(group: 'application-group', name: 'Application', version: '1.3.5', type: 'library')
+      end
+      let(:xml) do
+        Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
+      end
+
+      it_behaves_like 'component'
+
+      it 'should generate a proper group element' do
+        expect(xml.at('/component/group')).not_to be_nil
+        expect(xml.at('/component/group').text).to eq(component.group)
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/application-group/Application@1.3.5')
+        expect(xml.at('/component/purl').text).to eq('pkg:generic/application-group/Application@1.3.5')
       end
     end
 
@@ -303,10 +354,10 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
       it_behaves_like 'component'
 
-      it 'should generate a proper group element' do
+      it 'should generate a proper external references for vcs' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
-        expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/application-group/Application@1.3.5')
         expect(xml.at('/component/externalReferences/reference')['type']).to eq('vcs')
         expect(xml.at('/component/externalReferences/reference/url').text).to eq(component.vcs)
       end
@@ -323,10 +374,10 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
       it_behaves_like 'component'
 
-      it 'should generate a proper group element' do
+      it 'should generate a proper external reference element for build-systems' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
-        expect(xml.at('/component')['bom-ref']).to eq('application-group/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/application-group/Application@1.3.5')
         expect(xml.at('/component/externalReferences/reference')['type']).to eq('build-system')
         expect(xml.at('/component/externalReferences/reference/url').text).to eq(component.build_system)
       end

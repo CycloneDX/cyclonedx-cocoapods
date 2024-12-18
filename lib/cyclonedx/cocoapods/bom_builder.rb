@@ -183,6 +183,7 @@ module CycloneDX
               end
             end
           end
+          xml.purl bomref
         end
       end
     end
