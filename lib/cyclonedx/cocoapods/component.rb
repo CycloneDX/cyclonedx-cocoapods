@@ -48,7 +48,7 @@ module CycloneDX
 
       def initialize(name:, version:, type:, group: nil, build_system: nil, vcs: nil)
         # cocoapods is a special case to correctly build a purl
-        package_type = (type == 'cocoapods') ? 'cocoapods' : 'generic'
+        package_type = type == 'cocoapods' ? 'cocoapods' : 'generic'
         @type = type == 'cocoapods' ? 'library' : type
 
         validate_attributes(name, version, @type, group)
