@@ -38,6 +38,7 @@ module CycloneDX
       def run
         setup_logger # Needed in case we have errors while processing CLI parameters
         options = parse_options
+        determine_output_format(options)
         setup_logger(verbose: options[:verbose])
         @logger.debug "Running cyclonedx-cocoapods with options: #{options}"
 
@@ -78,7 +79,8 @@ module CycloneDX
             parsed_options[:path] = path
           end
           options.on('-o', '--output bom_file_path',
-                     'Path to output the bom.xml file to (default: "bom.xml")') do |bom_file_path|
+                     'Path to output the bom file to (default: "bom.xml"); ' \
+                     'if a *.json file is specified the output format will be json') do |bom_file_path|
             parsed_options[:bom_file_path] = bom_file_path
           end
           options.on('-b', '--bom-version bom_version', Integer,
@@ -163,6 +165,10 @@ module CycloneDX
         parsed_options
       end
 
+      def determine_output_format(options)
+        options[:format] = options[:bom_file_path]&.end_with?('.json') ? :json : :xml
+      end
+
       def analyze(options)
         analyzer, dependencies, lockfile, podfile, pods = analyze_podfile(options)
         podspec = analyze_podspec(options)
@@ -203,7 +209,8 @@ module CycloneDX
         builder = BOMBuilder.new(pods: pods, manifest_path: manifest_path,
                                  component: component, manufacturer: manufacturer, dependencies: dependencies)
         bom = builder.bom(version: options[:bom_version] || 1,
-                          trim_strings_length: options[:trim_strings_length] || 0)
+                          trim_strings_length: options[:trim_strings_length] || 0,
+                          format: options[:format])
         write_bom_to_file(bom: bom, options: options)
       end
 
