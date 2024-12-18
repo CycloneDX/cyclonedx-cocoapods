@@ -346,27 +346,31 @@ module CycloneDX
       end
 
       def bom(version: 1, trim_strings_length: 0, format: :xml)
-        validate_bom_args(version, trim_strings_length, format)
+        validate_version(version)
+        validate_trim_length(trim_strings_length)
+        validate_format(format)
+
         unchecked_bom(version: version, trim_strings_length: trim_strings_length, format: format)
       end
 
       private
 
-      def validate_bom_args(version, trim_strings_length, format)
-        unless version.to_i.positive?
-          raise ArgumentError,
-                "Incorrect version: #{version} should be an integer greater than 0"
-        end
+      def validate_version(version)
+        return if version.to_i.positive?
 
-        unless trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
-          raise ArgumentError,
-                "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
-        end
+        raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0"
+      end
 
-        unless %i[xml json].include?(format)
-          raise ArgumentError,
-                "Incorrect format: #{format} should be either :xml or :json"
-        end
+      def validate_trim_length(trim_strings_length)
+        return if trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
+
+        raise ArgumentError, "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
+      end
+
+      def validate_format(format)
+        return if %i[xml json].include?(format)
+
+        raise ArgumentError, "Incorrect format: #{format} should be either :xml or :json"
       end
 
       # does not verify parameters because the public method does that.
