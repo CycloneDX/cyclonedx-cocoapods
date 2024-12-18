@@ -47,22 +47,23 @@ module CycloneDX
       attr_reader :group, :name, :version, :type, :bomref, :build_system, :vcs
 
       def initialize(name:, version:, type:, group: nil, build_system: nil, vcs: nil)
-        validate_attributes(name, version, type, group)
+        # cocoapods is a special case to correctly build a purl
+        package_type = (type == 'cocoapods') ? 'cocoapods' : 'generic'
+        @type = type == 'cocoapods' ? 'library' : type
+
+        validate_attributes(name, version, @type, group)
 
         @group = group
         @name = name
         @version = version
-        @type = type
         @build_system = build_system
         @vcs = vcs
-        @bomref = build_purl(type, name, group, version)
-
+        @bomref = build_purl(package_type, name, group, version)
       end
 
       private
 
-      def build_purl(type, name, group, version)
-        package_type = type == 'library' ? 'cocoapods' : 'generic'
+      def build_purl(package_type, name, group, version)
         if group.nil?
           purl_name, subpath = parse_name(name)
         else

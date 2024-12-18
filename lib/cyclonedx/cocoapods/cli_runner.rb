@@ -255,7 +255,7 @@ module CycloneDX
 
         return if podspec.nil?
 
-        options[:type] = 'library'
+        options[:type] = 'cocoapods'
       end
 
       def validate_group_option(options, podspec)

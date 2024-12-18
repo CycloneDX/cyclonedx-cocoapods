@@ -286,8 +286,8 @@ RSpec.describe CycloneDX::CocoaPods::Component do
 
       it 'should not generate any group element' do
         expect(xml.at('/component/group')).to be_nil
-        expect(xml.at('/component')['bom-ref']).to eq('pkg:cocoapods/Application@1.3.5')
-        expect(xml.at('/component/purl').text).to eq('pkg:cocoapods/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/Application@1.3.5')
+        expect(xml.at('/component/purl').text).to eq('pkg:generic/Application@1.3.5')
       end
     end
 
@@ -323,8 +323,8 @@ RSpec.describe CycloneDX::CocoaPods::Component do
       it 'should generate a proper group element' do
         expect(xml.at('/component/group')).not_to be_nil
         expect(xml.at('/component/group').text).to eq(component.group)
-        expect(xml.at('/component')['bom-ref']).to eq('pkg:cocoapods/application-group/Application@1.3.5')
-        expect(xml.at('/component/purl').text).to eq('pkg:cocoapods/application-group/Application@1.3.5')
+        expect(xml.at('/component')['bom-ref']).to eq('pkg:generic/application-group/Application@1.3.5')
+        expect(xml.at('/component/purl').text).to eq('pkg:generic/application-group/Application@1.3.5')
       end
     end
 
