@@ -151,15 +151,15 @@ module CycloneDX
 
       def to_json_component(manifest_path, trim_strings_length = 0)
         {
-          type: "library",
-          "bom-ref": purl,
+          type: 'library',
+          'bom-ref': purl,
           author: trim(author, trim_strings_length),
           publisher: trim(author, trim_strings_length),
           name: name,
           version: version.to_s,
           description: description,
-          hashes: checksum ? [{ alg: CHECKSUM_ALGORITHM, content: checksum }] : nil,
-          licenses: license ? [license.to_json_component] : nil,
+          hashes: generate_json_hashes,
+          licenses: generate_json_licenses,
           purl: purl,
           externalReferences: generate_json_external_references,
           evidence: generate_json_evidence(manifest_path)
@@ -211,6 +211,14 @@ module CycloneDX
       end
 
       private
+
+      def generate_json_licenses
+        license ? [license.to_json_component] : nil
+      end
+
+      def generate_json_hashes
+        checksum ? [{ alg: CHECKSUM_ALGORITHM, content: checksum }] : nil
+      end
 
       def trim(str, trim_strings_length)
         trim_strings_length.zero? ? str : str&.slice(0, trim_strings_length)
@@ -338,6 +346,13 @@ module CycloneDX
       end
 
       def bom(version: 1, trim_strings_length: 0, format: :xml)
+        validate_bom_args(version, trim_strings_length, format)
+        unchecked_bom(version: version, trim_strings_length: trim_strings_length, format: format)
+      end
+
+      private
+
+      def validate_bom_args(version, trim_strings_length, format)
         unless version.to_i.positive?
           raise ArgumentError,
                 "Incorrect version: #{version} should be an integer greater than 0"
@@ -348,15 +363,11 @@ module CycloneDX
                 "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
         end
 
-        unless [:xml, :json].include?(format)
+        unless %i[xml json].include?(format)
           raise ArgumentError,
                 "Incorrect format: #{format} should be either :xml or :json"
         end
-
-        unchecked_bom(version: version, trim_strings_length: trim_strings_length, format: format)
       end
-
-      private
 
       # does not verify parameters because the public method does that.
       def unchecked_bom(version:, trim_strings_length:, format:)
