@@ -127,6 +127,7 @@ module CycloneDX
           xml_add_author(xml, trim_strings_length)
           xml.name_ name
           xml.version version.to_s
+          # Use `dump` to escape non-printing characters, then remove the starting and trailing double-quotes from `dump`.
           xml.description { xml.cdata description.dump[1..-2] } unless description.nil?
           unless checksum.nil?
             xml.hashes do

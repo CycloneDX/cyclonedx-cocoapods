@@ -123,6 +123,17 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
     end
 
+    context 'when having a null byte description' do
+      let(:pod) do
+        described_class.new(name: pod_name, version: pod_version, checksum: checksum).populate(summary: "'\0'")
+      end
+
+      it 'should generate a correct component description' do
+        expect(xml.at('/component/description')).not_to be_nil
+        expect(xml.at('/component/description').text).to eql("'\\x00'")
+      end
+    end
+
     context 'when not having a checksum' do
       let(:pod) { described_class.new(name: pod_name, version: pod_version) }
 
