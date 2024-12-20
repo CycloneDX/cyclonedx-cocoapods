@@ -55,6 +55,8 @@ OPTIONS
     -s, --shortened-strings length   Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems
 
   Component Metadata
+  If a podspec file is present the name, version, and type do not need to be specified as they will be set automatically.
+
     -n, --name name                  (If specified version and type are also required) Name of the component for which the BOM is generated
     -v, --version version            Version of the component for which the BOM is generated
     -t, --type type                  Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)

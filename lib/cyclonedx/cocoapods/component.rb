@@ -47,19 +47,30 @@ module CycloneDX
       attr_reader :group, :name, :version, :type, :bomref, :build_system, :vcs
 
       def initialize(name:, version:, type:, group: nil, build_system: nil, vcs: nil)
-        validate_attributes(name, version, type, group)
+        # cocoapods is a special case to correctly build a purl
+        package_type = type == 'cocoapods' ? 'cocoapods' : 'generic'
+        @type = type == 'cocoapods' ? 'library' : type
+
+        validate_attributes(name, version, @type, group)
 
         @group = group
         @name = name
         @version = version
-        @type = type
         @build_system = build_system
         @vcs = vcs
-        @bomref = "#{name}@#{version}"
+        @bomref = build_purl(package_type, name, group, version)
+      end
 
-        return if group.nil?
+      private
 
-        @bomref = "#{group}/#{@bomref}"
+      def build_purl(package_type, name, group, version)
+        if group.nil?
+          purl_name, subpath = parse_name(name)
+        else
+          purl_name = "#{CGI.escape(group)}/#{CGI.escape(name)}"
+          subpath = ''
+        end
+        "pkg:#{package_type}/#{purl_name}@#{CGI.escape(version.to_s)}#{subpath}"
       end
 
       private
@@ -72,6 +83,19 @@ module CycloneDX
         return if VALID_COMPONENT_TYPES.include?(type)
 
         raise ArgumentError, "#{type} is not valid component type (#{VALID_COMPONENT_TYPES.join('|')})"
+      end
+
+      def parse_name(name)
+        purls = name.split('/')
+        purl_name = CGI.escape(purls[0])
+        subpath = if purls.length > 1
+                    "##{name.split('/').drop(1).map do |component|
+                      CGI.escape(component)
+                    end.join('/')}"
+                  else
+                    ''
+                  end
+        [purl_name, subpath]
       end
 
       def missing(str)
