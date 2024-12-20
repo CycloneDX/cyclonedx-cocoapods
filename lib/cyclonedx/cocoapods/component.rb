@@ -105,19 +105,6 @@ module CycloneDX
       def exists_and_blank(str)
         !str.nil? && str.to_s.strip.empty?
       end
-
-      def create_purl(name)
-        purls = name.split('/')
-        purl_name = CGI.escape(purls[0])
-        subpath = if purls.length > 1
-                    "##{name.split('/').drop(1).map do |component|
-                      CGI.escape(component)
-                    end.join('/')}"
-                  else
-                    ''
-                  end
-        [purl_name, subpath]
-      end
     end
   end
 end
