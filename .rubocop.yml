@@ -43,6 +43,7 @@ Metrics/MethodLength:
     - 'generate_json_metadata'
     - 'generate_json_evidence'
     - 'to_json_component'
+    - 'to_json_manufacturer'
 Metrics/AbcSize:
   AllowedMethods: ['parse_options', 'add_to_bom', 'source_for_pod']
 

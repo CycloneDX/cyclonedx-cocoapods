@@ -258,6 +258,7 @@ module CycloneDX
           group: group,
           name: name,
           version: version,
+          purl: bomref,
           externalReferences: generate_json_external_references
         }.compact
       end
@@ -285,13 +286,13 @@ module CycloneDX
         end
       end
 
-      def to_json_component
+      def to_json_manufacturer
         return nil if all_attributes_nil?
 
         {
           name: name,
           url: url,
-          contact: [generate_json_contact].compact
+          contact: generate_json_contact
         }.compact
       end
 
@@ -300,11 +301,13 @@ module CycloneDX
       def generate_json_contact
         return nil if contact_info_nil?
 
-        {
-          name: contact_name,
-          email: email,
-          phone: phone
-        }.compact
+        [
+          {
+            name: contact_name,
+            email: email,
+            phone: phone
+          }.compact
+        ]
       end
 
       def all_attributes_nil?
@@ -397,9 +400,9 @@ module CycloneDX
         {
           '$schema': 'https://cyclonedx.org/schema/bom-1.6.schema.json',
           bomFormat: 'CycloneDX',
-          specVersion: version.to_s,
+          specVersion: '1.6',
           serialNumber: "urn:uuid:#{SecureRandom.uuid}",
-          version: 1,
+          version: version.to_s,
           metadata: generate_json_metadata,
           components: generate_json_components(trim_strings_length),
           dependencies: generate_json_dependencies
@@ -418,7 +421,7 @@ module CycloneDX
             }]
           },
           component: component&.to_json_component,
-          manufacturer: manufacturer&.to_json_component
+          manufacturer: manufacturer&.to_json_manufacturer
         }.compact
       end
 
