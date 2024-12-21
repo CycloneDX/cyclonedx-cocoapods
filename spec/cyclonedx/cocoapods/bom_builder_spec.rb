@@ -1371,12 +1371,12 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
 
     context 'when asked to shorten strings' do
-      let(:short_json) {
+      let(:short_json) do
         JSON.parse(
-          bom_builder.generate_json(version: version, trim_strings_length: 6),
+          bom_builder.bom(version: version, format: :json, trim_strings_length: 6),
           symbolize_names: true
         )
-      }
+      end
 
       it 'should properly trim the author, publisher, and purl' do
         expect(short_json[:components].first).to include(
