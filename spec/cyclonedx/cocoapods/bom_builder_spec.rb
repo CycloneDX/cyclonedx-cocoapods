@@ -678,7 +678,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        component.to_json_component()
+        component.to_json_component
       end
 
       it_behaves_like 'component'
@@ -707,7 +707,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        component.to_json_component()
+        component.to_json_component
       end
 
       it_behaves_like 'component'
@@ -735,7 +735,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        component.to_json_component()
+        component.to_json_component
       end
 
       it_behaves_like 'component'
@@ -765,7 +765,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        component.to_json_component()
+        component.to_json_component
       end
 
       it_behaves_like 'component'
@@ -848,7 +848,7 @@ RSpec.describe CycloneDX::CocoaPods::Manufacturer do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| manufacturer.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        manufacturer.to_json_manufacturer()
+        manufacturer.to_json_manufacturer
       end
 
       it_behaves_like 'manufacturer'
@@ -1371,15 +1371,19 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     end
 
     context 'when asked to shorten strings' do
-      let(:short_json) { JSON.parse(bom_builder.bom(version: version, format: :json, trim_strings_length: 6),
-                                    symbolize_names: true) }
+      let(:short_json) {
+        JSON.parse(
+          bom_builder.generate_json(version: version, trim_strings_length: 6),
+          symbolize_names: true
+        )
+      }
 
       it 'should properly trim the author, publisher, and purl' do
         expect(short_json[:components].first).to include(
-           author: 'Chewba',
-           publisher: 'Chewba',
-           purl: 'pkg:cocoapods/Alamofire@5.6.2'
-         )
+          author: 'Chewba',
+          publisher: 'Chewba',
+          purl: 'pkg:cocoapods/Alamofire@5.6.2'
+        )
       end
     end
 
@@ -1420,5 +1424,4 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
       end
     end
   end
-
 end
