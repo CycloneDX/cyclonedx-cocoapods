@@ -294,7 +294,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
     end
   end
 
-
   context 'when generating a pod component in a BOM for JSON' do
     it 'should generate a root component of type library' do
       expect(xml.at('/component')).not_to be_nil
@@ -513,7 +512,6 @@ RSpec.describe CycloneDX::CocoaPods::Pod do
       end
     end
   end
-
 end
 
 RSpec.describe CycloneDX::CocoaPods::Pod::License do
@@ -526,7 +524,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
         end.to_xml)
       end
       let(:json) do
-        license.to_json_component()
+        license.to_json_component
       end
 
       it 'should generate a root license element' do
@@ -624,7 +622,7 @@ RSpec.describe CycloneDX::CocoaPods::Component do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| component.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        component.to_json_component()
+        component.to_json_component
       end
 
       it_behaves_like 'component'
@@ -822,7 +820,7 @@ RSpec.describe CycloneDX::CocoaPods::Manufacturer do
         Nokogiri::XML(Nokogiri::XML::Builder.new(encoding: 'UTF-8') { |xml| manufacturer.add_to_bom(xml) }.to_xml)
       end
       let(:json) do
-        manufacturer.to_json_manufacturer()
+        manufacturer.to_json_manufacturer
       end
       it_behaves_like 'manufacturer'
 
@@ -875,7 +873,7 @@ end
 RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
   context 'when generating a BOM' do
     # Important: these pods are NOT in alphabetical order; they will be sorted in output
-    let(:pods)  do
+    let(:pods) do
       {
         'Alamofire' => '5.6.2',
         'FirebaseAnalytics' => '7.10.0',
@@ -1323,7 +1321,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
   end
 
   context 'when generating a JSON BOM' do
-    let(:pods)  do
+    let(:pods) do
       {
         'Alamofire' => '5.6.2',
         'FirebaseAnalytics' => '7.10.0',
@@ -1363,24 +1361,25 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     it 'should properly generate pod components' do
       expect(bom_json[:components].length).to eq(pods.length)
       expect(bom_json[:components].first).to include(
-                                               type: 'library',
-                                               name: 'Alamofire',
-                                               version: '5.6.2',
-                                               author: 'Chewbacca',
-                                               publisher: 'Chewbacca',
-                                               purl: 'pkg:cocoapods/Alamofire@5.6.2'
-                                             )
+        type: 'library',
+        name: 'Alamofire',
+        version: '5.6.2',
+        author: 'Chewbacca',
+        publisher: 'Chewbacca',
+        purl: 'pkg:cocoapods/Alamofire@5.6.2'
+      )
     end
 
     context 'when asked to shorten strings' do
-      let(:short_json) { JSON.parse(bom_builder.bom(version: version, format: :json, trim_strings_length: 6), symbolize_names: true) }
+      let(:short_json) { JSON.parse(bom_builder.bom(version: version, format: :json, trim_strings_length: 6),
+                                    symbolize_names: true) }
 
       it 'should properly trim the author, publisher, and purl' do
         expect(short_json[:components].first).to include(
-                                                   author: 'Chewba',
-                                                   publisher: 'Chewba',
-                                                   purl: 'pkg:cocoapods/Alamofire@5.6.2'
-                                                 )
+           author: 'Chewba',
+           publisher: 'Chewba',
+           purl: 'pkg:cocoapods/Alamofire@5.6.2'
+         )
       end
     end
 
