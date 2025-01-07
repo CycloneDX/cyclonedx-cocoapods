@@ -150,7 +150,57 @@ module CycloneDX
         end
       end
 
+      def to_json_component(manifest_path, trim_strings_length = 0)
+        {
+          type: 'library',
+          'bom-ref': purl,
+          author: trim(author, trim_strings_length),
+          publisher: trim(author, trim_strings_length),
+          name: name,
+          version: version.to_s,
+          description: description,
+          hashes: generate_json_hashes,
+          licenses: generate_json_licenses,
+          purl: purl,
+          externalReferences: generate_json_external_references,
+          evidence: generate_json_evidence(manifest_path)
+        }.compact
+      end
+
+      def generate_json_external_references
+        refs = []
+        refs << { type: HOMEPAGE_REFERENCE_TYPE, url: homepage } if homepage
+        refs.empty? ? nil : refs
+      end
+
+      def generate_json_evidence(manifest_path)
+        {
+          identity: {
+            field: 'purl',
+            confidence: 0.6,
+            methods: [
+              {
+                technique: 'manifest-analysis',
+                confidence: 0.6,
+                value: manifest_path
+              }
+            ]
+          }
+        }
+      end
+
       class License
+        def to_json_component
+          {
+            license: {
+              id: identifier_type == :id ? identifier : nil,
+              name: identifier_type == :name ? identifier : nil,
+              text: text,
+              url: url
+            }.compact
+          }
+        end
+
         def add_to_bom(xml)
           xml.license do
             xml.id identifier if identifier_type == :id
@@ -159,6 +209,20 @@ module CycloneDX
             xml.url url unless url.nil?
           end
         end
+      end
+
+      private
+
+      def generate_json_licenses
+        license ? [license.to_json_component] : nil
+      end
+
+      def generate_json_hashes
+        checksum ? [{ alg: CHECKSUM_ALGORITHM, content: checksum }] : nil
+      end
+
+      def trim(str, trim_strings_length)
+        trim_strings_length.zero? ? str : str&.slice(0, trim_strings_length)
       end
     end
 
@@ -187,6 +251,27 @@ module CycloneDX
           xml.purl bomref
         end
       end
+
+      def to_json_component
+        {
+          type: type,
+          'bom-ref': bomref,
+          group: group,
+          name: name,
+          version: version,
+          purl: bomref,
+          externalReferences: generate_json_external_references
+        }.compact
+      end
+
+      private
+
+      def generate_json_external_references
+        refs = []
+        refs << { type: 'build-system', url: build_system } if build_system
+        refs << { type: 'vcs', url: vcs } if vcs
+        refs.empty? ? nil : refs
+      end
     end
 
     # Represents manufacturer information in a CycloneDX BOM
@@ -202,7 +287,29 @@ module CycloneDX
         end
       end
 
+      def to_json_manufacturer
+        return nil if all_attributes_nil?
+
+        {
+          name: name,
+          url: url,
+          contact: generate_json_contact
+        }.compact
+      end
+
       private
+
+      def generate_json_contact
+        return nil if contact_info_nil?
+
+        [
+          {
+            name: contact_name,
+            email: email,
+            phone: phone
+          }.compact
+        ]
+      end
 
       def all_attributes_nil?
         [name, url, contact_name, email, phone].all?(&:nil?)
@@ -242,35 +349,97 @@ module CycloneDX
         @manufacturer = manufacturer
       end
 
-      def bom(version: 1, trim_strings_length: 0)
-        unless version.to_i.positive?
-          raise ArgumentError,
-                "Incorrect version: #{version} should be an integer greater than 0"
-        end
+      def bom(version: 1, trim_strings_length: 0, format: :xml)
+        validate_version(version)
+        validate_trim_length(trim_strings_length)
+        validate_format(format)
 
-        unless trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
-          raise ArgumentError,
-                "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
-        end
-
-        unchecked_bom(version: version, trim_strings_length: trim_strings_length)
+        unchecked_bom(version: version, trim_strings_length: trim_strings_length, format: format)
       end
 
       private
 
+      def validate_version(version)
+        return if version.to_i.positive?
+
+        raise ArgumentError, "Incorrect version: #{version} should be an integer greater than 0"
+      end
+
+      def validate_trim_length(trim_strings_length)
+        return if trim_strings_length.is_a?(Integer) && (trim_strings_length.positive? || trim_strings_length.zero?)
+
+        raise ArgumentError, "Incorrect string length: #{trim_strings_length} should be an integer greater than 0"
+      end
+
+      def validate_format(format)
+        return if %i[xml json].include?(format)
+
+        raise ArgumentError, "Incorrect format: #{format} should be either :xml or :json"
+      end
+
       # does not verify parameters because the public method does that.
-      def unchecked_bom(version: 1, trim_strings_length: 0)
+      def unchecked_bom(version:, trim_strings_length:, format:)
+        case format
+        when :json
+          generate_json(version: version, trim_strings_length: trim_strings_length)
+        when :xml
+          generate_xml(version: version, trim_strings_length: trim_strings_length)
+        end
+      end
+
+      def generate_xml(version:, trim_strings_length:)
         Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
           xml.bom(xmlns: NAMESPACE, version: version.to_i.to_s, serialNumber: "urn:uuid:#{SecureRandom.uuid}") do
             bom_metadata(xml)
-
             bom_components(xml, pods, manifest_path, trim_strings_length)
-
             bom_dependencies(xml, dependencies)
           end
         end.to_xml
       end
 
+      def generate_json(version:, trim_strings_length:)
+        {
+          '$schema': 'https://cyclonedx.org/schema/bom-1.6.schema.json',
+          bomFormat: 'CycloneDX',
+          specVersion: '1.6',
+          serialNumber: "urn:uuid:#{SecureRandom.uuid}",
+          version: version.to_s,
+          metadata: generate_json_metadata,
+          components: generate_json_components(trim_strings_length),
+          dependencies: generate_json_dependencies
+        }.to_json
+      end
+
+      def generate_json_metadata
+        {
+          timestamp: Time.now.getutc.strftime('%Y-%m-%dT%H:%M:%SZ'),
+          tools: {
+            components: [{
+              type: 'application',
+              group: 'CycloneDX',
+              name: 'cyclonedx-cocoapods',
+              version: VERSION
+            }]
+          },
+          component: component&.to_json_component,
+          manufacturer: manufacturer&.to_json_manufacturer
+        }.compact
+      end
+
+      def generate_json_components(trim_strings_length)
+        pods.map { |pod| pod.to_json_component(manifest_path, trim_strings_length) }
+      end
+
+      def generate_json_dependencies
+        return nil unless dependencies
+
+        dependencies.map do |ref, deps|
+          {
+            ref: ref,
+            dependsOn: deps.sort
+          }
+        end
+      end
       def bom_components(xml, pods, manifest_path, trim_strings_length)
         xml.components do
           pods.each do |pod|
