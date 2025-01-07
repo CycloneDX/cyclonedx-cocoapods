@@ -80,7 +80,7 @@ module CycloneDX
           end
           options.on('-o', '--output bom_file_path',
                      'Path to output the bom file to (default: "bom.xml"); ' \
-                     'if a *.json file is specified the output format will be json') do |bom_file_path|
+                     'if a *.json file is specified the output format will be JSON') do |bom_file_path|
             parsed_options[:bom_file_path] = bom_file_path
           end
           options.on('-b', '--bom-version bom_version', Integer,
@@ -241,7 +241,7 @@ module CycloneDX
       end
 
       def validate_name_option(options, podspec)
-        unless !podspec.nil? && options[:name] && options[:name] == podspec.name
+        if !podspec.nil? && options[:name] && options[:name] != podspec.name
           raise OptionParser::InvalidArgument,
                 "Component name '#{options[:name]}' does not match podspec name '#{podspec.name}'"
         end
@@ -249,7 +249,7 @@ module CycloneDX
       end
 
       def validate_version_option(options, podspec)
-        unless !podspec.nil? && options[:version] && options[:version] == podspec.version.to_s
+        if !podspec.nil? && options[:version] && options[:version] != podspec.version.to_s
           raise OptionParser::InvalidArgument,
                 "Component version '#{options[:version]}' does not match podspec version '#{podspec.version}'"
         end
@@ -257,8 +257,9 @@ module CycloneDX
       end
 
       def validate_type_option(options, podspec)
-        raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec" unless
-          !podspec.nil? && options[:type] && options[:type] == 'library'
+        if !podspec.nil? && options[:type] && ptions[:type] != 'library'
+          raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec"
+        end
 
         return if podspec.nil?
 

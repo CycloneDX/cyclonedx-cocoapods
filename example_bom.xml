@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bom xmlns="http://cyclonedx.org/schema/bom/1.6" version="1" serialNumber="urn:uuid:fb0dad91-a67c-45f9-86d1-00cd0033c0de">
+<bom xmlns="http://cyclonedx.org/schema/bom/1.6" version="1" serialNumber="urn:uuid:334fe156-f6b7-4891-aa6d-796dedf6d2ab">
   <metadata>
-    <timestamp>2024-10-15T03:43:07Z</timestamp>
+    <timestamp>2025-01-07T03:52:42Z</timestamp>
     <tools>
-      <tool>
-        <vendor>CycloneDX</vendor>
-        <name>cyclonedx-cocoapods</name>
-        <version>1.4.0</version>
-      </tool>
+      <components>
+        <component type="application">
+          <group>CycloneDX</group>
+          <name>cyclonedx-cocoapods</name>
+          <version>2.0.0</version>
+        </component>
+      </components>
     </tools>
-    <component type="application" bom-ref="kizitonwose/PodsUpdater@1.0.3">
-      <name>kizitonwose/PodsUpdater</name>
+    <component type="application" bom-ref="pkg:generic/kizitonwose-PodsUpdater@1.0.3">
+      <name>kizitonwose-PodsUpdater</name>
       <version>1.0.3</version>
+      <externalReferences>
+        <reference type="vcs">
+          <url>https://github.com/kizitonwose/PodsUpdater</url>
+        </reference>
+      </externalReferences>
+      <purl>pkg:generic/kizitonwose-PodsUpdater@1.0.3</purl>
     </component>
   </metadata>
   <components>
@@ -88,9 +96,7 @@
       <publisher>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</publisher>
       <name>RxCocoa</name>
       <version>4.4.2</version>
-      <description><![CDATA[* UI extensions
-* NSURL extensions
-* KVO extensions]]></description>
+      <description><![CDATA[* UI extensions\n* NSURL extensions\n* KVO extensions]]></description>
       <hashes>
         <hash alg="SHA-1">477990dc3b4c3ff55fb0ac77e1cc06244e0aaec8</hash>
       </hashes>
@@ -124,17 +130,7 @@
       <publisher>Krunoslav Zaher &lt;krunoslav.zaher@gmail.com&gt;</publisher>
       <name>RxSwift</name>
       <version>4.4.2</version>
-      <description><![CDATA[This is a Swift port of [ReactiveX.io](https://github.com/ReactiveX)
-
-Like the original [Rx](https://github.com/Reactive-extensions/Rx.Net), its intention is to enable easy composition of asynchronous operations and event streams.
-
-It tries to port as many concepts from the original Rx as possible, but some concepts were adapted for more pleasant and performant integration with iOS/macOS/Linux environment.
-
-Probably the best analogy for those who have never heard of Rx would be:
-
-```
-git diff | grep bug | less          #  linux pipes - programs communicate by sending
-				    #  sequences of bytes, words, lines, ']]></description>
+      <description><![CDATA[This is a Swift port of [ReactiveX.io](https://github.com/ReactiveX)\n\nLike the original [Rx](https://github.com/Reactive-extensions/Rx.Net), its intention is to enable easy composition of asynchronous operations and event streams.\n\nIt tries to port as many concepts from the original Rx as possible, but some concepts were adapted for more pleasant and performant integration with iOS/macOS/Linux environment.\n\nProbably the best analogy for those who have never heard of Rx would be:\n\n```\ngit diff | grep bug | less          #  linux pipes - programs communicate by sending\n\t\t\t\t    #  sequences of bytes, words, lines, '\x00' terminated strings...\n```\nwould become if written in RxSwift\n```\ngitDiff().grep(\"bug\").less          // sequences of swift objects\n```]]></description>
       <hashes>
         <hash alg="SHA-1">74c29b693c8e42b0f64400e8b06564575742d649</hash>
       </hashes>
@@ -165,11 +161,6 @@ git diff | grep bug | less          #  linux pipes - programs communicate by sen
     </component>
   </components>
   <dependencies>
-    <dependency ref="kizitonwose/PodsUpdater@1.0.3">
-      <dependency ref="pkg:cocoapods/Highlightr@2.1.0"/>
-      <dependency ref="pkg:cocoapods/RxCocoa@4.4.2"/>
-      <dependency ref="pkg:cocoapods/RxSwift@4.4.2"/>
-    </dependency>
     <dependency ref="pkg:cocoapods/Highlightr@2.1.0"/>
     <dependency ref="pkg:cocoapods/RxAtomic@4.4.2"/>
     <dependency ref="pkg:cocoapods/RxCocoa@4.4.2">
@@ -177,6 +168,11 @@ git diff | grep bug | less          #  linux pipes - programs communicate by sen
     </dependency>
     <dependency ref="pkg:cocoapods/RxSwift@4.4.2">
       <dependency ref="pkg:cocoapods/RxAtomic@4.4.2"/>
+    </dependency>
+    <dependency ref="pkg:generic/kizitonwose-PodsUpdater@1.0.3">
+      <dependency ref="pkg:cocoapods/Highlightr@2.1.0"/>
+      <dependency ref="pkg:cocoapods/RxCocoa@4.4.2"/>
+      <dependency ref="pkg:cocoapods/RxSwift@4.4.2"/>
     </dependency>
   </dependencies>
 </bom>
