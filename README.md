@@ -88,7 +88,7 @@ OPTIONS
 This repo contains files named `example_bom.xml` and `example_bom.json` that were generated with this tool.
 
 They represent the open source [PodsUpdater application](https://github.com/kizitonwose/PodsUpdater).  The PodsUpdater
-code was checked out, then these threee commands were run in the checked out code directory.
+code was checked out, then these three commands were run in the checked out code directory.
 
 ```shell
 % pod install
