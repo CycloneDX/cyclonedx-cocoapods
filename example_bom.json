@@ -1,0 +1,273 @@
+{
+    "$schema": "https://cyclonedx.org/schema/bom-1.6.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6",
+    "serialNumber": "urn:uuid:b57875d9-a259-4c91-b04b-1e8894898089",
+    "version": "1",
+    "metadata":
+    {
+        "timestamp": "2025-01-07T03:54:06Z",
+        "tools":
+        {
+            "components":
+            [
+                {
+                    "type": "application",
+                    "group": "CycloneDX",
+                    "name": "cyclonedx-cocoapods",
+                    "version": "2.0.0"
+                }
+            ]
+        },
+        "component":
+        {
+            "type": "application",
+            "bom-ref": "pkg:generic/kizitonwose-PodsUpdater@1.0.3",
+            "name": "kizitonwose-PodsUpdater",
+            "version": "1.0.3",
+            "purl": "pkg:generic/kizitonwose-PodsUpdater@1.0.3",
+            "externalReferences":
+            [
+                {
+                    "type": "vcs",
+                    "url": "https://github.com/kizitonwose/PodsUpdater"
+                }
+            ]
+        }
+    },
+    "components":
+    [
+        {
+            "type": "library",
+            "bom-ref": "pkg:cocoapods/Highlightr@2.1.0",
+            "author": "J.P. Illanes <jpillaness@gmail.com>",
+            "publisher": "J.P. Illanes <jpillaness@gmail.com>",
+            "name": "Highlightr",
+            "version": "2.1.0",
+            "description": "Highlightr is an iOS & macOS syntax highlighter built with Swift. It uses highlight.js as it core, supports 176 languages and comes with 79 styles.",
+            "hashes":
+            [
+                {
+                    "alg": "SHA-1",
+                    "content": "595f3e100737c8de41113385da8bd0b5b65212c6"
+                }
+            ],
+            "licenses":
+            [
+                {
+                    "license":
+                    {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "purl": "pkg:cocoapods/Highlightr@2.1.0",
+            "externalReferences":
+            [
+                {
+                    "type": "website",
+                    "url": "http://github.com/raspu/Highlightr"
+                }
+            ],
+            "evidence":
+            {
+                "identity":
+                {
+                    "field": "purl",
+                    "confidence": 0.6,
+                    "methods":
+                    [
+                        {
+                            "technique": "manifest-analysis",
+                            "confidence": 0.6,
+                            "value": "PodsUpdater/Podfile.lock"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "library",
+            "bom-ref": "pkg:cocoapods/RxAtomic@4.4.2",
+            "author": "Krunoslav Zaher <krunoslav.zaher@gmail.com>",
+            "publisher": "Krunoslav Zaher <krunoslav.zaher@gmail.com>",
+            "name": "RxAtomic",
+            "version": "4.4.2",
+            "description": "Atomic primitives for RxSwift.",
+            "hashes":
+            [
+                {
+                    "alg": "SHA-1",
+                    "content": "d00e97c10db88c6f08540e0bf2752fc5a2404167"
+                }
+            ],
+            "licenses":
+            [
+                {
+                    "license":
+                    {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "purl": "pkg:cocoapods/RxAtomic@4.4.2",
+            "externalReferences":
+            [
+                {
+                    "type": "website",
+                    "url": "https://github.com/ReactiveX/RxSwift"
+                }
+            ],
+            "evidence":
+            {
+                "identity":
+                {
+                    "field": "purl",
+                    "confidence": 0.6,
+                    "methods":
+                    [
+                        {
+                            "technique": "manifest-analysis",
+                            "confidence": 0.6,
+                            "value": "PodsUpdater/Podfile.lock"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "library",
+            "bom-ref": "pkg:cocoapods/RxCocoa@4.4.2",
+            "author": "Krunoslav Zaher <krunoslav.zaher@gmail.com>",
+            "publisher": "Krunoslav Zaher <krunoslav.zaher@gmail.com>",
+            "name": "RxCocoa",
+            "version": "4.4.2",
+            "description": "* UI extensions\n* NSURL extensions\n* KVO extensions",
+            "hashes":
+            [
+                {
+                    "alg": "SHA-1",
+                    "content": "477990dc3b4c3ff55fb0ac77e1cc06244e0aaec8"
+                }
+            ],
+            "licenses":
+            [
+                {
+                    "license":
+                    {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "purl": "pkg:cocoapods/RxCocoa@4.4.2",
+            "externalReferences":
+            [
+                {
+                    "type": "website",
+                    "url": "https://github.com/ReactiveX/RxSwift"
+                }
+            ],
+            "evidence":
+            {
+                "identity":
+                {
+                    "field": "purl",
+                    "confidence": 0.6,
+                    "methods":
+                    [
+                        {
+                            "technique": "manifest-analysis",
+                            "confidence": 0.6,
+                            "value": "PodsUpdater/Podfile.lock"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "library",
+            "bom-ref": "pkg:cocoapods/RxSwift@4.4.2",
+            "author": "Krunoslav Zaher <krunoslav.zaher@gmail.com>",
+            "publisher": "Krunoslav Zaher <krunoslav.zaher@gmail.com>",
+            "name": "RxSwift",
+            "version": "4.4.2",
+            "description": "This is a Swift port of [ReactiveX.io](https://github.com/ReactiveX)\n\nLike the original [Rx](https://github.com/Reactive-extensions/Rx.Net), its intention is to enable easy composition of asynchronous operations and event streams.\n\nIt tries to port as many concepts from the original Rx as possible, but some concepts were adapted for more pleasant and performant integration with iOS/macOS/Linux environment.\n\nProbably the best analogy for those who have never heard of Rx would be:\n\n```\ngit diff | grep bug | less          #  linux pipes - programs communicate by sending\n\t\t\t\t    #  sequences of bytes, words, lines, '\u0000' terminated strings...\n```\nwould become if written in RxSwift\n```\ngitDiff().grep(\"bug\").less          // sequences of swift objects\n```",
+            "hashes":
+            [
+                {
+                    "alg": "SHA-1",
+                    "content": "74c29b693c8e42b0f64400e8b06564575742d649"
+                }
+            ],
+            "licenses":
+            [
+                {
+                    "license":
+                    {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "purl": "pkg:cocoapods/RxSwift@4.4.2",
+            "externalReferences":
+            [
+                {
+                    "type": "website",
+                    "url": "https://github.com/ReactiveX/RxSwift"
+                }
+            ],
+            "evidence":
+            {
+                "identity":
+                {
+                    "field": "purl",
+                    "confidence": 0.6,
+                    "methods":
+                    [
+                        {
+                            "technique": "manifest-analysis",
+                            "confidence": 0.6,
+                            "value": "PodsUpdater/Podfile.lock"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "dependencies":
+    [
+        {
+            "ref": "pkg:cocoapods/Highlightr@2.1.0",
+            "dependsOn":
+            []
+        },
+        {
+            "ref": "pkg:cocoapods/RxAtomic@4.4.2",
+            "dependsOn":
+            []
+        },
+        {
+            "ref": "pkg:cocoapods/RxCocoa@4.4.2",
+            "dependsOn":
+            [
+                "pkg:cocoapods/RxSwift@4.4.2"
+            ]
+        },
+        {
+            "ref": "pkg:cocoapods/RxSwift@4.4.2",
+            "dependsOn":
+            [
+                "pkg:cocoapods/RxAtomic@4.4.2"
+            ]
+        },
+        {
+            "ref": "pkg:generic/kizitonwose-PodsUpdater@1.0.3",
+            "dependsOn":
+            [
+                "pkg:cocoapods/Highlightr@2.1.0",
+                "pkg:cocoapods/RxCocoa@4.4.2",
+                "pkg:cocoapods/RxSwift@4.4.2"
+            ]
+        }
+    ]
+}

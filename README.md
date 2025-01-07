@@ -9,7 +9,9 @@
 
 # CycloneDX CocoaPods (Objective-C/Swift)
 
-The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material document from all [CocoaPods](https://cocoapods.org/) project dependencies. CycloneDX is a lightweight BoM specification that is easily created, human readable, and simple to parse.
+The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material document from all
+[CocoaPods](https://cocoapods.org/) project dependencies. CycloneDX is a lightweight BOM specification
+that is easily created, human readable, and simple to parse.
 
 ## Installation
 
@@ -21,14 +23,15 @@ The CycloneDX CocoaPods Gem creates a valid CycloneDX software bill-of-material 
 
 ### From Source
 
-First, clone/copy the source code from GitHub.  Then in the source code directory run these commands (substituting the actual version number for `x.x.x`):
+First, clone/copy the source code from GitHub.  Then in the source code directory run these
+commands (substituting the actual version number for `x.x.x`):
 
 ```shell
 gem build cyclonedx-cocoapods.gemspec
 gem install cyclonedx-cocoapods-x.x.x.gem
 ```
 
-Building from source requires Ruby 2.4.0 or newer.
+Building from source requires Ruby 2.6.3 or newer.
 
 ## Compatibility
 
@@ -49,48 +52,52 @@ OPTIONS
 
   BOM Generation
     -p, --path path                  Path to CocoaPods project directory (default: current directory)
-    -o, --output bom_file_path       Path to output the bom.xml file to (default: "bom.xml")
-    -b, --bom-version bom_version    Version of the generated BOM (default: "1")
+    -o, --output bom_file_path       Path to output the bom file to (default: "bom.xml"); if a *.json file is specified the output format will be JSON
+        --bom-version bom_version    Version of the generated BOM (default: "1")
     -x, --exclude-test-targets       Eliminate Podfile targets whose name contains the word "test"
-    -s, --shortened-strings length   Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems
+        --shortened-strings length   Trim author, publisher, and purl to <length> characters; this may cause data loss but can improve compatibility with other systems
 
   Component Metadata
   If a podspec file is present the name, version, and type do not need to be specified as they will be set automatically.
-
     -n, --name name                  (If specified version and type are also required) Name of the component for which the BOM is generated
     -v, --version version            Version of the component for which the BOM is generated
     -t, --type type                  Type of the component for which the BOM is generated (one of application|framework|library|container|operating-system|device|firmware|file)
     -g, --group group                Group of the component for which the BOM is generated
-    -s, --source source_url          The Version Control System URL of the component for which the BOM is generated
-    -b, --build build_url            The build URL of the component for which the BOM is generated
-    
+    -s, --source source_url          Optional: The version control system URL of the component for the BOM is generated
+    -b, --build build_url            Optional: The build URL of the component for which the BOM is generated
+
   Manufacturer Metadata
-    --manufacturer-name name         Name of the manufacturer
-    --manufacturer-url url           URL of the manufacturer
-    --manufacturer-contact-name name Name of the manufacturer contact
-    --manufacturer-email email       Email of the manufacturer contact
-    --manufacturer-phone phone       Phone number of the manufacturer contact
+        --manufacturer-name name     Name of the manufacturer
+        --manufacturer-url url       URL of the manufacturer
+        --manufacturer-contact-name name
+                                     Name of the manufacturer contact
+        --manufacturer-email email   Email of the manufacturer contact
+        --manufacturer-phone phone   Phone number of the manufacturer contact
 ```
 
-**Output:** BoM file at specified location, `./bom.xml` if not specified
+**Output:** BOM file at specified location, `./bom.xml` if not specified
 
 ### Example
 
 ```shell
-% cyclonedx-cocoapods --path /path/to/cocoapods/project --output /path/to/bom.xml --version 6 
+% cyclonedx-cocoapods --path /path/to/cocoapods/project --output /path/to/bom.xml --version 6
 ```
 
 #### Specific example
 
-This repo contains a file named `example_bom.xml` that was generated with this tool.
+This repo contains files named `example_bom.xml` and `example_bom.json` that were generated with this tool.
 
-It represents the open source [PodsUpdater application](https://github.com/kizitonwose/PodsUpdater).  The PodsUpdater code was checked out,
-then these two commands were run in the checked out code directory.
+They represent the open source [PodsUpdater application](https://github.com/kizitonwose/PodsUpdater).  The PodsUpdater
+code was checked out, then these threee commands were run in the checked out code directory.
 
 ```shell
 % pod install
-% cyclonedx-cocoapods -n "kizitonwose/PodsUpdater" -v 1.0.3 -t application --output example_bom.xml
+% cyclonedx-cocoapods -n "kizitonwose-PodsUpdater" -v 1.0.3 -t application -s https://github.com/kizitonwose/PodsUpdater --output example_bom.xml
+% cyclonedx-cocoapods -n "kizitonwose-PodsUpdater" -v 1.0.3 -t application -s https://github.com/kizitonwose/PodsUpdater --output example_bom.json
 ```
+
+The JSON file here has also been run through a JSON formatter for easier reading by humans.  The original JSON
+output is one long line with no extra whitespace - great for computers, but difficult for humans.
 
 ### A Note About CocoaPod Subspecs
 

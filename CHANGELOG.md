@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0]
+
+### Added
+- Added JSON output if the specified `output` has a `.json` suffix. ([Issue #62](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/62)) [@jeremylong](https://github.com/jeremylong).
+- Added CLI options to set manufacturer metadata about the component being scanned (five separate parameters). ([Issue #72](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/72)) [@jeremylong](https://github.com/jeremylong).
+- Added CLI options to set the VCS URL and build URL of the component being scanned. ([PR #82](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/82)) [@jeremylong](https://github.com/jeremylong).
+
+### Changed
+- Updated to use v1.6 of the CycloneDX specification. ([PR #81](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/81)) [@jeremylong](https://github.com/jeremylong).
+- Updated to use newer `tools` section elements. ([PR #80](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/80)) [@jeremylong](https://github.com/jeremylong).
+- Updated to use a purl for the `bom-ref` of the component being scanned.  When analyzing an app the purl will start with `pkg:generic`. ([PR #84](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/84)) [@jeremylong](https://github.com/jeremylong).
+- Changed the short `-b` CLI parameter to specify the build URL instead of the bom file version.  Use `--bom-version` to specify the bom file version if needed. ([PR #82](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/82)) [@jeremylong](https://github.com/jeremylong).
+- Changed the short `-s` CLI parameter to specify the source VCS URL instead of the shortened string lengths.  Use `--shortened-strings` to specify the max length of strings if needed. ([PR #82](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/82)) [@jeremylong](https://github.com/jeremylong).
+
+### Fixed
+- Fixed XML output when Pod description contains a null byte. ([Issue #85](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/85)) [@fnxpt](https://github.com/fnxpt).
+
 ## [1.4.1]
 
 ### Changed
