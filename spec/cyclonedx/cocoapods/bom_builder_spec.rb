@@ -1353,7 +1353,7 @@ RSpec.describe CycloneDX::CocoaPods::BOMBuilder do
     it 'should generate proper root level attributes' do
       expect(bom_json[:bomFormat]).to eq('CycloneDX')
       expect(bom_json[:specVersion]).to eq('1.6')
-      expect(bom_json[:version]).to eq(version.to_s)
+      expect(bom_json[:version]).to eq(version.to_i)
       expect(bom_json[:serialNumber]).to match(/urn:uuid:.*/)
     end
 

@@ -403,7 +403,7 @@ module CycloneDX
           bomFormat: 'CycloneDX',
           specVersion: '1.6',
           serialNumber: "urn:uuid:#{SecureRandom.uuid}",
-          version: version.to_s,
+          version: version.to_i,
           metadata: generate_json_metadata,
           components: generate_json_components(trim_strings_length),
           dependencies: generate_json_dependencies
@@ -440,6 +440,7 @@ module CycloneDX
           }
         end
       end
+
       def bom_components(xml, pods, manifest_path, trim_strings_length)
         xml.components do
           pods.each do |pod|
@@ -468,6 +469,7 @@ module CycloneDX
           manufacturer&.add_to_bom(xml)
         end
       end
+
       def bom_tools(xml)
         xml.tools do
           xml.components do
