@@ -583,7 +583,7 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
         end
         context 'for JSON' do
           it 'should create text element' do
-            expect(json[:license][:text]).to eq(license.text)
+            expect(json[:license][:text]).to eq({ content: license.text, contentType: 'text/plain' })
           end
         end
       end
@@ -603,6 +603,24 @@ RSpec.describe CycloneDX::CocoaPods::Pod::License do
           it 'should create text element' do
             expect(json[:license][:url]).to eq(license.url)
           end
+        end
+      end
+
+      context 'for JSON' do
+        it 'should create text element as an object when text is plain text' do
+          license_with_text = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
+          license_with_text.text = 'Copyright 2022 Google'
+          json = license_with_text.to_json_component
+          expect(json[:license][:text]).to eq({ content: 'Copyright 2022 Google', contentType: 'text/plain' })
+          expect(json[:license][:url]).to be_nil
+        end
+
+        it 'should use url field when text is a URL' do
+          license_with_url_text = described_class.new(identifier: described_class::SPDX_LICENSES.sample)
+          license_with_url_text.text = 'https://developers.google.com/terms/'
+          json = license_with_url_text.to_json_component
+          expect(json[:license][:url]).to eq('https://developers.google.com/terms/')
+          expect(json[:license][:text]).to be_nil
         end
       end
     end

@@ -191,14 +191,23 @@ module CycloneDX
 
       class License
         def to_json_component
-          {
-            license: {
-              id: identifier_type == :id ? identifier : nil,
-              name: identifier_type == :name ? identifier : nil,
-              text: text,
-              url: url
-            }.compact
+          license_hash = {
+            id: identifier_type == :id ? identifier : nil,
+            name: identifier_type == :name ? identifier : nil
           }
+
+          if text && text.is_a?(String) && text.match?(/^https?:\/\//)
+            license_hash[:url] = text
+          elsif text && text.is_a?(String)
+            license_hash[:text] = {
+              content: text,
+              contentType: 'text/plain'
+            }
+          end
+
+          license_hash[:url] = url if url && !license_hash[:url]
+
+          { license: license_hash.compact }
         end
 
         def add_to_bom(xml)
