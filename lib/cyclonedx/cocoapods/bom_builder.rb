@@ -32,7 +32,7 @@ module CycloneDX
         CDN_REPOSITORY = 'trunk'
 
         def source_qualifier
-          url == LEGACY_REPOSITORY || url == CDN_REPOSITORY ? {} : { repository_url: url }
+          [LEGACY_REPOSITORY, CDN_REPOSITORY].include?(url) ? {} : { repository_url: url }
         end
       end
 
@@ -191,21 +191,9 @@ module CycloneDX
 
       class License
         def to_json_component
-          license_hash = {
-            id: identifier_type == :id ? identifier : nil,
-            name: identifier_type == :name ? identifier : nil
-          }
-
-          if text && text.is_a?(String) && text.match?(/^https?:\/\//)
-            license_hash[:url] = text
-          elsif text && text.is_a?(String)
-            license_hash[:text] = {
-              content: text,
-              contentType: 'text/plain'
-            }
-          end
-
-          license_hash[:url] = url if url && !license_hash[:url]
+          license_hash = build_basic_license_hash
+          add_text_or_url_to_hash(license_hash)
+          add_existing_url_to_hash(license_hash)
 
           { license: license_hash.compact }
         end
@@ -217,6 +205,32 @@ module CycloneDX
             xml.text_ text unless text.nil?
             xml.url url unless url.nil?
           end
+        end
+
+        private
+
+        def build_basic_license_hash
+          {
+            id: identifier_type == :id ? identifier : nil,
+            name: identifier_type == :name ? identifier : nil
+          }
+        end
+
+        def add_text_or_url_to_hash(license_hash)
+          return unless text.is_a?(String)
+
+          if text.match?(%r{^https?://})
+            license_hash[:url] = text
+          else
+            license_hash[:text] = {
+              content: text,
+              contentType: 'text/plain'
+            }
+          end
+        end
+
+        def add_existing_url_to_hash(license_hash)
+          license_hash[:url] = url if url && !license_hash[:url]
         end
       end
 
