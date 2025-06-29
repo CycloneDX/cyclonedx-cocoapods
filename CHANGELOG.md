@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2]
+
+### Fixed
+- Fixed license JSON format to comply with CycloneDX 1.6 specification. License text field now uses AttachedText object format, and URLs are properly placed in url field instead of text field.
+([PR #92](https://github.com/CycloneDX/cyclonedx-cocoapods/pull/92))
+([Issue #91](https://github.com/CycloneDX/cyclonedx-cocoapods/issues/91)) [@flyingdog1310](https://github.com/flyingdog1310).
+
 ## [2.0.1]
 
 ### Fixed
