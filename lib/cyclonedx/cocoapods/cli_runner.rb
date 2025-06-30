@@ -257,7 +257,7 @@ module CycloneDX
       end
 
       def validate_type_option(options, podspec)
-        if !podspec.nil? && options[:type] && ptions[:type] != 'library'
+        if !podspec.nil? && options[:type] && options[:type] != 'library'
           raise OptionParser::InvalidArgument, "Component type must be 'library' when using a podspec"
         end
 
